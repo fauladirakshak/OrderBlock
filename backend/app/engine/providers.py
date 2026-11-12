@@ -103,6 +103,10 @@ def configured_provider(instrument: Instrument):
     if selected == "synthetic":
         from app.engine.market_data import demo_provider
         return demo_provider
+    if selected == "auto":
+        if instrument.venue_id == "BINANCE:SPOT" and instrument.contract_type == "spot":
+            return BinanceSpotProvider()
+        return TwelveDataProvider()
     if selected == "twelvedata":
         return TwelveDataProvider()
     if selected == "binance":
