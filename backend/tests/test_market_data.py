@@ -44,3 +44,33 @@ def test_market_data_api_rejects_unknown_timeframe():
         params={"market": "forex", "symbol": "EUR/USD", "timeframe": "2H"},
     )
     assert response.status_code == 422
+
+
+def test_market_data_api_includes_venue_contract_and_session_metadata():
+    response = client.get("/api/v1/market-data/candles", params={
+        "market": "stocks", "symbol": "RELIANCE", "venue_id": "XNSE:EQUITY",
+        "contract_type": "equity", "timeframe": "1D", "limit": 20,
+    })
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["venue_id"] == "XNSE:EQUITY"
+    assert payload["contract_type"] == "equity"
+    assert payload["timezone"] == "Asia/Kolkata"
+    assert payload["session"] == "exchange_calendar"
+    assert payload["price_precision"] == 2
+    assert payload["tick_size"] == 0.05
+
+
+def test_market_data_api_rejects_wrong_market_for_instrument():
+    response = client.get("/api/v1/market-data/candles", params={
+        "market": "crypto", "symbol": "EUR/USD", "timeframe": "1H", "limit": 20,
+    })
+    assert response.status_code == 422
+
+
+def test_market_data_api_requires_matching_venue_and_contract_identity():
+    response = client.get("/api/v1/market-data/candles", params={
+        "market": "crypto", "symbol": "BTC/USDT", "venue_id": "OTHER:SPOT",
+        "contract_type": "spot", "timeframe": "1H", "limit": 20,
+    })
+    assert response.status_code == 422
