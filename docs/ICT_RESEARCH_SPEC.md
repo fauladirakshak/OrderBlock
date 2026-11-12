@@ -1,12 +1,12 @@
-# ICT-inspired strategy research rules
+# Combined SMC reverse-engineering research rules
 
 **Status:** research specification in progress. The currently implemented detector is a basic price-action baseline, not a complete ICT strategy or a claim to reproduce a proprietary indicator.
 
 ## Research stance
 
-OrderBlock uses publicly described ICT concepts as a methodology reference. It does not claim to recover private source code, undisclosed algorithms, or the exact internal rules of any paid indicator. The product will implement independently written, deterministic rules and retain the evidence behind every event.
+OrderBlock uses a comparative research approach. ICT is a foundational methodology reference, studied alongside publicly observable TradingView indicators, open-source SMC implementations, and other established public methodologies. It does not claim to recover private source code, undisclosed algorithms, or the exact internal rules of any paid indicator. The product will implement independently written, deterministic rules and retain the evidence behind every event.
 
-ICT terminology is not always used identically across lessons, time periods, traders, and public scripts. Where definitions vary, OrderBlock will expose named rule profiles and parameters rather than presenting one interpretation as canonical.
+ICT and SMC terminology is not always used identically across lessons, time periods, traders, and public scripts. Where definitions vary, OrderBlock will expose named rule profiles and parameters rather than presenting one interpretation as canonical. The comparative framework in `docs/COMPARATIVE_RESEARCH_FRAMEWORK.md` governs how sources are evaluated.
 
 ## Analysis sequence
 
@@ -82,7 +82,7 @@ No default profile should silently mix these definitions. Every event stores the
 
 ## Research references
 
-These are secondary explanations and public implementations used for comparison, not authoritative substitutes for primary ICT lessons:
+These are initial public research references used for comparison, not authoritative substitutes for primary source material:
 
 - [ICT 2024 Mentorship lecture notes](https://innercircletrader.net/tutorials/ict-2024/lecture-1/)
 - [ICT concepts: order blocks, FVGs and premium/discount](https://www.tmgm.com/en-in/academy/trading-academy/ict-trading)
