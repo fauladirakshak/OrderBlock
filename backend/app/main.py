@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from app.engine.markets import list_markets
+from app.engine.markets import list_markets\nfrom app.engine.providers import ProviderConfigurationError, MarketDataProviderError
 from app.engine.structure import Candle, StructureResult, detect_structure
 from app.engine.zones import ZoneAnalysis, analyze_zones
 from app.engine.setups import SetupAnalysis, SetupProfile, analyze_setups
@@ -90,4 +90,4 @@ def get_market_candles(
     limit: int = Query(default=200, ge=20, le=1000),
 ) -> CandleSeries:
     """Return OHLC candles from the configured provider (demo provider for now)."""
-    return load_candle_series(market, symbol, timeframe, limit)
+    try:\n        return load_candle_series(market, symbol, timeframe, limit, venue_id, contract_type)\n    except (ProviderConfigurationError, MarketDataProviderError) as exc:\n        raise HTTPException(status_code=503, detail=str(exc)) from exc\n    except ValueError as exc:\n        raise HTTPException(status_code=422, detail=str(exc)) from exc
