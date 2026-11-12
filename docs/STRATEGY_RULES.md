@@ -93,3 +93,18 @@ These are secondary explanations and public implementations used for comparison,
 ## REA role
 
 morluto/rea is a general reverse-engineering toolkit for authorized inspection of applications, websites, runtime behavior and binaries. It is not a trading-strategy library. Use it only where there is an accessible target and a lawful, authorized inspection path. It does not grant access to private or paid source code, and it is not a reason to bypass authentication, DRM, or licensing controls.
+
+
+### ICT-inspired confluence profile v0.1 (new research candidate engine)
+
+The API endpoint `POST /api/v1/analysis/setups` exposes a configurable candidate profile. Its sequence is:
+
+1. A previously confirmed swing high/low is swept by a wick and the candle closes back inside the level.
+2. Within the configured lookback, a later close-based structure event occurs in the reversal direction.
+3. The structure-event candle meets a displacement threshold against the average range of prior candles and a minimum body-to-range fraction.
+4. By default, a three-candle FVG must also be present, with its middle candle immediately preceding the structure-event candle.
+5. The response links the sweep, liquidity level, structure event, displacement measurements, FVG and nearest opposing candle.
+
+Default parameters: pivot 2, sweep lookback 20 bars, prior-range period 14, displacement at least 1.2 times prior average range, body fraction at least 0.60, and FVG required.
+
+This is an explicit, testable interpretation—not an authoritative ICT definition. The v0.1 implementation uses the same closed candle for displacement and structure confirmation; it does not yet model protected swings, dealing ranges, session liquidity, premium/discount, OTE, breaker conversion, or full lifecycle states. The nearest opposing candle is contextual evidence only and is not independently a qualified order block. All outputs remain research candidates, not trade instructions.
