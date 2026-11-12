@@ -193,3 +193,58 @@ def test_setup_api_rejects_insufficient_history():
         },
     )
     assert response.status_code == 422
+
+
+def test_emits_bearish_candidate_for_high_sweep_and_bearish_displacement(monkeypatch):
+    candles = make_candles()
+    candles[7] = Candle(
+        timestamp=candles[7].timestamp,
+        open=11.5, high=13.0, low=11.0, close=11.5, volume=100,
+    )
+    candles[10] = Candle(
+        timestamp=candles[10].timestamp,
+        open=14.0, high=14.2, low=10.2, close=10.5, volume=100,
+    )
+    bearish_structure = StructureResult(
+        swing_highs=[{
+            "index": 3,
+            "confirmation_index": 5,
+            "timestamp": "2026-01-01T00:03:00Z",
+            "price": 12.0,
+        }],
+        swing_lows=[],
+        events=[StructureEvent(
+            kind="CHoCH",
+            direction="bearish",
+            level=9.0,
+            candle_index=10,
+            timestamp="2026-01-01T00:10:00Z",
+            explanation="Fixture bearish close break",
+        )],
+    )
+    bearish_gap = FairValueGap(
+        direction="bearish",
+        middle_candle_index=9,
+        timestamp="2026-01-01T00:09:00Z",
+        top=12.0,
+        bottom=11.5,
+        mitigated=False,
+        filled=False,
+        rule="fixture",
+    )
+    monkeypatch.setattr(setups, "detect_structure", lambda candles, pivot: bearish_structure)
+    monkeypatch.setattr(setups, "detect_fair_value_gaps", lambda candles: [bearish_gap])
+
+    result = analyze_setups(
+        candles,
+        SetupProfile(pivot=2, sweep_lookback=10, atr_period=5),
+    )
+
+    assert len(result.setups) == 1
+    candidate = result.setups[0]
+    assert candidate.direction == "bearish"
+    assert candidate.sweep_index == 7
+    assert candidate.liquidity_level == 12.0
+    assert candidate.structure_kind == "CHoCH"
+    assert candidate.fvg_index == 9
+    assert candidate.order_block_index == 9
