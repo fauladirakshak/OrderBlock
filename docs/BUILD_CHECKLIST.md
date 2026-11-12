@@ -13,7 +13,8 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 - [x] Four market-data provider/API tests covering deterministic output, timeframe spacing, API metadata and invalid timeframe handling.
 - [x] GitHub Actions backend test and frontend build workflows.
 - [x] Backend test job passed on the provider/API implementation commit.
-- [~] Frontend production build: an earlier run exposed a TypeScript syntax issue; corrected in the latest commit and awaiting the new CI result.
+- [x] Frontend production TypeScript/Vite build passed in GitHub Actions.
+- [x] Full backend test + frontend build workflow passed on commit 537f3dae000a00828fa0c4e7e018e3a683f69e9d.
 
 ## Phase 2 — Trading workspace
 
