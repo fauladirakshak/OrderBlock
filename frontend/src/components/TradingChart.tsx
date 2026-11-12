@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import {
   CandlestickSeries,
   ColorType,
+  LineStyle,
   createChart,
   type CandlestickData,
   type IChartApi,
@@ -54,7 +55,7 @@ export default function TradingChart({
         secondsVisible: false,
       },
       crosshair: {
-        vertLine: { color: "#71838e", width: 1, style: 2, labelBackgroundColor: "#263a43" },
+        vertLine: { color: "#71838e", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#263a43" },
         horzLine: { color: "#71838e", width: 1, style: 2, labelBackgroundColor: "#263a43" },
       },
       handleScroll: true,
