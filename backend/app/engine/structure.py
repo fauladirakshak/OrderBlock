@@ -1,9 +1,13 @@
 """Deterministic, candle-based market structure primitives.
 
 Events are rule-based observations of supplied OHLCV candles, not predictions.
+Swing points are only eligible after all right-side confirmation candles have
+closed; a swing cannot be used on its own confirmation candle.
 """
 from __future__ import annotations
+
 from typing import Literal
+
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -40,23 +44,32 @@ class StructureResult(BaseModel):
 
 
 def detect_structure(candles: list[Candle], pivot: int = 2) -> StructureResult:
-    """Find confirmed pivots and close-based breaks of the latest opposing swing.
+    """Find confirmed pivots and close-based breaks without pivot lookahead.
 
-    A pivot at i is confirmed only after pivot candles have printed to its right.
-    The first break is labelled BOS; a break against the current direction is CHoCH.
+    A pivot at index p is confirmed by the p+1 ... p+pivot candles. It becomes
+    eligible only on bars strictly after that confirmation bar. This conservative
+    rule prevents a bar from both confirming and breaking the same swing.
     """
     if pivot < 1:
         raise ValueError("pivot must be at least 1")
+
     highs: list[dict] = []
     lows: list[dict] = []
     for i in range(pivot, len(candles) - pivot):
         window = candles[i - pivot:i + pivot + 1]
         current = candles[i]
         others = [c for j, c in enumerate(window) if j != pivot]
+        confirmation_index = i + pivot
         if all(current.high > c.high for c in others):
-            highs.append({"index": i, "timestamp": current.timestamp, "price": current.high})
+            highs.append({
+                "index": i, "confirmation_index": confirmation_index,
+                "timestamp": current.timestamp, "price": current.high,
+            })
         if all(current.low < c.low for c in others):
-            lows.append({"index": i, "timestamp": current.timestamp, "price": current.low})
+            lows.append({
+                "index": i, "confirmation_index": confirmation_index,
+                "timestamp": current.timestamp, "price": current.low,
+            })
 
     events: list[StructureEvent] = []
     direction: Literal["bullish", "bearish"] | None = None
@@ -64,8 +77,15 @@ def detect_structure(candles: list[Candle], pivot: int = 2) -> StructureResult:
     broken_lows: set[int] = set()
 
     for i, candle in enumerate(candles):
-        available_highs = [p for p in highs if p["index"] < i and p["index"] not in broken_highs]
-        available_lows = [p for p in lows if p["index"] < i and p["index"] not in broken_lows]
+        available_highs = [
+            p for p in highs
+            if p["confirmation_index"] < i and p["index"] not in broken_highs
+        ]
+        available_lows = [
+            p for p in lows
+            if p["confirmation_index"] < i and p["index"] not in broken_lows
+        ]
+
         if available_highs:
             candidate = available_highs[-1]
             if candle.close > candidate["price"]:
@@ -77,6 +97,7 @@ def detect_structure(candles: list[Candle], pivot: int = 2) -> StructureResult:
                 ))
                 direction = "bullish"
                 broken_highs.add(candidate["index"])
+
         if available_lows:
             candidate = available_lows[-1]
             if candle.close < candidate["price"]:
@@ -88,4 +109,5 @@ def detect_structure(candles: list[Candle], pivot: int = 2) -> StructureResult:
                 ))
                 direction = "bearish"
                 broken_lows.add(candidate["index"])
+
     return StructureResult(swing_highs=highs, swing_lows=lows, events=events)
