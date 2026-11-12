@@ -28,9 +28,14 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 - [x] README setup and endpoint documentation.
 - [ ] Add provider adapters for licensed historical Forex, crypto and exchange-listed market data.
 - [ ] Add venue / contract identifiers and market-specific session, timezone and price-precision metadata to the chart request.
-- [ ] Connect structure, BOS / CHoCH, order-block, FVG and liquidity-sweep overlays.
+- [x] Add combined backend workspace-analysis endpoint for structure, order-block, FVG and liquidity-sweep annotations.
+- [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
+- [x] Render order-block and FVG boundary levels with mitigation / fill status labels.
+- [x] Add overlay counts and explanatory status panel.
+- [~] Verify the new overlay endpoint and frontend chart integration in CI.
 - [ ] Add multi-timeframe workspace and higher-timeframe context.
-- [ ] Add chart-side analysis panel and explainable setup annotations.
+- [x] Add chart-side overlay summary and explainable engine notes.
+- [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
 - [ ] Add historical-data caching and persistence.
 - [ ] Add live streaming only after provider selection, licensing review and reconnect handling.
 
