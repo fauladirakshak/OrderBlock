@@ -34,7 +34,7 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 - [x] Add overlay counts and explanatory status panel.
 - [x] Backend overlay endpoint tests passed in GitHub Actions on the overlay integration commit.
 - [x] Add a focused regression test proving a sweep is only marked after swing confirmation.
-- [~] Re-run full CI after the latest focused sweep regression test.
+- [x] Full backend test suite, including the focused liquidity-sweep regression test, passed in GitHub Actions on commit cab7bf3527d5c136fd91cbe965d596536adff6f0.
 - [x] Frontend chart overlay TypeScript/Vite build passed in GitHub Actions.
 - [ ] Add multi-timeframe workspace and higher-timeframe context.
 - [x] Add chart-side overlay summary and explainable engine notes.
