@@ -8,9 +8,6 @@ import {
   type CandlestickData,
   type UTCTimestamp,
   type SeriesMarker,
-  type IChartApi,
-  type ISeriesApi,
-  type CandlestickSeries as CandlestickSeriesType,
 } from "lightweight-charts";
 
 export type TradingCandle = { time: number; open: number; high: number; low: number; close: number };
