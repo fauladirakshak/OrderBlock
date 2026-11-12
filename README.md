@@ -112,4 +112,4 @@ Set `VITE_API_BASE_URL` in the frontend environment when the API is not running 
 
 ### Static preview
 
-A GitHub Pages workflow builds a static UI preview using clearly labelled deterministic synthetic candles when the backend is not connected. This static preview demonstrates the workspace layout and chart interactions only; backend-computed BOS/CHoCH, order-block, FVG and liquidity-sweep overlays require the FastAPI service. Never treat preview candles as market quotes.
+A GitHub Pages workflow builds a static UI preview using clearly labelled deterministic synthetic candles when the backend is not connected. Enable GitHub Pages in repository Settings → Pages → Build and deployment → Source: GitHub Actions to publish it. The static preview demonstrates the workspace layout and chart interactions only; backend-computed BOS/CHoCH, order-block, FVG and liquidity-sweep overlays require the FastAPI service. Never treat preview candles as market quotes.
