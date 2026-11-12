@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+from app.engine.markets import list_markets
 from app.engine.structure import Candle, StructureResult, detect_structure
 
-app = FastAPI(title="OrderBlock API", version="0.1.0",
-              description="Research-first market structure analysis. Not investment advice.")
+app = FastAPI(title="OrderBlock API", version="0.2.0",
+              description="Multi-market, research-first price-action analysis. Not investment advice.")
 
 
 class StructureRequest(BaseModel):
@@ -14,6 +15,12 @@ class StructureRequest(BaseModel):
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "orderblock-api"}
+
+
+@app.get("/api/v1/markets")
+def markets() -> dict:
+    """Return supported market categories and instrument metadata, not live prices."""
+    return list_markets()
 
 
 @app.post("/api/v1/analysis/structure", response_model=StructureResult)
