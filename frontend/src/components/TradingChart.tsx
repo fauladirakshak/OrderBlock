@@ -17,9 +17,9 @@ export type ChartOverlay = {
   fair_value_gaps: Array<{ direction: "bullish" | "bearish"; middle_candle_index: number; timestamp: string; top: number; bottom: number; mitigated: boolean; filled: boolean; rule: string }>;
   liquidity_sweeps: Array<{ direction: "bullish" | "bearish"; candle_index: number; timestamp: string; level: number; explanation: string }>;
 };
-type TradingChartProps = { candles: TradingCandle[]; overlays?: ChartOverlay | null; ariaLabel?: string };
+type TradingChartProps = { candles: TradingCandle[]; overlays?: ChartOverlay | null; ariaLabel?: string; pricePrecision?: number; tickSize?: number };
 
-export default function TradingChart({ candles, overlays, ariaLabel = "Interactive candlestick chart with price-action annotations" }: TradingChartProps) {
+export default function TradingChart({ candles, overlays, ariaLabel = "Interactive candlestick chart with price-action annotations", pricePrecision = 5, tickSize = 0.00001 }: TradingChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -37,7 +37,7 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
       handleScroll: true, handleScale: true,
     });
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#55bba5", downColor: "#ca7275", borderUpColor: "#55bba5", borderDownColor: "#ca7275", wickUpColor: "#62c4ae", wickDownColor: "#d77c7c",
+      upColor: "#55bba5", downColor: "#ca7275", borderUpColor: "#55bba5", borderDownColor: "#ca7275", wickUpColor: "#62c4ae", wickDownColor: "#d77c7c", priceFormat: { type: "price", precision: pricePrecision, minMove: tickSize },
     });
     const data: CandlestickData<UTCTimestamp>[] = candles.map(c => ({ time: c.time as UTCTimestamp, open: c.open, high: c.high, low: c.low, close: c.close }));
     series.setData(data);
@@ -115,7 +115,7 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
     const observer = new ResizeObserver(drawZones);
     observer.observe(container);
     return () => { observer.disconnect(); chart.timeScale().unsubscribeVisibleTimeRangeChange(onVisibleRange); chart.remove(); };
-  }, [candles, overlays]);
+  }, [candles, overlays, pricePrecision, tickSize]);
 
   return <div className="chart-stage" role="img" aria-label={ariaLabel}>
     <div ref={containerRef} className="chart-canvas" />
