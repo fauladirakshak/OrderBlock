@@ -14,6 +14,24 @@ const instruments: Record<Market, string[]> = {
   Stocks: ["NIFTY 50", "BANKNIFTY", "RELIANCE", "HDFCBANK", "INFY"],
 };
 const timeframes = ["5m", "15m", "1H", "4H", "1D", "1W"];
+const timeframeSeconds: Record<string, number> = { "5m": 300, "15m": 900, "1H": 3600, "4H": 14400, "1D": 86400, "1W": 604800 };
+function makePreviewCandles(market: Market, symbol: string, timeframe: string) {
+  const interval = timeframeSeconds[timeframe] || 3600;
+  const seed = Array.from((market + symbol).toLowerCase()).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const base = market === "Forex" ? 1.08 : market === "Crypto" ? 42000 : 24000;
+  const scale = market === "Forex" ? 0.0007 : market === "Crypto" ? 55 : 12;
+  let previous = base + (seed % 97) * scale;
+  const end = Date.UTC(2026, 0, 1) / 1000;
+  return Array.from({ length: 140 }, (_, index) => {
+    const wave = Math.sin((index + seed) * 1.71) * scale * 1.7 + Math.cos((index + seed) * 0.39) * scale * 0.7;
+    const open = previous;
+    const close = Math.max(0.00001, open + wave);
+    const wick = scale * (0.6 + (Math.sin(index * 2.1 + seed) + 1) * 0.4);
+    const time = end - interval * (139 - index);
+    previous = close;
+    return { timestamp: new Date(time * 1000).toISOString(), open, high: Math.max(open, close) + wick, low: Math.max(0.000001, Math.min(open, close) - wick), close };
+  });
+}
 
 function App() {
   const [market, setMarket] = useState<Market>("Forex");
@@ -34,13 +52,25 @@ function App() {
       try {
         const params = new URLSearchParams({ market: apiMarkets[market], symbol: instrument, timeframe, limit: "200" });
         const requestUrl = API_BASE + "/api/v1/market-data/candles?" + params.toString();
-        const response = await fetch(requestUrl, { signal: controller.signal });
-        if (!response.ok) throw new Error("Market data API returned HTTP " + response.status);
-        const payload = await response.json() as CandleResponse;
+        let payload: CandleResponse;
+        try {
+          const response = await fetch(requestUrl, { signal: controller.signal });
+          if (!response.ok) throw new Error("Market data API returned HTTP " + response.status);
+          payload = await response.json() as CandleResponse;
+        } catch (fetchFailure) {
+          if (controller.signal.aborted) return;
+          if (import.meta.env.VITE_PREVIEW_MODE !== "true") throw fetchFailure;
+          payload = { provider: "preview-synthetic", is_synthetic: true, candles: makePreviewCandles(market, instrument, timeframe) };
+        }
         const parsed = payload.candles.map(c => ({ time: Math.floor(Date.parse(c.timestamp) / 1000), open: c.open, high: c.high, low: c.low, close: c.close }));
         if (parsed.some(c => !Number.isFinite(c.time))) throw new Error("Invalid candle timestamp returned by API.");
         setCandles(parsed);
         setProvider(payload.provider);
+        if (payload.provider === "preview-synthetic") {
+          setOverlays(null);
+          setAnalysisError("Static preview mode: backend overlays appear when the FastAPI service is connected.");
+          return;
+        }
         try {
           const analysisResponse = await fetch(API_BASE + "/api/v1/analysis/workspace", {
             method: "POST",
