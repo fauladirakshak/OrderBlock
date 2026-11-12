@@ -36,9 +36,9 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add a focused regression test proving a sweep is only marked after swing confirmation.
 - [x] Full backend test suite, including the focused liquidity-sweep regression test, passed in GitHub Actions on commit cab7bf3527d5c136fd91cbe965d596536adff6f0.
 - [x] Frontend chart overlay TypeScript/Vite build passed in GitHub Actions.
-- [~] Add independent higher-timeframe structure analysis and bullish / bearish / mixed / neutral alignment endpoint.
-- [~] Add multi-timeframe API tests for valid context, timeframe ordering and missing primary series.
-- [ ] Integrate multi-timeframe context into the frontend workspace and selected chart.
+- [x] Add independent higher-timeframe structure analysis and bullish / bearish / mixed / neutral alignment endpoint.
+- [x] Add multi-timeframe API tests for valid context, timeframe ordering and missing primary series (CI verified).
+- [~] Integrate multi-timeframe context into the frontend workspace and selected chart; awaiting frontend build verification.
 - [ ] Add shaded rectangular order-block and FVG regions (current chart shows boundary price lines).
 - [x] Add chart-side overlay summary and explainable engine notes.
 - [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
