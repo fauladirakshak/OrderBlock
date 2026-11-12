@@ -31,7 +31,8 @@ function App() {
       setDataError("");
       try {
         const params = new URLSearchParams({ market: apiMarkets[market], symbol: instrument, timeframe, limit: "200" });
-        const response = await fetch(\`\${API_BASE}/api/v1/market-data/candles?\${params.toString()}\`, { signal: controller.signal });
+        const requestUrl = API_BASE + "/api/v1/market-data/candles?" + params.toString();
+        const response = await fetch(requestUrl, { signal: controller.signal });
         if (!response.ok) throw new Error(\`Market data API returned HTTP \${response.status}\`);
         const payload = await response.json() as CandleResponse;
         const parsed = payload.candles.map(c => ({ time: Math.floor(Date.parse(c.timestamp) / 1000), open: c.open, high: c.high, low: c.low, close: c.close }));
