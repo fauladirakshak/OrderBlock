@@ -38,8 +38,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Frontend chart overlay TypeScript/Vite build passed in GitHub Actions.
 - [x] Add independent higher-timeframe structure analysis and bullish / bearish / mixed / neutral alignment endpoint.
 - [x] Add multi-timeframe API tests for valid context, timeframe ordering and missing primary series (CI verified).
-- [~] Integrate multi-timeframe context into the frontend workspace and selected chart; awaiting frontend build verification.
-- [ ] Add shaded rectangular order-block and FVG regions (current chart shows boundary price lines).
+- [x] Integrate multi-timeframe context into the frontend workspace and selected chart; CI verified on commit e7ebfea404c275b7e42a0709c2e40fd1168985a1.
+- [~] Add shaded rectangular order-block and FVG regions using a responsive canvas overlay; awaiting CI and visual verification.
 - [x] Add chart-side overlay summary and explainable engine notes.
 - [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
 - [x] Publish the static preview on GitHub Pages; user confirmed successful mobile loading with screenshot.
