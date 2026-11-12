@@ -59,7 +59,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 ## Provider rollout prerequisites
 
-- [x] Server-side provider selection via ORDERBLOCK_DATA_PROVIDER.
+- [x] Server-side provider selection via ORDERBLOCK_DATA_PROVIDER, including auto-routing (Binance Spot for crypto; Twelve Data for Forex/equities).
 - [x] Twelve Data adapter reads TWELVEDATA_API_KEY only on the backend.
 - [x] Binance public Spot adapter uses the market-data-only endpoint and rejects non-Binance Spot contracts.
 - [x] Normalize provider timestamps to UTC and preserve venue/session metadata in the candle response.
