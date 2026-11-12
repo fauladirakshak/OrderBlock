@@ -19,10 +19,12 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
 - Responsive synthetic candlestick chart, visibly labelled as demo data.
 - Backend market catalogue at `GET /api/v1/markets`.
 - Deterministic confirmed swing, BOS and CHoCH engine.
-- Explainable order-block and three-candle FVG candidate engine.
+- Explainable baseline order-block and three-candle FVG candidate engine.
+- Configurable ICT-inspired confluence candidate engine: liquidity sweep, displacement, structure break and optional FVG.
 - Analysis endpoints:
   - `POST /api/v1/analysis/structure`
   - `POST /api/v1/analysis/zones`
+  - `POST /api/v1/analysis/setups`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
 ## Strategy rules
