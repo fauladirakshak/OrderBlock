@@ -110,7 +110,7 @@ function App() {
           try {
             const higherTimeframes = timeframes.filter(tf => timeframeRank[tf] > timeframeRank[timeframe]);
             const contextSeries = await Promise.all(higherTimeframes.map(async tf => {
-              const contextParams = new URLSearchParams({ market: apiMarkets[market], symbol: instrument, timeframe: tf, limit: "200" });
+              const contextParams = new URLSearchParams({ market: apiMarkets[market], symbol: instrument, timeframe: tf, limit: "200" });\n              if (selectedMetadata) { contextParams.set("venue_id", selectedMetadata.venue_id); contextParams.set("contract_type", selectedMetadata.contract_type); }
               const contextResponse = await fetch(API_BASE + "/api/v1/market-data/candles?" + contextParams.toString(), { signal: controller.signal });
               if (!contextResponse.ok) throw new Error("Unable to load " + tf + " context candles.");
               return [tf, (await contextResponse.json() as CandleResponse).candles] as const;
