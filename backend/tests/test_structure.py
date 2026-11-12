@@ -20,17 +20,17 @@ def test_detects_confirmed_swing_and_bullish_break() -> None:
     assert any(event.kind == "BOS" and event.direction == "bullish" for event in result.events)
 
 
-def test_pivot_is_not_usable_on_its_confirmation_bar() -> None:
-    candles = [
+def test_swing_requires_right_side_confirmation_before_it_can_break() -> None:
+    prefix = [
         candle("t0", 9, 10, 8, 9),
         candle("t1", 10, 12, 9, 11),
-        candle("t2", 12, 13, 11, 12.5),
-        candle("t3", 12.2, 13.2, 12, 12.8),
+        candle("t2", 9, 11, 7, 8),
     ]
+    prefix_result = detect_structure(prefix, pivot=1)
+    assert prefix_result.swing_highs[0]["confirmation_index"] == 2
+    assert not prefix_result.events
 
-    result = detect_structure(candles, pivot=1)
-
-    assert result.swing_highs[0]["index"] == 1
-    assert result.swing_highs[0]["confirmation_index"] == 2
-    assert not any(event.candle_index == 2 for event in result.events)
-    assert any(event.candle_index == 3 and event.direction == "bullish" for event in result.events)
+    complete = prefix + [candle("t3", 11, 13, 10, 12.5)]
+    complete_result = detect_structure(complete, pivot=1)
+    assert any(event.candle_index == 3 and event.direction == "bullish"
+               for event in complete_result.events)
