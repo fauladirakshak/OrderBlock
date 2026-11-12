@@ -1,8 +1,8 @@
- # OrderBlock build checklist
+# OrderBlock build checklist
 
 Last updated: 2026-11-13
 
-Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting verification.
+Legend: [x] implemented and verified; [~] implemented but awaiting CI/integration verification; [ ] not yet complete.
 
 ## Phase 1 — Engine foundation and quality
 
@@ -36,10 +36,13 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 - [x] Add a focused regression test proving a sweep is only marked after swing confirmation.
 - [x] Full backend test suite, including the focused liquidity-sweep regression test, passed in GitHub Actions on commit cab7bf3527d5c136fd91cbe965d596536adff6f0.
 - [x] Frontend chart overlay TypeScript/Vite build passed in GitHub Actions.
-- [ ] Add multi-timeframe workspace and higher-timeframe context.
+- [~] Add independent higher-timeframe structure analysis and bullish / bearish / mixed / neutral alignment endpoint.
+- [~] Add multi-timeframe API tests for valid context, timeframe ordering and missing primary series.
+- [ ] Integrate multi-timeframe context into the frontend workspace and selected chart.
+- [ ] Add shaded rectangular order-block and FVG regions (current chart shows boundary price lines).
 - [x] Add chart-side overlay summary and explainable engine notes.
 - [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
-- [~] Publish the preview: static build and artifact upload pass, but GitHub Pages is not enabled for this repository yet; enable it in Settings → Pages → Build and deployment → Source: GitHub Actions.
+- [x] Publish the static preview on GitHub Pages; user confirmed successful mobile loading with screenshot.
 - [ ] Add historical-data caching and persistence.
 - [ ] Add live streaming only after provider selection, licensing review and reconnect handling.
 
@@ -47,4 +50,6 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 
 - The synthetic provider is development data only, anchored to a fixed timestamp for repeatable tests. It is not historical market data, a quote, or a tradeable feed.
 - No broker connection or order execution is implemented.
+- Multi-timeframe analysis requires separate candle arrays for each timeframe and does not resample or fabricate higher-timeframe candles.
+- The latest structure event is a descriptive directional context proxy, not a prediction or trade signal.
 - ICT terminology describes an independently implemented research interpretation, not proprietary source-code recovery or a claim of canonical equivalence.
