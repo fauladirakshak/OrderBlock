@@ -49,3 +49,20 @@ def test_workspace_api_serializes_overlay_payload():
     assert response.status_code == 200
     payload = response.json()
     assert set(payload) == {"structure_events", "order_blocks", "fair_value_gaps", "liquidity_sweeps", "notes"}
+
+
+def test_workspace_marks_sweep_only_after_swing_confirmation():
+    values = [
+        (10, 11, 9, 10.5), (10.5, 11, 8, 9), (9, 10, 7, 8),
+        (8, 10, 8, 9), (9, 10, 8, 9.5), (9, 10, 6.5, 8),
+        (8, 10, 7.5, 9), (9, 11, 8, 10),
+    ]
+    candles = [
+        Candle(timestamp=f"2026-02-01T00:{i:02d}:00Z", open=o, high=h, low=l, close=c)
+        for i, (o, h, l, c) in enumerate(values)
+    ]
+    result = analyze_workspace(candles, pivot=1)
+    assert any(
+        sweep.direction == "bullish" and sweep.candle_index == 5 and sweep.level == 7
+        for sweep in result.liquidity_sweeps
+    )
