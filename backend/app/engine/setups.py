@@ -98,15 +98,15 @@ def analyze_setups(candles: list[Candle], profile: SetupProfile | None = None) -
         lower = max(0, event.candle_index - config.sweep_lookback)
         prior_sweeps: list[tuple[int, float]] = []
         for level in levels:
-            sweep_index = level["confirmation_index"] + 1
-            if lower <= sweep_index < event.candle_index:
+            first_eligible = max(lower, level["confirmation_index"] + 1)
+            for sweep_index in range(first_eligible, event.candle_index):
                 candle = candles[sweep_index]
                 if swept(candle, level["price"]):
                     prior_sweeps.append((sweep_index, level["price"]))
         if not prior_sweeps:
             continue
 
-        sweep_index, liquidity_level = prior_sweeps[-1]
+        sweep_index, liquidity_level = max(prior_sweeps, key=lambda item: item[0])
         displacement = candles[event.candle_index]
         candle_range = displacement.high - displacement.low
         prior_average = _average_prior_range(candles, event.candle_index, config.atr_period)
