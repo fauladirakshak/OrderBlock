@@ -17,8 +17,8 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
 - Interactive market selector for Forex, Crypto and Stocks.
 - Instrument and timeframe selectors.
 - Interactive Lightweight Charts candlestick workspace with pan, zoom, crosshair and responsive sizing.
-- Backend market-data provider interface and `GET /api/v1/market-data/candles`; current provider returns deterministic synthetic demo candles and is clearly labelled as non-market data.
-- Backend market catalogue at `GET /api/v1/markets`.
+- Backend market-data provider interface with deterministic synthetic mode, Twelve Data historical API adapter (Forex, crypto and listed equities subject to symbol/plan entitlement), and Binance public Spot klines adapter. Provider source and synthetic status are returned with each candle response.
+- Backend instrument catalogue at `GET /api/v1/markets`, including venue ID, contract type, session model, IANA timezone, tick size and price precision.
 - Deterministic confirmed swing, BOS and CHoCH engine.
 - Explainable baseline order-block and three-candle FVG candidate engine.
 - Configurable ICT-inspired confluence candidate engine: liquidity sweep, displacement, structure break and optional FVG.
@@ -103,7 +103,7 @@ pytest -q
 GitHub Actions runs backend tests and the frontend production build on pushes and pull requests to `main`. The setup-engine tests cover bullish and bearish candidates, sweep confirmation timing, displacement filtering, optional/required FVG behaviour, profile validation and API request/response validation.
 
 
-### Market-data API (demo provider)
+### Market-data API and provider configuration
 
 The chart requests candles from `GET /api/v1/market-data/candles`. Supported markets are `forex`, `crypto`, and `stocks`; supported timeframes are `5m`, `15m`, `1H`, `4H`, `1D`, and `1W`. The response includes `provider` and `is_synthetic` metadata. The current `synthetic-demo` provider is deterministic and uses a fixed timestamp anchor for repeatable UI and test runs; it is not historical market data and must not be used for trading decisions. The provider interface is the extension point for licensed venue-specific data sources.
 
@@ -113,3 +113,22 @@ Set `VITE_API_BASE_URL` in the frontend environment when the API is not running 
 ### Static preview
 
 A GitHub Pages workflow builds a static UI preview using clearly labelled deterministic synthetic candles when the backend is not connected. Enable GitHub Pages in repository Settings → Pages → Build and deployment → Source: GitHub Actions to publish it. The static preview demonstrates the workspace layout and chart interactions only; backend-computed BOS/CHoCH, order-block, FVG and liquidity-sweep overlays require the FastAPI service. Never treat preview candles as market quotes.
+
+
+### Historical provider configuration
+
+The API selects its provider with server-side environment variables; never place provider credentials in frontend code.
+
+- Default: `ORDERBLOCK_DATA_PROVIDER=synthetic` — deterministic demo candles only.
+- Twelve Data: `ORDERBLOCK_DATA_PROVIDER=twelvedata` and `TWELVEDATA_API_KEY=...`. The adapter requests historical `/time_series` bars and normalizes timestamps to UTC. Confirm that your Twelve Data plan covers each requested symbol, exchange, interval, historical depth and intended use. NSE symbol coverage and redistribution rights must be verified with the provider before relying on it.
+- Binance Spot: `ORDERBLOCK_DATA_PROVIDER=binance`. Uses Binance's public market-data endpoint for Binance Spot contracts only; no trading or private account key is used. It is not a Binance perpetual/futures feed.
+
+A provider configuration or upstream error returns HTTP 503; the API never silently substitutes synthetic candles when a real provider is selected. Each instrument request includes `venue_id` and `contract_type`. The response also returns venue, session, timezone, precision and tick-size metadata. The frontend reads the instrument catalogue and applies price precision to the chart.
+
+Example:
+```bash
+ORDERBLOCK_DATA_PROVIDER=twelvedata
+TWELVEDATA_API_KEY=your_server_side_key
+```
+
+Data entitlements are not implied by API access. Personal-use plans may prohibit redistribution or multi-user display. Before public launch, obtain written confirmation of display, storage, derived-data and redistribution rights for the selected plan and exchanges. Binance public endpoints are documented for public market data; this does not grant a blanket redistribution licence. Provider adapters are code-complete but live account verification and exchange licensing remain deployment prerequisites.
