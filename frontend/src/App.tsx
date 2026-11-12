@@ -12,7 +12,12 @@ const instruments: Record<Market, string[]> = {
 };
 const timeframes = ["5m", "15m", "1H", "4H", "1D", "1W"];
 
-function makeSampleCandles(seed: number, count = 56): CandlePoint[] {
+function makeSampleCandles(seed: number, count = 56, timeframe = "1H"): CandlePoint[] {
+  const intervalSeconds: Record<string, number> = {
+    "5m": 300, "15m": 900, "1H": 3600, "4H": 14400, "1D": 86400, "1W": 604800,
+  };
+  const startTime = Math.floor(Date.UTC(2026, 0, 1, 0, 0, 0) / 1000);
+  const interval = intervalSeconds[timeframe] ?? 3600;
   let previous = 100 + seed * 7;
   return Array.from({ length: count }, (_, i) => {
     const wave = Math.sin((i + seed) * 0.53) * 2.3 + Math.cos((i + seed) * 0.19) * 1.4;
@@ -21,7 +26,7 @@ function makeSampleCandles(seed: number, count = 56): CandlePoint[] {
     const high = Math.max(open, close) + 0.7 + (i % 4) * 0.18;
     const low = Math.min(open, close) - 0.65 - (i % 3) * 0.2;
     previous = close;
-    return { time: Math.floor(Date.UTC(2026, 0, 1, 0, i) / 1000), open, high, low, close };
+    return { time: startTime + i * interval, open, high, low, close };
   });
 }
 
@@ -31,7 +36,7 @@ function App() {
   const [timeframe, setTimeframe] = useState("1H");
   const [activeTab, setActiveTab] = useState("Overview");
   const marketSeed = ["Forex", "Crypto", "Stocks"].indexOf(market) + instruments[market].indexOf(instrument) + timeframes.indexOf(timeframe);
-  const candles = useMemo(() => makeSampleCandles(marketSeed), [marketSeed]);
+  const candles = useMemo(() => makeSampleCandles(marketSeed, 56, timeframe), [marketSeed, timeframe]);
   const last = candles[candles.length - 1].close;
   const previous = candles[candles.length - 2].close;
   const move = ((last - previous) / previous) * 100;
