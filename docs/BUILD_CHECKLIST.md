@@ -26,8 +26,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Frontend chart fetches candles from the backend API instead of generating them in the browser.
 - [x] Loading, API error and provider-status states in the workspace.
 - [x] README setup and endpoint documentation.
-- [ ] Add provider adapters for licensed historical Forex, crypto and exchange-listed market data.
-- [ ] Add venue / contract identifiers and market-specific session, timezone and price-precision metadata to the chart request.
+- [~] Add Twelve Data historical REST adapter for Forex/crypto/equities and Binance public Spot klines adapter; adapter tests added, awaiting CI. Provider plan entitlements, exchange symbol coverage and redistribution rights still require account-level verification.
+- [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
 - [x] Add combined backend workspace-analysis endpoint for structure, order-block, FVG and liquidity-sweep annotations.
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
 - [x] Render order-block and FVG boundary levels with mitigation / fill status labels.
@@ -53,3 +53,15 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - Multi-timeframe analysis requires separate candle arrays for each timeframe and does not resample or fabricate higher-timeframe candles.
 - The latest structure event is a descriptive directional context proxy, not a prediction or trade signal.
 - ICT terminology describes an independently implemented research interpretation, not proprietary source-code recovery or a claim of canonical equivalence.
+
+
+## Provider rollout prerequisites
+
+- [x] Server-side provider selection via ORDERBLOCK_DATA_PROVIDER.
+- [x] Twelve Data adapter reads TWELVEDATA_API_KEY only on the backend.
+- [x] Binance public Spot adapter uses the market-data-only endpoint and rejects non-Binance Spot contracts.
+- [x] Normalize provider timestamps to UTC and preserve venue/session metadata in the candle response.
+- [x] Provider configuration/upstream errors return HTTP 503; no silent synthetic fallback.
+- [ ] Configure and verify a Twelve Data account with historical access and explicit rights for the intended display/storage/redistribution use.
+- [ ] Verify Twelve Data coverage and symbol mapping for every target NSE instrument (especially index symbols).
+- [ ] Deploy API with secrets in server environment; never expose provider keys in Vite/client variables.
