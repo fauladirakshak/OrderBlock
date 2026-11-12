@@ -16,7 +16,7 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
 
 - Interactive market selector for Forex, Crypto and Stocks.
 - Instrument and timeframe selectors.
-- Responsive synthetic candlestick chart, visibly labelled as demo data.
+- Interactive Lightweight Charts candlestick workspace with pan, zoom, crosshair and responsive sizing; current candles remain synthetic demo data.
 - Backend market catalogue at `GET /api/v1/markets`.
 - Deterministic confirmed swing, BOS and CHoCH engine.
 - Explainable baseline order-block and three-candle FVG candidate engine.
@@ -24,6 +24,7 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
 - Analysis endpoints:
   - `POST /api/v1/analysis/structure`
   - `POST /api/v1/analysis/zones`
+  - `POST /api/v1/analysis/setups`
   - `POST /api/v1/analysis/setups`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
@@ -36,7 +37,7 @@ See [docs/STRATEGY_RULES.md](docs/STRATEGY_RULES.md) for the v0.1 definitions of
 - **Backend:** Python 3.12+, FastAPI, Pydantic
 - **Frontend:** React + TypeScript (Vite), delivered as a browser-based web app
 - **Storage (planned):** PostgreSQL/TimescaleDB for market history; Redis for cache and event delivery
-- **Charts (current):** responsive SVG sample chart; **planned:** production chart library with licensed market candles and overlays
+- **Charts (current):** Lightweight Charts interactive candlesticks using visibly labelled synthetic sample data; **planned:** licensed historical/live market candles and analysis overlays
 - **Deployment:** Docker Compose for local development; production hosting to be selected after data-provider and compliance review
 
 ## Repository layout
@@ -83,3 +84,15 @@ GitHub Actions runs backend tests and the frontend TypeScript/Vite production bu
 ## License
 
 Project license to be selected before public distribution.
+
+
+## Automated quality checks
+
+Backend tests:
+```bash
+cd backend
+pip install -e ".[dev]"
+pytest -q
+```
+
+GitHub Actions runs backend tests and the frontend production build on pushes and pull requests to `main`. The setup-engine tests cover bullish and bearish candidates, sweep confirmation timing, displacement filtering, optional/required FVG behaviour, profile validation and API request/response validation.
