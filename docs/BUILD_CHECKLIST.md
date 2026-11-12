@@ -32,7 +32,9 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
 - [x] Render order-block and FVG boundary levels with mitigation / fill status labels.
 - [x] Add overlay counts and explanatory status panel.
-- [x] Backend overlay endpoint tests passed in GitHub Actions.
+- [x] Backend overlay endpoint tests passed in GitHub Actions on the overlay integration commit.
+- [x] Add a focused regression test proving a sweep is only marked after swing confirmation.
+- [~] Re-run full CI after the latest focused sweep regression test.
 - [x] Frontend chart overlay TypeScript/Vite build passed in GitHub Actions.
 - [ ] Add multi-timeframe workspace and higher-timeframe context.
 - [x] Add chart-side overlay summary and explainable engine notes.
