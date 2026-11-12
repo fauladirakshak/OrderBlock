@@ -1,6 +1,6 @@
 # OrderBlock
 
-A research-first market-structure platform focused on price action, order blocks, liquidity and multi-timeframe analysis.
+A browser-based, responsive trading web application for market structure, order blocks, liquidity and multi-timeframe analysis. It is designed to run in desktop and mobile browsers; it is not a native Android/iOS app.
 
 > **Status:** Initial scaffold. Signals are educational/research outputs, not investment advice or execution instructions. Paper validation comes before any live-trading integration.
 
@@ -16,7 +16,7 @@ A research-first market-structure platform focused on price action, order blocks
 ## Architecture
 
 - **Backend:** Python 3.12+, FastAPI, Pydantic
-- **Frontend:** React + TypeScript (Vite)
+- **Frontend:** React + TypeScript (Vite), delivered as a browser-based web app
 - **Storage (planned):** PostgreSQL/TimescaleDB for market history; Redis for cache and event delivery
 - **Charts (planned):** TradingView Lightweight Charts
 - **Deployment:** Docker Compose for local development; production hosting to be selected after data-provider and compliance review
@@ -35,6 +35,15 @@ infra/         Local development and deployment configuration
 This first commit establishes the product boundary and architecture. Market-data ingestion, exchange/provider adapters, persistence, chart UI, authentication, and backtesting are subsequent milestones. Do not treat placeholder or sample data as live market data.
 
 ## Local setup
+
+This is a web application. Run the frontend dev server and backend API separately during development.
+
+Frontend:
+\`\`\`bash
+cd frontend
+npm install
+npm run dev
+\`\`\`
 
 Backend:
 ```bash
