@@ -2,7 +2,7 @@
 
 A browser-based, responsive, multi-market trading research application for price action, market structure, order blocks, liquidity and multi-timeframe analysis. It is designed for desktop and mobile browsers; it is not a native Android/iOS app.
 
-> **Status:** Initial scaffold. Analysis outputs are research observations, not investment advice or execution instructions. Paper validation comes before any live-trading integration.
+> **Status:** Active foundation build. The chart currently uses synthetic sample candles for UI interaction only. Analysis outputs are research observations, not investment advice or execution instructions.
 
 ## Supported market direction
 
@@ -10,37 +10,41 @@ A browser-based, responsive, multi-market trading research application for price
 - **Crypto:** exchange-specific spot and perpetual futures markets, with optional funding/open-interest/liquidation context when reliable data is available.
 - **Equities and indices:** India-first NSE/BSE coverage, with selected international markets planned later.
 
-Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all three asset classes. The core analysis rules can be shared, but data feeds, trading sessions, price precision, fees and validation must be market-specific. A Forex spot feed is not a centralized exchange-volume feed, and crypto data must retain its exchange/contract identity.
+Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all three asset classes. The core analysis rules can be shared, but data feeds, trading sessions, price precision, fees and validation must be market-specific. Forex spot is decentralized and does not have a single consolidated global volume feed. Crypto data must retain its exchange and contract identity.
 
-## Product direction
+## Implemented foundation
 
-- Market structure: confirmed swing highs/lows, break of structure (BOS), change of character (CHoCH)
-- Bullish/bearish order-block candidates, mitigation and invalidation
-- Fair Value Gaps (FVG), equal highs/lows and liquidity-sweep candidates
-- Multi-timeframe context and explainable confluence
-- Market-specific sessions, calendars, costs and instrument metadata
-- Chart workspace, watchlists, alerts, journal and backtesting
+- Interactive market selector for Forex, Crypto and Stocks.
+- Instrument and timeframe selectors.
+- Responsive synthetic candlestick chart, visibly labelled as demo data.
+- Backend market catalogue at `GET /api/v1/markets`.
+- Deterministic confirmed swing, BOS and CHoCH engine.
+- Explainable order-block and three-candle FVG candidate engine.
+- Analysis endpoints:
+  - `POST /api/v1/analysis/structure`
+  - `POST /api/v1/analysis/zones`
+- Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
+
+## Strategy rules
+
+See [docs/STRATEGY_RULES.md](docs/STRATEGY_RULES.md) for the v0.1 definitions of confirmed pivots, BOS/CHoCH, order-block candidates, mitigation/invalidation and FVGs. A detected order block is a candle-pattern interpretation, not proof of institutional orders.
 
 ## Architecture
 
 - **Backend:** Python 3.12+, FastAPI, Pydantic
 - **Frontend:** React + TypeScript (Vite), delivered as a browser-based web app
 - **Storage (planned):** PostgreSQL/TimescaleDB for market history; Redis for cache and event delivery
-- **Charts (planned):** TradingView Lightweight Charts
+- **Charts (current):** responsive SVG sample chart; **planned:** production chart library with licensed market candles and overlays
 - **Deployment:** Docker Compose for local development; production hosting to be selected after data-provider and compliance review
 
 ## Repository layout
 
 ```
-backend/       API and deterministic market-structure engine
-frontend/      Web application
-docs/          Product, architecture and strategy specifications
+backend/       API and deterministic market-analysis engine
+frontend/      Browser web application
+docs/          Product scope and versioned strategy definitions
 infra/         Local development and deployment configuration
 ```
-
-## Development status
-
-The repository currently contains the initial product scaffold, API foundation, structure-analysis logic and responsive web UI shell. Market-data ingestion, exchange/provider adapters, persistent storage, interactive chart overlays, authentication and backtesting are subsequent milestones. Do not treat placeholder or sample data as live market data.
 
 ## Local setup
 
@@ -64,10 +68,15 @@ uvicorn app.main:app --reload
 ## Data and safety
 
 - No broker credentials or live order placement in the initial MVP.
+- No live market feed is currently connected; synthetic chart values are not quotes.
 - Market-data licensing and redistribution rights must be confirmed for each provider and venue.
 - Forex, crypto and equity feeds have different market structures; preserve their source, timestamps and instrument metadata.
 - Strategy rules must be tested with spread, fees, funding where applicable, slippage, lookahead-bias controls and out-of-sample periods.
 - All generated zones and events should retain their source candles and rule explanations.
+
+## Quality checks
+
+GitHub Actions runs backend tests and the frontend TypeScript/Vite production build on pushes and pull requests to `main`. Check the repository Actions tab for the latest run result.
 
 ## License
 
