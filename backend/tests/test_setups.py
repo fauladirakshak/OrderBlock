@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.engine import setups
 from app.engine.setups import SetupProfile, analyze_setups
 from app.engine.structure import Candle, StructureEvent, StructureResult
+from app.engine.zones import FairValueGap
 from app.main import app
 
 
@@ -53,16 +54,16 @@ def fake_structure() -> StructureResult:
 
 
 def fake_gap():
-    return [{
-        "direction": "bullish",
-        "middle_candle_index": 9,
-        "timestamp": "2026-01-01T00:09:00Z",
-        "top": 11.5,
-        "bottom": 11.0,
-        "mitigated": False,
-        "filled": False,
-        "rule": "fixture",
-    }]
+    return [FairValueGap(
+        direction="bullish",
+        middle_candle_index=9,
+        timestamp="2026-01-01T00:09:00Z",
+        top=11.5,
+        bottom=11.0,
+        mitigated=False,
+        filled=False,
+        rule="fixture",
+    )]
 
 
 @pytest.fixture
