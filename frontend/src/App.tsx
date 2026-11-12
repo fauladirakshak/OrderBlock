@@ -49,6 +49,7 @@ function App() {
   const [analysisError, setAnalysisError] = useState("");
   const [mtf, setMtf] = useState<MtfAnalysis | null>(null);
   const [mtfError, setMtfError] = useState("");
+  const [selectedZoneKey, setSelectedZoneKey] = useState("");
   useEffect(() => {
     const controller = new AbortController();
     async function loadCandles() {
