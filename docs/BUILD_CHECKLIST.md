@@ -39,7 +39,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add independent higher-timeframe structure analysis and bullish / bearish / mixed / neutral alignment endpoint.
 - [x] Add multi-timeframe API tests for valid context, timeframe ordering and missing primary series (CI verified).
 - [x] Integrate multi-timeframe context into the frontend workspace and selected chart; CI verified on commit e7ebfea404c275b7e42a0709c2e40fd1168985a1.
-- [~] Add shaded rectangular order-block and FVG regions using a responsive canvas overlay; initial frontend build passed on commit 3a0bfbf47a55dc3410a628cc113992606a0f2f23; latest integration pending CI.\n- [~] Add selectable zone inspector with status, price range and engine rule explanation; awaiting CI.
+- [~] Add shaded rectangular order-block and FVG regions using a responsive canvas overlay; initial frontend build passed on commit 3a0bfbf47a55dc3410a628cc113992606a0f2f23; latest integration pending CI.
+- [~] Add selectable zone inspector with status, price range and engine rule explanation; awaiting CI.
 - [x] Add chart-side overlay summary and explainable engine notes.
 - [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
 - [x] Publish the static preview on GitHub Pages; user confirmed successful mobile loading with screenshot.
