@@ -6,6 +6,7 @@ from app.engine.structure import Candle, StructureResult, detect_structure
 from app.engine.zones import ZoneAnalysis, analyze_zones
 from app.engine.setups import SetupAnalysis, SetupProfile, analyze_setups
 from app.engine.market_data import CandleSeries, Market, Timeframe, load_candle_series
+from app.engine.workspace import WorkspaceAnalysis, analyze_workspace
 
 app = FastAPI(title="OrderBlock API", version="0.5.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -64,6 +65,14 @@ def analyze_ict_inspired_setups(request: SetupRequest) -> SetupAnalysis:
             detail=f"Not enough candles for this profile; at least {minimum} are required.",
         )
     return analyze_setups(request.candles, profile=request.profile)
+
+
+@app.post("/api/v1/analysis/workspace", response_model=WorkspaceAnalysis)
+def analyze_trading_workspace(request: StructureRequest) -> WorkspaceAnalysis:
+    """Return chart-ready structure, OB, FVG and liquidity-sweep annotations."""
+    if len(request.candles) < (2 * request.pivot + 1):
+        raise HTTPException(status_code=422, detail="Not enough candles to confirm a pivot.")
+    return analyze_workspace(request.candles, pivot=request.pivot)
 
 
 @app.get("/api/v1/market-data/candles", response_model=CandleSeries)
