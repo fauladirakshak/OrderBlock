@@ -62,7 +62,7 @@ class TwelveDataProvider:
             Candle(timestamp=_utc_timestamp(row["datetime"], source_timezone),
                    open=float(row["open"]), high=float(row["high"]),
                    low=float(row["low"]), close=float(row["close"]),
-                   volume=float(row["volume"]) if row.get("volume") not in (None, "") else None)
+                   volume=float(row["volume"]) if row.get("volume") not in (None, "") else 0.0)
             for row in reversed(rows)
         ]
         return candles[-limit:]
