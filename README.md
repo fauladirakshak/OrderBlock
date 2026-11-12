@@ -119,7 +119,7 @@ A GitHub Pages workflow builds a static UI preview using clearly labelled determ
 
 The API selects its provider with server-side environment variables; never place provider credentials in frontend code.
 
-- Default: `ORDERBLOCK_DATA_PROVIDER=synthetic` — deterministic demo candles only.
+- Default: `ORDERBLOCK_DATA_PROVIDER=synthetic` — deterministic demo candles only.\n- Automatic routing: `ORDERBLOCK_DATA_PROVIDER=auto` — Binance Spot for Binance spot instruments; Twelve Data for Forex and listed equities (requires the Twelve Data key).
 - Twelve Data: `ORDERBLOCK_DATA_PROVIDER=twelvedata` and `TWELVEDATA_API_KEY=...`. The adapter requests historical `/time_series` bars and normalizes timestamps to UTC. Confirm that your Twelve Data plan covers each requested symbol, exchange, interval, historical depth and intended use. NSE symbol coverage and redistribution rights must be verified with the provider before relying on it.
 - Binance Spot: `ORDERBLOCK_DATA_PROVIDER=binance`. Uses Binance's public market-data endpoint for Binance Spot contracts only; no trading or private account key is used. It is not a Binance perpetual/futures feed.
 
