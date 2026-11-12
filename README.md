@@ -25,7 +25,6 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
   - `POST /api/v1/analysis/structure`
   - `POST /api/v1/analysis/zones`
   - `POST /api/v1/analysis/setups`
-  - `POST /api/v1/analysis/setups`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
 ## Strategy rules
