@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
-from typing import Any
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -45,7 +44,8 @@ class TwelveDataProvider:
             response = httpx.get(
                 self.base_url + "/time_series",
                 params={"symbol": instrument.provider_symbol, "interval": interval, "outputsize": limit,
-                        "apikey": self.api_key, "format": "JSON", "timezone": instrument.timezone,\n                        **({"exchange": instrument.venue} if instrument.asset_class in {"equity", "equity_index"} else {})},
+                        "apikey": self.api_key, "format": "JSON", "timezone": instrument.timezone,
+                        **({"exchange": instrument.venue} if instrument.asset_class in {"equity", "equity_index"} else {})},
                 timeout=15.0,
             )
             response.raise_for_status()
