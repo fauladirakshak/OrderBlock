@@ -82,7 +82,7 @@ class BinanceSpotProvider:
         interval = {"5m":"5m","15m":"15m","1H":"1h","4H":"4h","1D":"1d","1W":"1w"}[timeframe]
         try:
             response = httpx.get(self.base_url + "/api/v3/klines",
-                                 params={"symbol": instrument.provider_symbol, "interval": interval, "limit": limit},
+                                 params={"symbol": instrument.provider_symbol.replace("/", ""), "interval": interval, "limit": limit},
                                  timeout=15.0)
             response.raise_for_status()
             rows = response.json()
