@@ -16,7 +16,8 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
 
 - Interactive market selector for Forex, Crypto and Stocks.
 - Instrument and timeframe selectors.
-- Interactive Lightweight Charts candlestick workspace with pan, zoom, crosshair and responsive sizing; current candles remain synthetic demo data.
+- Interactive Lightweight Charts candlestick workspace with pan, zoom, crosshair and responsive sizing.
+- Backend market-data provider interface and `GET /api/v1/market-data/candles`; current provider returns deterministic synthetic demo candles and is clearly labelled as non-market data.
 - Backend market catalogue at `GET /api/v1/markets`.
 - Deterministic confirmed swing, BOS and CHoCH engine.
 - Explainable baseline order-block and three-candle FVG candidate engine.
@@ -25,6 +26,7 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
   - `POST /api/v1/analysis/structure`
   - `POST /api/v1/analysis/zones`
   - `POST /api/v1/analysis/setups`
+  - `GET /api/v1/market-data/candles?market=forex&symbol=EUR%2FUSD&timeframe=1H&limit=200`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
 ## Strategy rules
@@ -95,3 +97,10 @@ pytest -q
 ```
 
 GitHub Actions runs backend tests and the frontend production build on pushes and pull requests to `main`. The setup-engine tests cover bullish and bearish candidates, sweep confirmation timing, displacement filtering, optional/required FVG behaviour, profile validation and API request/response validation.
+
+
+### Market-data API (demo provider)
+
+The chart requests candles from `GET /api/v1/market-data/candles`. Supported markets are `forex`, `crypto`, and `stocks`; supported timeframes are `5m`, `15m`, `1H`, `4H`, `1D`, and `1W`. The response includes `provider` and `is_synthetic` metadata. The current `synthetic-demo` provider is deterministic and uses a fixed timestamp anchor for repeatable UI and test runs; it is not historical market data and must not be used for trading decisions. The provider interface is the extension point for licensed venue-specific data sources.
+
+Set `VITE_API_BASE_URL` in the frontend environment when the API is not running at `http://localhost:8000`.
