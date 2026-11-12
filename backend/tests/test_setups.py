@@ -201,6 +201,10 @@ def test_emits_bearish_candidate_for_high_sweep_and_bearish_displacement(monkeyp
         timestamp=candles[7].timestamp,
         open=11.5, high=13.0, low=11.0, close=11.5, volume=100,
     )
+    candles[9] = Candle(
+        timestamp=candles[9].timestamp,
+        open=10.3, high=11.0, low=10.0, close=10.5, volume=100,
+    )
     candles[10] = Candle(
         timestamp=candles[10].timestamp,
         open=14.0, high=14.2, low=10.2, close=10.5, volume=100,
