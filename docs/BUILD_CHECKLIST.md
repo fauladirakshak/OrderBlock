@@ -32,10 +32,12 @@ Legend: [x] implemented; [ ] not yet complete; [~] implemented but awaiting veri
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
 - [x] Render order-block and FVG boundary levels with mitigation / fill status labels.
 - [x] Add overlay counts and explanatory status panel.
-- [~] Verify the new overlay endpoint and frontend chart integration in CI.
+- [x] Backend overlay endpoint tests passed in GitHub Actions.
+- [x] Frontend chart overlay TypeScript/Vite build passed in GitHub Actions.
 - [ ] Add multi-timeframe workspace and higher-timeframe context.
 - [x] Add chart-side overlay summary and explainable engine notes.
 - [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
+- [~] Publish the preview: static build and artifact upload pass, but GitHub Pages is not enabled for this repository yet; enable it in Settings → Pages → Build and deployment → Source: GitHub Actions.
 - [ ] Add historical-data caching and persistence.
 - [ ] Add live streaming only after provider selection, licensing review and reconnect handling.
 
