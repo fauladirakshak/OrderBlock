@@ -26,7 +26,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Frontend chart fetches candles from the backend API instead of generating them in the browser.
 - [x] Loading, API error and provider-status states in the workspace.
 - [x] README setup and endpoint documentation.
-- [~] Add Twelve Data historical REST adapter for Forex/crypto/equities and Binance public Spot klines adapter; adapter tests added, awaiting CI. Provider plan entitlements, exchange symbol coverage and redistribution rights still require account-level verification.
+- [x] Add Twelve Data historical REST adapter for Forex/crypto/equities and Binance public Spot klines adapter; adapter normalization, error and configuration tests passed in CI on commit 2456991f8acd814b5a34083618e332145a0700b7.\n- [ ] Verify provider plan entitlements, NSE symbol coverage and display/storage/redistribution rights with the selected account before enabling production data.
 - [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
 - [x] Add combined backend workspace-analysis endpoint for structure, order-block, FVG and liquidity-sweep annotations.
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
