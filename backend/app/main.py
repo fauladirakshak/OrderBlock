@@ -7,8 +7,9 @@ from app.engine.zones import ZoneAnalysis, analyze_zones
 from app.engine.setups import SetupAnalysis, SetupProfile, analyze_setups
 from app.engine.market_data import CandleSeries, Market, Timeframe, load_candle_series
 from app.engine.workspace import WorkspaceAnalysis, analyze_workspace
+from app.engine.multi_timeframe import MultiTimeframeAnalysis, MultiTimeframeRequest, analyze_multi_timeframe
 
-app = FastAPI(title="OrderBlock API", version="0.5.0",
+app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
 
 app.add_middleware(
@@ -73,6 +74,12 @@ def analyze_trading_workspace(request: StructureRequest) -> WorkspaceAnalysis:
     if len(request.candles) < (2 * request.pivot + 1):
         raise HTTPException(status_code=422, detail="Not enough candles to confirm a pivot.")
     return analyze_workspace(request.candles, pivot=request.pivot)
+
+
+@app.post("/api/v1/analysis/multi-timeframe", response_model=MultiTimeframeAnalysis)
+def analyze_multi_timeframe_context(request: MultiTimeframeRequest) -> MultiTimeframeAnalysis:
+    """Compare primary chart structure with supplied higher-timeframe structure."""
+    return analyze_multi_timeframe(request)
 
 
 @app.get("/api/v1/market-data/candles", response_model=CandleSeries)
