@@ -72,6 +72,8 @@ function App() {
         setCandles(parsed);
         setProvider(payload.provider);
         if (payload.provider === "preview-synthetic") {
+          setMtf(null);
+          setMtfError("Static preview mode: higher-timeframe analysis appears when the FastAPI service is connected.");
           setOverlays(null);
           setAnalysisError("Static preview mode: backend overlays appear when the FastAPI service is connected.");
           return;
@@ -86,6 +88,34 @@ function App() {
           if (!analysisResponse.ok) throw new Error("Analysis API returned HTTP " + analysisResponse.status);
           setOverlays(await analysisResponse.json() as ChartOverlay);
           setAnalysisError("");
+          try {
+            const higherTimeframes = timeframes.filter(tf => timeframeRank[tf] > timeframeRank[timeframe]);
+            const contextSeries = await Promise.all(higherTimeframes.map(async tf => {
+              const contextParams = new URLSearchParams({ market: apiMarkets[market], symbol: instrument, timeframe: tf, limit: "200" });
+              const contextResponse = await fetch(API_BASE + "/api/v1/market-data/candles?" + contextParams.toString(), { signal: controller.signal });
+              if (!contextResponse.ok) throw new Error("Unable to load " + tf + " context candles.");
+              return [tf, (await contextResponse.json() as CandleResponse).candles] as const;
+            }));
+            if (higherTimeframes.length) {
+              const contextPayload = Object.fromEntries([[timeframe, payload.candles], ...contextSeries]);
+              const mtfResponse = await fetch(API_BASE + "/api/v1/analysis/multi-timeframe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ primary_timeframe: timeframe, candles_by_timeframe: contextPayload, pivot: 2 }),
+                signal: controller.signal,
+              });
+              if (!mtfResponse.ok) throw new Error("Multi-timeframe API returned HTTP " + mtfResponse.status);
+              setMtf(await mtfResponse.json() as MtfAnalysis);
+              setMtfError("");
+            } else {
+              setMtf(null);
+              setMtfError("No higher timeframe is available above 1W.");
+            }
+          } catch (contextFailure) {
+            if (contextFailure instanceof Error && contextFailure.name === "AbortError") return;
+            setMtf(null);
+            setMtfError(contextFailure instanceof Error ? contextFailure.message : "Higher-timeframe context unavailable.");
+          }
         } catch (analysisFailure) {
           if (analysisFailure instanceof Error && analysisFailure.name === "AbortError") return;
           setOverlays(null);
