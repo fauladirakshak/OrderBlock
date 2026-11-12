@@ -29,6 +29,10 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
   - `GET /api/v1/market-data/candles?market=forex&symbol=EUR%2FUSD&timeframe=1H&limit=200`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
+## Build progress
+
+See [docs/BUILD_CHECKLIST.md](docs/BUILD_CHECKLIST.md) for the tracked Phase 1 and Phase 2 implementation checklist.
+
 ## Strategy rules
 
 See [docs/STRATEGY_RULES.md](docs/STRATEGY_RULES.md) for the v0.1 definitions of confirmed pivots, BOS/CHoCH, order-block candidates, mitigation/invalidation and FVGs. A detected order block is a candle-pattern interpretation, not proof of institutional orders.
