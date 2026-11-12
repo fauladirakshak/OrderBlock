@@ -47,3 +47,12 @@ def test_binance_spot_maps_kline_payload(monkeypatch):
 def test_binance_rejects_non_binance_instrument():
     with pytest.raises(MarketDataProviderError):
         BinanceSpotProvider().get_candles(get_instrument("EUR/USD"), "1H", 20)
+
+
+def test_auto_provider_routes_crypto_to_binance_and_fx_to_twelvedata(monkeypatch):
+    from app.engine.providers import configured_provider
+
+    monkeypatch.setenv("ORDERBLOCK_DATA_PROVIDER", "auto")
+    assert isinstance(configured_provider(get_instrument("BTC/USDT")), BinanceSpotProvider)
+    assert isinstance(configured_provider(get_instrument("EUR/USD")), TwelveDataProvider)
+    assert isinstance(configured_provider(get_instrument("RELIANCE")), TwelveDataProvider)
