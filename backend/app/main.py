@@ -1,12 +1,22 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from app.engine.markets import list_markets
 from app.engine.structure import Candle, StructureResult, detect_structure
 from app.engine.zones import ZoneAnalysis, analyze_zones
 from app.engine.setups import SetupAnalysis, SetupProfile, analyze_setups
+from app.engine.market_data import CandleSeries, Market, Timeframe, load_candle_series
 
-app = FastAPI(title="OrderBlock API", version="0.4.0",
+app = FastAPI(title="OrderBlock API", version="0.5.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 
 class StructureRequest(BaseModel):
@@ -54,3 +64,14 @@ def analyze_ict_inspired_setups(request: SetupRequest) -> SetupAnalysis:
             detail=f"Not enough candles for this profile; at least {minimum} are required.",
         )
     return analyze_setups(request.candles, profile=request.profile)
+
+
+@app.get("/api/v1/market-data/candles", response_model=CandleSeries)
+def get_market_candles(
+    market: Market,
+    symbol: str = Query(min_length=1, max_length=32),
+    timeframe: Timeframe = "1H",
+    limit: int = Query(default=200, ge=20, le=1000),
+) -> CandleSeries:
+    """Return OHLC candles from the configured provider (demo provider for now)."""
+    return load_candle_series(market, symbol, timeframe, limit)
