@@ -8,7 +8,6 @@ from zoneinfo import ZoneInfo
 import httpx
 
 from app.engine.markets import Instrument
-from app.engine.market_data import TIMEFRAME_SECONDS
 from app.engine.structure import Candle
 
 
