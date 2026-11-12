@@ -108,3 +108,8 @@ GitHub Actions runs backend tests and the frontend production build on pushes an
 The chart requests candles from `GET /api/v1/market-data/candles`. Supported markets are `forex`, `crypto`, and `stocks`; supported timeframes are `5m`, `15m`, `1H`, `4H`, `1D`, and `1W`. The response includes `provider` and `is_synthetic` metadata. The current `synthetic-demo` provider is deterministic and uses a fixed timestamp anchor for repeatable UI and test runs; it is not historical market data and must not be used for trading decisions. The provider interface is the extension point for licensed venue-specific data sources.
 
 Set `VITE_API_BASE_URL` in the frontend environment when the API is not running at `http://localhost:8000`.
+
+
+### Static preview
+
+A GitHub Pages workflow builds a static UI preview using clearly labelled deterministic synthetic candles when the backend is not connected. This static preview demonstrates the workspace layout and chart interactions only; backend-computed BOS/CHoCH, order-block, FVG and liquidity-sweep overlays require the FastAPI service. Never treat preview candles as market quotes.
