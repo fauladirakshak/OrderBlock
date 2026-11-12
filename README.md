@@ -1,17 +1,25 @@
 # OrderBlock
 
-A browser-based, responsive trading web application for market structure, order blocks, liquidity and multi-timeframe analysis. It is designed to run in desktop and mobile browsers; it is not a native Android/iOS app.
+A browser-based, responsive, multi-market trading research application for price action, market structure, order blocks, liquidity and multi-timeframe analysis. It is designed for desktop and mobile browsers; it is not a native Android/iOS app.
 
-> **Status:** Initial scaffold. Signals are educational/research outputs, not investment advice or execution instructions. Paper validation comes before any live-trading integration.
+> **Status:** Initial scaffold. Analysis outputs are research observations, not investment advice or execution instructions. Paper validation comes before any live-trading integration.
+
+## Supported market direction
+
+- **Forex:** currency pairs, pip-aware analysis, spreads and Asian/London/New York session context.
+- **Crypto:** exchange-specific spot and perpetual futures markets, with optional funding/open-interest/liquidation context when reliable data is available.
+- **Equities and indices:** India-first NSE/BSE coverage, with selected international markets planned later.
+
+Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all three asset classes. The core analysis rules can be shared, but data feeds, trading sessions, price precision, fees and validation must be market-specific. A Forex spot feed is not a centralized exchange-volume feed, and crypto data must retain its exchange/contract identity.
 
 ## Product direction
 
-- Market structure: swing highs/lows, break of structure (BOS), and change of character (CHoCH)
-- Bullish/bearish order-block candidates
-- Fair value gaps (FVG) and liquidity-sweep candidates
+- Market structure: confirmed swing highs/lows, break of structure (BOS), change of character (CHoCH)
+- Bullish/bearish order-block candidates, mitigation and invalidation
+- Fair Value Gaps (FVG), equal highs/lows and liquidity-sweep candidates
 - Multi-timeframe context and explainable confluence
+- Market-specific sessions, calendars, costs and instrument metadata
 - Chart workspace, watchlists, alerts, journal and backtesting
-- India-first market configuration, with room for international markets
 
 ## Architecture
 
@@ -32,36 +40,33 @@ infra/         Local development and deployment configuration
 
 ## Development status
 
-This first commit establishes the product boundary and architecture. Market-data ingestion, exchange/provider adapters, persistence, chart UI, authentication, and backtesting are subsequent milestones. Do not treat placeholder or sample data as live market data.
+The repository currently contains the initial product scaffold, API foundation, structure-analysis logic and responsive web UI shell. Market-data ingestion, exchange/provider adapters, persistent storage, interactive chart overlays, authentication and backtesting are subsequent milestones. Do not treat placeholder or sample data as live market data.
 
 ## Local setup
 
-This is a web application. Run the frontend dev server and backend API separately during development.
-
 Frontend:
-\`\`\`bash
+```bash
 cd frontend
 npm install
 npm run dev
-\`\`\`
+```
 
 Backend:
 ```bash
 cd backend
 python -m venv .venv
-# Windows: .venv\Scripts\activate
+# Windows: .venv\\Scripts\\activate
 # macOS/Linux: source .venv/bin/activate
 pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
-Frontend setup will be documented when the UI scaffold is added.
-
 ## Data and safety
 
 - No broker credentials or live order placement in the initial MVP.
-- Market-data licensing and redistribution rights must be confirmed for the chosen provider.
-- Strategy rules must be tested with fees, slippage, survivorship bias controls and out-of-sample periods.
+- Market-data licensing and redistribution rights must be confirmed for each provider and venue.
+- Forex, crypto and equity feeds have different market structures; preserve their source, timestamps and instrument metadata.
+- Strategy rules must be tested with spread, fees, funding where applicable, slippage, lookahead-bias controls and out-of-sample periods.
 - All generated zones and events should retain their source candles and rule explanations.
 
 ## License
