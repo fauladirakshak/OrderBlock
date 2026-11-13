@@ -59,8 +59,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [~] Add configurable commission, spread and slippage; return trade-level costs and net PnL.
 - [~] Add conservative stop-first handling when stop and target are both touched in one OHLC candle.
 - [~] Add end-of-data position closure, equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
-- [~] Add API endpoint POST /api/v1/backtests/run and regression tests for next-bar entry, intrabar ambiguity, costs, end-of-data closure, timestamp validation and API response.
-- [ ] Add frontend backtest configuration/results workspace and downloadable trade report.
+- [~] Add API endpoint POST /api/v1/backtests/run and regression tests for next-bar entry, intrabar ambiguity, costs, end-of-data closure, timezone-aware timestamp validation and API response.
+- [~] Add responsive frontend Strategy lab with user CSV import, risk/cost configuration, result metrics, trade table and downloadable CSV report; awaiting final CI verification.
 - [ ] Add walk-forward / out-of-sample evaluation and benchmark comparison.
 - [ ] Add market-specific funding, swap, borrow, tax and contract-multiplier models after venue metadata is validated.
 
