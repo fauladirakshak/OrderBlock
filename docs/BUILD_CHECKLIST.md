@@ -193,4 +193,4 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Constrain the setup's candidate order-block candle to occur strictly after the qualifying liquidity sweep and before the displacement/structure-break candle.
 - [x] Preserve the explicit no-order-block case and the backtest's signal-candle stop fallback.
 - [x] Add regression coverage for a sweep-to-displacement sequence with no opposing candle between those events.
-- [ ] Verify the full backend suite and frontend build in GitHub Actions.
+- [x] Verify the full backend suite and frontend build in GitHub Actions; quality run `43522730003` passed on commit `8f03f5d67bec1608485ea9edf900daf01fb10af4`.
