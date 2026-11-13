@@ -162,3 +162,30 @@ def test_evaluation_window_blocks_pre_test_signals(monkeypatch):
                     (103, 105, 102, 104), (104, 106, 103, 105)])
     result = run_backtest(base_request(data, evaluation_start_index=3))
     assert result.trades == []
+
+
+def test_forex_swap_is_applied_as_elapsed_holding_cost(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (100, 103, 99, 102), (102, 104, 101, 103),
+                    (103, 105, 102, 104), (104, 106, 103, 105)])
+    swapped = run_backtest(base_request(data, market_type="forex", swap_bps_per_day=1000))
+    assert swapped.trades[0].holding_costs > 0
+
+
+def test_stock_borrow_is_charged_only_for_short_positions(monkeypatch):
+    bearish = SetupCandidate(
+        direction="bearish", sweep_index=0, sweep_timestamp="2026-01-01T00:00:00Z",
+        liquidity_level=101, structure_index=1, structure_timestamp="2026-01-01T00:01:00Z",
+        structure_kind="BOS", displacement_range=2, prior_average_range=1,
+        body_fraction=0.8, fvg_index=None, order_block_index=0,
+        order_block_top=105, order_block_bottom=100, explanation="bearish test candidate",
+    )
+    monkeypatch.setattr("app.engine.backtest.analyze_setups",
+                        lambda prefix, profile=None: SimpleNamespace(setups=[bearish] if len(prefix) == 2 else []))
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 99),
+                    (100, 101, 97, 98), (98, 99, 95, 96),
+                    (96, 97, 94, 95), (95, 96, 93, 94)])
+    borrowed = run_backtest(base_request(data, market_type="stocks", borrow_bps_per_day=1000))
+    assert borrowed.trades[0].direction == "short"
+    assert borrowed.trades[0].holding_costs > 0
