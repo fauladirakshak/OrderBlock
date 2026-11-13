@@ -2,7 +2,7 @@ import { useState } from "react";
 
 type Candle = { timestamp: string; open: number; high: number; low: number; close: number; volume?: number };
 type ImportedSeries = { provider: string; is_synthetic: boolean; symbol: string; market: string; timeframe: string; candle_count: number; candles: Candle[] };
-type Trade = { direction: string; signal_timestamp: string; entry_timestamp: string; exit_timestamp: string; entry_price: number; exit_price: number; stop_price: number; target_price: number; quantity: number; gross_pnl: number; fees: number; net_pnl: number; r_multiple: number; exit_reason: string };
+type Trade = { direction: string; signal_timestamp: string; entry_timestamp: string; exit_timestamp: string; entry_price: number; exit_price: number; stop_price: number; target_price: number; quantity: number; gross_pnl: number; fees: number; holding_costs: number; taxes: number; net_pnl: number; r_multiple: number; exit_reason: string };
 type Result = { metrics: { starting_equity: number; ending_equity: number; net_profit: number; total_return_pct: number; trade_count: number; winning_trades: number; losing_trades: number; win_rate_pct: number; profit_factor: number | null; expectancy: number; average_r: number; max_drawdown_pct: number }; trades: Trade[]; notes: string[]; execution_model: string };
 
 type WalkFold = { fold: number; training_start: string; training_end: string; test_start: string; test_end: string; out_of_sample_metrics: Result["metrics"]; benchmark_return_pct: number; excess_return_pct: number };
@@ -18,6 +18,11 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
   const [commission, setCommission] = useState("2");
   const [spread, setSpread] = useState("1");
   const [slippage, setSlippage] = useState("1");
+  const [contractMultiplier, setContractMultiplier] = useState("1");
+  const [fundingBps, setFundingBps] = useState("0");
+  const [swapBps, setSwapBps] = useState("0");
+  const [borrowBps, setBorrowBps] = useState("0");
+  const [taxBps, setTaxBps] = useState("0");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("Import a historical OHLCV CSV to begin. Synthetic preview candles are not accepted as backtest data.");
   const [error, setError] = useState("");
@@ -94,7 +99,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
 
   function downloadTrades() {
     if (!result) return;
-    const columns = ["direction","signal_timestamp","entry_timestamp","exit_timestamp","entry_price","exit_price","stop_price","target_price","quantity","gross_pnl","fees","net_pnl","r_multiple","exit_reason"];
+    const columns = ["direction","signal_timestamp","entry_timestamp","exit_timestamp","entry_price","exit_price","stop_price","target_price","quantity","gross_pnl","fees","holding_costs","taxes","net_pnl","r_multiple","exit_reason"];
     const csv = [columns.join(","), ...result.trades.map(t => columns.map(k => JSON.stringify((t as any)[k] ?? "")).join(","))].join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = "orderblock-trades.csv"; anchor.click(); URL.revokeObjectURL(url);
@@ -120,6 +125,11 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
           <label className="lab-field">Commission (bps)<input type="number" min="0" value={commission} onChange={e=>setCommission(e.target.value)}/></label>
           <label className="lab-field">Spread (bps)<input type="number" min="0" value={spread} onChange={e=>setSpread(e.target.value)}/></label>
           <label className="lab-field">Slippage (bps)<input type="number" min="0" value={slippage} onChange={e=>setSlippage(e.target.value)}/></label>
+          <label className="lab-field">Contract multiplier<input type="number" min="0.000001" step="0.1" value={contractMultiplier} onChange={e=>setContractMultiplier(e.target.value)}/></label>
+          <label className="lab-field">Crypto funding (bps / 8h)<input type="number" min="0" value={fundingBps} onChange={e=>setFundingBps(e.target.value)}/></label>
+          <label className="lab-field">Forex swap (bps / day)<input type="number" min="0" value={swapBps} onChange={e=>setSwapBps(e.target.value)}/></label>
+          <label className="lab-field">Short borrow (bps / day)<input type="number" min="0" value={borrowBps} onChange={e=>setBorrowBps(e.target.value)}/></label>
+          <label className="lab-field">Profit tax estimate (bps)<input type="number" min="0" value={taxBps} onChange={e=>setTaxBps(e.target.value)}/></label>
         </div>
         <button className="lab-run" disabled={!series || busy} onClick={()=>void run()}>{busy ? "Processing…" : "Run backtest"}</button>\n        <div className="lab-divider-title">Walk-forward evaluation</div>\n        <div className="lab-fields">\n          <label className="lab-field">Training bars<input type="number" min="20" value={trainingBars} onChange={e=>setTrainingBars(e.target.value)}/></label>\n          <label className="lab-field">Test bars<input type="number" min="5" value={testBars} onChange={e=>setTestBars(e.target.value)}/></label>\n          <label className="lab-field">Step bars<input type="number" min="1" value={stepBars} onChange={e=>setStepBars(e.target.value)}/></label>\n        </div>\n        <button className="lab-run lab-run-secondary" disabled={!series || busy || series.candle_count <= Number(trainingBars) + 4} onClick={()=>void runWalkForward()}>{busy ? "Processing…" : "Run out-of-sample test"}</button>
       </article>
