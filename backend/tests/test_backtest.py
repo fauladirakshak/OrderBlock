@@ -99,6 +99,6 @@ def test_backtest_api_returns_metrics_and_trade_records(monkeypatch):
     })
     assert response.status_code == 200
     payload = response.json()
-    assert payload["is_synthetic"] is False
+    assert "source provenance" in payload["data_source_note"]
     assert "profit_factor" in payload["metrics"]
     assert len(payload["equity_curve"]) == len(data)
