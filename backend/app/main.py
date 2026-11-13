@@ -22,6 +22,7 @@ from app.engine.liquidity_references import LiquidityReferenceRequest, Liquidity
 from app.engine.dealing_range import DealingRangeRequest, DealingRangeResult, analyze_dealing_range
 from app.engine.higher_timeframe_ranges import HigherTimeframeRangeRequest, HigherTimeframeRangeResult, analyze_higher_timeframe_ranges
 from app.engine.higher_timeframe_zones import HigherTimeframeZonesRequest, HigherTimeframeZonesResult, analyze_higher_timeframe_zones
+from app.engine.candle_quality import CandleQualityRequest, CandleQualityResult, audit_candle_quality
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -250,3 +251,9 @@ def analyze_premium_discount_range(request: DealingRangeRequest) -> DealingRange
         return analyze_dealing_range(request)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/analysis/candle-quality", response_model=CandleQualityResult)
+def analyze_candle_series_quality(request: CandleQualityRequest) -> CandleQualityResult:
+    """Report candle spacing and basic series diagnostics without assuming gaps are missing data."""
+    return audit_candle_quality(request)
