@@ -354,7 +354,7 @@ function App() {
   const importExchangeCalendar = async (file?: File) => {
     if (!file) return;
     try {
-      const lines = (await file.text()).split(/\\r?\\n/).map(line => line.trim()).filter(Boolean);
+      const lines = (await file.text()).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
       if (lines.length < 2) throw new Error("Calendar CSV must contain a header and at least one date row.");
       const headers = lines[0].split(",").map(value => value.trim().toLowerCase());
       const dateIndex = headers.indexOf("date");
@@ -376,7 +376,7 @@ function App() {
           is_trading_day: isTrading,
           ...(isTrading ? { session_open: cells[openIndex], session_close: cells[closeIndex] } : {}),
         };
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(item.session_date)) throw new Error("Dates must use YYYY-MM-DD on CSV row " + (index + 2));
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(item.session_date)) throw new Error("Dates must use YYYY-MM-DD on CSV row " + (index + 2));
         if (isTrading && (!item.session_open || !item.session_close)) throw new Error("Trading dates require session_open and session_close on CSV row " + (index + 2));
         return item;
       });
