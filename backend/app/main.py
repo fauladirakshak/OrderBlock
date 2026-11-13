@@ -19,6 +19,7 @@ from app.engine.session_context import SessionAnalysis, SessionAnalysisRequest, 
 from app.engine.liquidity_references import LiquidityReferenceRequest, LiquidityReferenceResult, analyze_liquidity_references
 from app.engine.dealing_range import DealingRangeRequest, DealingRangeResult, analyze_dealing_range
 from app.engine.higher_timeframe_ranges import HigherTimeframeRangeRequest, HigherTimeframeRangeResult, analyze_higher_timeframe_ranges
+from app.engine.higher_timeframe_zones import HigherTimeframeZonesRequest, HigherTimeframeZonesResult, analyze_higher_timeframe_zones
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -194,6 +195,17 @@ def analyze_liquidity_reference_levels(request: LiquidityReferenceRequest) -> Li
 
 
 
+
+
+
+
+@app.post("/api/v1/analysis/higher-timeframe-zones", response_model=HigherTimeframeZonesResult)
+def analyze_higher_timeframe_order_blocks_and_gaps(request: HigherTimeframeZonesRequest) -> HigherTimeframeZonesResult:
+    """Analyse independently supplied higher-timeframe order blocks and fair value gaps."""
+    try:
+        return analyze_higher_timeframe_zones(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/analysis/higher-timeframe-ranges", response_model=HigherTimeframeRangeResult)
