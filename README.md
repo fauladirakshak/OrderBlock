@@ -105,7 +105,7 @@ GitHub Actions runs backend tests and the frontend production build on pushes an
 
 ### Market-data API and provider configuration
 
-The chart requests candles from `GET /api/v1/market-data/candles`. Supported markets are `forex`, `crypto`, and `stocks`; supported timeframes are `5m`, `15m`, `1H`, `4H`, `1D`, and `1W`. The response includes `provider` and `is_synthetic` metadata. The current `synthetic-demo` provider is deterministic and uses a fixed timestamp anchor for repeatable UI and test runs; it is not historical market data and must not be used for trading decisions. The provider interface is the extension point for licensed venue-specific data sources.
+The chart requests candles from `GET /api/v1/market-data/candles`. Supported markets are `forex`, `crypto`, and `stocks`; supported timeframes are `5m`, `15m`, `1H`, `4H`, `1D`, and `1W`. The response includes `provider`, `is_synthetic` and `cache_status` metadata. The current `synthetic-demo` provider is deterministic and uses a fixed timestamp anchor for repeatable UI and test runs; it is not historical market data and must not be used for trading decisions. The provider interface is the extension point for licensed venue-specific data sources.
 
 Set `VITE_API_BASE_URL` in the frontend environment when the API is not running at `http://localhost:8000`.
 
@@ -133,3 +133,16 @@ TWELVEDATA_API_KEY=your_server_side_key
 ```
 
 Data entitlements are not implied by API access. Personal-use plans may prohibit redistribution or multi-user display. Before public launch, obtain written confirmation of display, storage, derived-data and redistribution rights for the selected plan and exchanges. Binance public endpoints are documented for public market data; this does not grant a blanket redistribution licence. Provider adapters are code-complete but live account verification and exchange licensing remain deployment prerequisites.
+
+
+### Historical candle cache
+
+An opt-in SQLite cache is available for historical provider candles. It is disabled by default and never stores synthetic demo candles. Enable it only after the applicable provider and exchange terms permit local storage and the configured retention period:
+
+```bash
+ORDERBLOCK_CACHE_ENABLED=true
+ORDERBLOCK_CACHE_DB=./data/orderblock-market-cache.sqlite3
+ORDERBLOCK_CACHE_TTL_SECONDS=300
+```
+
+Cache keys are scoped by provider, venue, contract type, symbol, timeframe and requested candle count. API responses identify cache status as `disabled`, `hit`, `miss` or `demo`. This cache is a short-lived performance layer, not a canonical historical archive. Long-term storage, backfills, corporate-action adjustments and licensed retention policies remain separate work.
