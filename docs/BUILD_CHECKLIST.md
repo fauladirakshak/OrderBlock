@@ -31,6 +31,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add validated user-supplied historical CSV importer/API with UTC normalization, timezone handling, OHLC validation and monotonic timestamp checks; backend CI passed.
 - [ ] Integrate free Forex historical datasets (Dukascopy/HistData) after format and usage-terms validation.
 - [~] Add offline NSE CM-UDiFF Common Bhavcopy Final ZIP importer/API for selected symbol and series, daily OHLCV conversion and Asia/Kolkata date normalization; CI verification pending. EOD only; usage terms still require review.
+- [~] Add offline HistData Generic ASCII M1 ZIP importer/API, fixed EST (UTC-5, no DST) to UTC conversion, bid OHLCV parsing and strict timestamp/OHLC validation; CI verification pending. Free download source; redistribution terms not assumed.
 - [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
 - [x] Add combined backend workspace-analysis endpoint for structure, order-block, FVG and liquidity-sweep annotations.
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
