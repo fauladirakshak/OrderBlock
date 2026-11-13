@@ -37,7 +37,7 @@ def test_nse_udiff_zip_filters_symbol_and_series_and_normalizes_date():
 
 
 def test_nse_udiff_rejects_wrong_zip_and_missing_symbol():
-    with pytest.raises(ValueError, match="valid base64"):
+    with pytest.raises(ValueError, match="Unable to read NSE UDiFF ZIP"):
         parse_nse_udiff_zip(NseBhavcopyRequest(symbol="TCS", zip_base64=base64.b64encode(b"this is definitely not a zip file").decode()))
     with pytest.raises(ValueError, match="No NSE UDiFF rows"):
         parse_nse_udiff_zip(NseBhavcopyRequest(symbol="INFY", zip_base64=make_zip(HEADER + "2026-11-10,TCS,EQ,1,2,1,2,10\n")))
