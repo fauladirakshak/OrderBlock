@@ -43,12 +43,23 @@ class BinanceSpotProvider:
             raise MarketDataProviderError(f"Binance public market-data request failed: {exc}") from exc
         if not isinstance(rows, list):
             raise MarketDataProviderError("Binance returned an unexpected kline payload.")
+        # Binance includes the currently forming kline in many responses.
+        # Exclude it from the research API so downstream structure/FVG logic sees
+        # completed bars only. Keep the open timestamp as the candle identity.
+        now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+        closed_rows = []
+        for row in rows:
+            try:
+                if int(row[6]) < now_ms:
+                    closed_rows.append(row)
+            except (IndexError, TypeError, ValueError) as exc:
+                raise MarketDataProviderError("Binance returned a malformed kline close timestamp.") from exc
         return [
             Candle(timestamp=datetime.fromtimestamp(int(row[0]) / 1000, tz=timezone.utc)
                    .isoformat().replace("+00:00", "Z"),
                    open=float(row[1]), high=float(row[2]), low=float(row[3]),
                    close=float(row[4]), volume=float(row[5]))
-            for row in rows
+            for row in closed_rows
         ]
 
 
