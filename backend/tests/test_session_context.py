@@ -78,3 +78,53 @@ def test_session_analysis_rejects_unordered_timestamps():
     ])
     with pytest.raises(ValueError, match="strictly increasing"):
         SessionAnalysisRequest(market="stocks", symbol="RELIANCE", candles=data)
+
+
+
+def test_custom_session_window_uses_configured_iana_timezone():
+    data = bars([
+        ("2026-07-15T07:00:00Z", 100, 103, 99, 102, 10),  # 08:00 BST
+        ("2026-07-15T08:00:00Z", 102, 104, 101, 103, 20),  # 09:00 BST
+        ("2026-07-15T10:00:00Z", 103, 105, 102, 104, 30),  # 11:00 BST
+    ])
+    request = SessionAnalysisRequest(
+        market="forex", symbol="EUR/USD", candles=data,
+        custom_windows=[{"name": "London Open Study", "timezone": "Europe/London",
+                         "start": "08:00", "end": "10:00"}],
+    )
+    result = analyze_sessions(request)
+    custom = [item for item in result.sessions if item.name == "London Open Study"]
+    assert len(custom) == 1
+    assert custom[0].candle_count == 2
+    assert custom[0].timezone == "Europe/London"
+    assert "user-configured windows" in result.session_model
+
+
+def test_custom_session_window_rejects_invalid_timezone_and_duplicate_names():
+    data = bars([("2026-11-10T03:45:00Z", 100, 102, 99, 101, 10)])
+    with pytest.raises(ValueError, match="Unknown IANA session timezone"):
+        SessionAnalysisRequest(
+            market="forex", symbol="EUR/USD", candles=data,
+            custom_windows=[{"name": "Custom", "timezone": "Mars/Olympus",
+                             "start": "08:00", "end": "10:00"}],
+        )
+    with pytest.raises(ValueError, match="names must be unique"):
+        SessionAnalysisRequest(
+            market="forex", symbol="EUR/USD", candles=data,
+            custom_windows=[
+                {"name": "Window", "timezone": "Europe/London", "start": "08:00", "end": "10:00"},
+                {"name": "window", "timezone": "America/New_York", "start": "08:00", "end": "10:00"},
+            ],
+        )
+
+
+def test_custom_session_window_api():
+    data = bars([("2026-11-10T08:00:00Z", 100, 102, 99, 101, 10)])
+    response = client.post("/api/v1/analysis/sessions", json={
+        "market": "forex", "symbol": "EUR/USD",
+        "candles": [item.model_dump() for item in data],
+        "custom_windows": [{"name": "User Killzone Study", "timezone": "Europe/London",
+                            "start": "08:00", "end": "10:00"}],
+    })
+    assert response.status_code == 200
+    assert any(item["name"] == "User Killzone Study" for item in response.json()["sessions"])
