@@ -102,3 +102,15 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 
 - [x] Add Dukascopy classic hourly BI5 importer/API and Strategy Lab upload selector. GitHub Actions run `43514149803` passed backend tests and frontend production build on commit `89f013f80cddbdf6d399768091604296d8f52e3c`. Source terms restrict downloads to personal, non-commercial use absent written agreement; no automated scraping or commercial redistribution is implemented.
+
+
+## Phase 5 — Session-aware market context (implementation in progress)
+
+- [x] Add timezone-aware Forex Asia, London and New York session summaries using IANA zones and DST transitions.
+- [x] Add NSE regular-session summaries using the instrument catalogue's Asia/Kolkata open/close metadata.
+- [x] Add 24x7 crypto UTC daily summaries.
+- [x] Add API endpoint POST /api/v1/analysis/sessions with chronological candle validation.
+- [x] Integrate session context panel into the trading workspace.
+- [ ] Verify backend session tests and frontend production build in GitHub Actions.
+- [ ] Add official NSE holiday/special-session calendar handling before using session windows for automated decisions.
+- [ ] Keep broad regional sessions distinct from configurable ICT killzone definitions; do not present them as canonical.
