@@ -71,6 +71,12 @@ def run_walk_forward(request: WalkForwardRequest) -> WalkForwardResult:
             "commission_bps": request.commission_bps,
             "spread_bps": request.spread_bps,
             "slippage_bps": request.slippage_bps,
+            "market_type": request.market_type,
+            "contract_multiplier": request.contract_multiplier,
+            "funding_bps_per_8h": request.funding_bps_per_8h,
+            "swap_bps_per_day": request.swap_bps_per_day,
+            "borrow_bps_per_day": request.borrow_bps_per_day,
+            "tax_bps_on_positive_pnl": request.tax_bps_on_positive_pnl,
         }
         training = run_backtest(BacktestRequest(candles=training_data, **common))
         # Keep the complete prefix so structure/sweep confirmation can use prior
