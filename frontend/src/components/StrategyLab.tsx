@@ -36,10 +36,25 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
     if (!file) return;
     setBusy(true); setError(""); setResult(null); setWalkResult(null); setMessage("Validating and importing CSV…");
     try {
-      const csvText = await file.text();
-      const response = await fetch(apiBase + "/api/v1/market-data/import/csv", {
+      const isNseZip = file.name.toLowerCase().endsWith(".zip");
+      let endpoint = "/api/v1/market-data/import/csv";
+      let body: Record<string, unknown>;
+      if (isNseZip) {
+        if (market !== "stocks") throw new Error("NSE UDiFF ZIP imports are for the Stocks market. Select a stock symbol first.");
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        let binary = "";
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        }
+        endpoint = "/api/v1/market-data/import/nse-udiff";
+        body = { symbol, zip_base64: btoa(binary) };
+      } else {
+        const csvText = await file.text();
+        body = { symbol, market, timeframe, timezone, csv_text: csvText };
+      }
+      const response = await fetch(apiBase + endpoint, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol, market, timeframe, timezone, csv_text: csvText }),
+        body: JSON.stringify(body),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.detail || "CSV import failed.");
@@ -126,9 +141,9 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
     <div className="strategy-heading"><div><div className="eyebrow">PHASE 4 · OUT-OF-SAMPLE VALIDATION</div><h2>Strategy lab</h2><p>Import real historical OHLCV data, configure risk and evaluate the current ICT-inspired setup profile.</p></div><span className="lab-status">NO LIVE EXECUTION</span></div>
     <div className="lab-grid">
       <article className="panel lab-card">
-        <h3>01 · Historical data</h3><p>Use a CSV with timestamp, open, high, low, close and optional volume. Naive timestamps use the timezone below.</p>
+        <h3>01 · Historical data</h3><p>Use a CSV with timestamp, open, high, low, close and optional volume. For NSE EOD, upload the official UDiFF CM bhavcopy ZIP and select the EQ symbol; the importer extracts daily bars only.</p>
         <label className="lab-field">Source timezone (IANA)<input value={timezone} onChange={e=>setTimezone(e.target.value)} placeholder="Asia/Kolkata"/></label>
-        <label className="lab-upload">Choose OHLCV CSV<input type="file" accept=".csv,text/csv" onChange={e=>void importFile(e.target.files?.[0])}/></label>
+        <label className="lab-upload">Choose OHLCV CSV<input type="file" accept=".csv,.zip,text/csv,application/zip" onChange={e=>void importFile(e.target.files?.[0])}/></label>
         {series && <div className="import-summary"><strong>{series.symbol} · {series.timeframe}</strong><span>{series.candle_count.toLocaleString()} candles · {series.provider}</span><span>UTC-normalized · user-supplied source</span></div>}
         <div className="lab-note">No Twelve Data, paid feed or broker account is required. Data ownership and usage rights remain your responsibility.</div>
       </article>
