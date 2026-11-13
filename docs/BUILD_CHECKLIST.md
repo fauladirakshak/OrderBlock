@@ -194,3 +194,10 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Preserve the explicit no-order-block case and the backtest's signal-candle stop fallback.
 - [x] Add regression coverage for a sweep-to-displacement sequence with no opposing candle between those events.
 - [x] Verify the full backend suite and frontend build in GitHub Actions; quality run `43522730003` passed on commit `8f03f5d67bec1608485ea9edf900daf01fb10af4`.
+
+
+## Phase 13 — Session profile validation
+
+- [x] Reject custom session names that collide case-insensitively with built-in market session names.
+- [x] Add regression test ensuring a custom window cannot shadow the default London session and misattribute its timezone.
+- [ ] Verify backend tests and frontend build in GitHub Actions.
