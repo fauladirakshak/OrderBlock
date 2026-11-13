@@ -1,6 +1,6 @@
 # OrderBlock build checklist
 
-Last updated: 2026-11-13
+Last updated: 2026-11-14
 
 Legend: [x] implemented and verified; [~] implemented but awaiting CI/integration verification; [ ] not yet complete.
 
@@ -26,8 +26,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Frontend chart fetches candles from the backend API instead of generating them in the browser.
 - [x] Loading, API error and provider-status states in the workspace.
 - [x] README setup and endpoint documentation.
-- [x] Add Twelve Data historical REST adapter for Forex/crypto/equities and Binance public Spot klines adapter; adapter normalization, error and configuration tests passed in CI on commit 2456991f8acd814b5a34083618e332145a0700b7.
-- [ ] Verify provider plan entitlements, NSE symbol coverage and display/storage/redistribution rights with the selected account before enabling production data.
+- [x] Binance public Spot klines adapter; no private key or subscription required.
+- [x] Enforce zero-subscription provider routing; paid-provider selection is explicitly disabled.
+- [~] Add validated user-supplied historical CSV importer/API with UTC normalization, timezone handling, OHLC validation and monotonic timestamp checks; awaiting CI verification.
+- [ ] Integrate free Forex historical datasets (Dukascopy/HistData) after format and usage-terms validation.
+- [ ] Integrate NSE official downloadable daily reports/bhavcopy where permitted; verify applicable terms and coverage.
 - [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
 - [x] Add combined backend workspace-analysis endpoint for structure, order-block, FVG and liquidity-sweep annotations.
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
@@ -59,11 +62,10 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 ## Provider rollout prerequisites
 
-- [x] Server-side provider selection via ORDERBLOCK_DATA_PROVIDER, including auto-routing (Binance Spot for crypto; Twelve Data for Forex/equities).
-- [x] Twelve Data adapter reads TWELVEDATA_API_KEY only on the backend.
+- [x] Server-side provider selection via ORDERBLOCK_DATA_PROVIDER; auto routes Binance Spot only and fails clearly for markets without a configured free source.
+- [x] Paid-provider selection is disabled by the zero-subscription requirement.
 - [x] Binance public Spot adapter uses the market-data-only endpoint and rejects non-Binance Spot contracts.
 - [x] Normalize provider timestamps to UTC and preserve venue/session metadata in the candle response.
 - [x] Provider configuration/upstream errors return HTTP 503; no silent synthetic fallback.
-- [ ] Configure and verify a Twelve Data account with historical access and explicit rights for the intended display/storage/redistribution use.
-- [ ] Verify Twelve Data coverage and symbol mapping for every target NSE instrument (especially index symbols).
-- [ ] Deploy API with secrets in server environment; never expose provider keys in Vite/client variables.
+- [ ] Verify source terms and supported symbols for each free Forex/NSE dataset before ingestion or redistribution.
+- [ ] Deploy API with no paid market-data secrets; keep any optional broker credentials out of client code.
