@@ -269,3 +269,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Apply the selected pivot consistently across structure, liquidity, dealing-range and multi-timeframe analyses.
 - [x] Recalculate the workspace when swing sensitivity changes.
 - [x] Verify frontend production build in GitHub Actions; workspace analysis quality run `43524602928` passed.
+
+
+## Phase 22 — Core candle-series integrity
+
+- [x] Enforce ISO-8601 timezone-aware timestamps and strictly increasing order in structure and setup request models.
+- [x] Bound direct structure/setup API series to 5,000 candles.
+- [x] Add API regression tests for unordered and timezone-naive workspace/setup candle series.
+- [ ] Verify full backend suite and frontend build in GitHub Actions.
