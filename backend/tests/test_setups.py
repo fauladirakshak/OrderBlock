@@ -9,6 +9,8 @@ from app.engine.structure import Candle, StructureEvent, StructureResult
 from app.engine.zones import FairValueGap
 from app.main import app
 
+client = TestClient(app)
+
 
 def make_candles(count: int = 12, *, displacement: bool = True, sweep: bool = True) -> list[Candle]:
     candles = []
