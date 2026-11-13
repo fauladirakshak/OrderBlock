@@ -1,5 +1,6 @@
 import httpx
 import pytest
+from datetime import datetime, timedelta, timezone
 
 from app.engine.markets import get_instrument
 from app.engine.providers import (
@@ -39,3 +40,18 @@ def test_paid_provider_selection_is_disabled(monkeypatch):
     monkeypatch.setenv("ORDERBLOCK_DATA_PROVIDER", "twelvedata")
     with pytest.raises(ProviderConfigurationError, match="Paid market-data providers are disabled"):
         configured_provider(get_instrument("EUR/USD"))
+
+
+
+def test_binance_excludes_currently_forming_kline(monkeypatch):
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    closed = [now_ms - 7_200_000, "100", "110", "95", "105", "12.5", now_ms - 3_600_001, "0", 10, "0", "0", "0"]
+    forming = [now_ms - 3_600_000, "105", "115", "100", "112", "9.5", now_ms + 3_599_999, "0", 10, "0", "0", "0"]
+    monkeypatch.setattr(httpx, "get", lambda *a, **k: httpx.Response(
+        200, json=[closed, forming], request=httpx.Request("GET", "https://test")
+    ))
+    candles = BinanceSpotProvider(base_url="https://test").get_candles(
+        get_instrument("BTC/USDT"), "1H", 2
+    )
+    assert len(candles) == 1
+    assert candles[0].close == 105
