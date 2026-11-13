@@ -5,6 +5,7 @@ lower-timeframe candles or infer missing market data.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
@@ -30,6 +31,7 @@ class MultiTimeframeRequest(BaseModel):
         if len(self.candles_by_timeframe) < 2:
             raise ValueError("At least one higher timeframe is required.")
         primary_rank = TIMEFRAME_ORDER[self.primary_timeframe]
+        parsed_by_timeframe: dict[str, list[datetime]] = {}
         for timeframe, candles in self.candles_by_timeframe.items():
             if timeframe not in TIMEFRAME_ORDER:
                 raise ValueError(f"Unsupported timeframe: {timeframe}")
@@ -37,6 +39,22 @@ class MultiTimeframeRequest(BaseModel):
                 raise ValueError("All context timeframes must be higher than the primary timeframe.")
             if len(candles) < max(5, 2 * self.pivot + 1):
                 raise ValueError(f"Not enough candles for timeframe {timeframe}.")
+            stamps: list[datetime] = []
+            for candle in candles:
+                try:
+                    parsed = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
+                except ValueError as exc:
+                    raise ValueError(f"{timeframe} candle timestamps must be ISO-8601 values.") from exc
+                if parsed.tzinfo is None:
+                    raise ValueError(f"{timeframe} candle timestamps must include a timezone.")
+                stamps.append(parsed.astimezone(timezone.utc))
+            if any(right <= left for left, right in zip(stamps, stamps[1:])):
+                raise ValueError(f"{timeframe} candle timestamps must be strictly increasing.")
+            parsed_by_timeframe[timeframe] = stamps
+        primary_end = parsed_by_timeframe[self.primary_timeframe][-1]
+        for timeframe, stamps in parsed_by_timeframe.items():
+            if timeframe != self.primary_timeframe and stamps[-1] > primary_end:
+                raise ValueError(f"{timeframe} context cannot extend beyond the primary chart's latest candle.")
         return self
 
 
