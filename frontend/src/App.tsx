@@ -55,6 +55,7 @@ function App() {
   const [market, setMarket] = useState<Market>("Forex");
   const [instrument, setInstrument] = useState(instruments.Forex[0]);
   const [timeframe, setTimeframe] = useState("1H");
+  const [swingPivot, setSwingPivot] = useState(2);
   const [activeTab, setActiveTab] = useState("Overview");
   const [candles, setCandles] = useState<CandlePoint[]>([]);
   const [provider, setProvider] = useState("loading");
@@ -141,7 +142,7 @@ function App() {
           const workspaceResponse = await fetch(API_BASE + "/api/v1/analysis/workspace", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ candles: payload.candles, pivot: 2 }),
+            body: JSON.stringify({ candles: payload.candles, pivot: swingPivot }),
             signal: controller.signal,
           });
           if (!workspaceResponse.ok) throw new Error("Analysis API returned HTTP " + workspaceResponse.status);
@@ -333,7 +334,7 @@ function App() {
     }
     void loadCandles();
     return () => controller.abort();
-  }, [market, instrument, timeframe]);
+  }, [market, instrument, timeframe, swingPivot]);
   const zoneItems = [
     ...(overlays?.order_blocks ?? []).slice(-8).map((z, i) => ({ key: "ob-" + z.candle_index + "-" + i, kind: "Order Block", direction: z.direction, top: z.top, bottom: z.bottom, status: z.invalidated ? "Invalidated" : z.mitigated ? "Mitigated" : "Active", rule: z.rule, index: z.candle_index })),
     ...(overlays?.fair_value_gaps ?? []).slice(-8).map((z, i) => ({ key: "fvg-" + z.middle_candle_index + "-" + i, kind: "Fair Value Gap", direction: z.direction, top: z.top, bottom: z.bottom, status: z.filled ? "Filled" : z.mitigated ? "Touched" : "Open", rule: z.rule, index: z.middle_candle_index })),
@@ -440,7 +441,7 @@ function App() {
         <section className="content-grid">
           <article className="panel chart-panel">
             <div className="panel-head chart-title"><div><h2>{instrument} <span className="demo-tag">{provider === "synthetic-demo" || provider === "preview-synthetic" ? "SYNTHETIC DEMO" : provider === "unavailable" ? "OFFLINE" : provider === "loading" ? "LOADING" : provider.toUpperCase()}</span></h2><p>{market} · {timeframe} · backend-provided OHLC</p></div><label className="instrument-select"><span>INSTRUMENT</span><select value={instrument} onChange={e=>setInstrument(e.target.value)}>{instruments[market].map(s=><option key={s}>{s}</option>)}</select></label></div>
-            <div className="timeframes">{timeframes.map(t=><button key={t} className={timeframe===t?"timeframe active":"timeframe"} onClick={()=>setTimeframe(t)}>{t}</button>)}</div>
+            <div className="timeframes">{timeframes.map(t=><button key={t} className={timeframe===t?"timeframe active":"timeframe"} onClick={()=>setTimeframe(t)}>{t}</button>)}</div><label className="instrument-select swing-pivot-select"><span>SWING PIVOT</span><select value={swingPivot} onChange={e=>setSwingPivot(Number(e.target.value))}><option value={1}>1 · Fast</option><option value={2}>2 · Balanced</option><option value={3}>3 · Conservative</option><option value={4}>4 · Strict</option><option value={5}>5 · Very strict</option></select></label>
             <div className="chart-wrap">{loading ? <div className="data-state">Loading candle series…</div> : candles.length ? <TradingChart candles={candles} overlays={chartOverlays}/> : <div className="data-state error">{dataError || "No candle data available."}<small>Start the FastAPI backend and refresh this workspace.</small></div>}</div>
             <div className="chart-legend"><span><i className="dot teal"/> Bullish candle</span><span><i className="dot red"/> Bearish candle</span><span className="chart-disclaimer">{provider === "synthetic-demo" || provider === "preview-synthetic" ? "Synthetic demo data — not tradable prices" : provider === "unavailable" ? "No market data connection" : provider === "loading" ? "Market data loading" : "Source: " + provider + " · verify source rights and instrument metadata"}</span></div>
           </article>
