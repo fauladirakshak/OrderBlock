@@ -290,3 +290,6 @@ If Binance returns only an in-progress kline and no completed candles, the provi
 
 
 The backtest's current maximum-drawdown metric is based on realized closed-trade equity. It excludes intratrade mark-to-market excursions and is labelled accordingly in Strategy Lab; do not interpret it as a complete peak account-risk measure.
+
+
+The workspace exposes a global swing-pivot selector (1–5) that is applied consistently to market structure, liquidity sweeps/references, dealing ranges, multi-timeframe structure and higher-timeframe OB/FVG analysis. Changing it reloads and recalculates the current chart context.
