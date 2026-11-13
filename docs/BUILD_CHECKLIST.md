@@ -261,3 +261,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Explicitly document that the current maximum-drawdown metric is based on realized closed-trade equity and excludes intratrade mark-to-market excursions.
 - [x] Label the Strategy Lab metric as realized drawdown to prevent overstating its coverage.
 - [ ] Verify backend and frontend CI.
+
+
+## Phase 21 — Configurable swing sensitivity
+
+- [x] Add a workspace swing-pivot selector with fast, balanced, conservative and stricter settings.
+- [x] Apply the selected pivot consistently across structure, liquidity, dealing-range and multi-timeframe analyses.
+- [x] Recalculate the workspace when swing sensitivity changes.
+- [ ] Verify frontend production build in GitHub Actions.
