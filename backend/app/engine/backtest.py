@@ -7,6 +7,7 @@ not an execution engine or investment advice.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
@@ -27,7 +28,15 @@ class BacktestRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_order(self) -> "BacktestRequest":
-        stamps = [c.timestamp for c in self.candles]
+        stamps = []
+        for candle in self.candles:
+            try:
+                parsed = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError("candle timestamps must be ISO-8601 values") from exc
+            if parsed.tzinfo is None:
+                raise ValueError("candle timestamps must include a timezone")
+            stamps.append(parsed.astimezone(timezone.utc))
         if any(b <= a for a, b in zip(stamps, stamps[1:])):
             raise ValueError("candle timestamps must be strictly increasing")
         return self
@@ -75,7 +84,7 @@ class BacktestMetrics(BaseModel):
 
 class BacktestResult(BaseModel):
     strategy: str = "ICT-inspired-confluence-v0.1"
-    is_synthetic: bool = False
+    data_source_note: str = "Caller-supplied OHLCV; source provenance and usage rights are not independently verified."
     execution_model: str
     metrics: BacktestMetrics
     trades: list[BacktestTrade]
