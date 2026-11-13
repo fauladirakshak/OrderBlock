@@ -232,4 +232,5 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Size quantity against price risk plus estimated execution costs rather than raw stop distance alone.
 - [x] Return the estimated initial cash risk per trade and use it as the denominator for realized R-multiple.
 - [x] Add regression assertions that configured risk budget remains stable when execution costs are enabled.
+- [x] Display cost-adjusted initial risk in the Strategy Lab trade table and include it in CSV exports.
 - [ ] Verify full backend suite and frontend build in GitHub Actions.
