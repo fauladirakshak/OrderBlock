@@ -64,6 +64,7 @@ class BacktestTrade(BaseModel):
     stop_price: float
     target_price: float
     quantity: float
+    initial_risk_cash: float
     gross_pnl: float
     fees: float
     holding_costs: float
@@ -129,15 +130,23 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             valid_stop_side = (direction == "long" and raw_entry > stop) or (direction == "short" and raw_entry < stop)
             if risk_per_unit > 0 and valid_stop_side:
                 risk_cash = equity * risk_fraction
-                quantity = risk_cash / (risk_per_unit * request.contract_multiplier)
-                target = raw_entry + risk_per_unit * request.target_r_multiple * (1 if direction == "long" else -1)
                 entry_exec = raw_entry * (1 + half_spread + slippage) if direction == "long" else raw_entry * (1 - half_spread - slippage)
+                stop_exec = stop * (1 - half_spread - slippage) if direction == "long" else stop * (1 + half_spread + slippage)
+                multiplier = request.contract_multiplier
+                stop_loss_per_unit = abs(entry_exec - stop_exec) * multiplier
+                estimated_round_trip_commission_per_unit = commission * (entry_exec + stop_exec) * multiplier
+                risk_per_unit_cash = stop_loss_per_unit + estimated_round_trip_commission_per_unit
+                if risk_per_unit_cash <= 0:
+                    pending = None
+                    continue
+                quantity = risk_cash / risk_per_unit_cash
+                target = raw_entry + risk_per_unit * request.target_r_multiple * (1 if direction == "long" else -1)
                 position = {
                     "direction": direction, "signal_index": pending["signal_index"],
                     "signal_timestamp": pending["signal_timestamp"], "entry_index": index,
                     "entry_timestamp": candle.timestamp, "entry_raw": raw_entry,
                     "entry_exec": entry_exec, "stop": stop, "target": target,
-                    "quantity": quantity,
+                    "quantity": quantity, "initial_risk_cash": quantity * risk_per_unit_cash,
                 }
             pending = None
 
@@ -177,7 +186,7 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
                 pre_tax_pnl = gross - fees - holding_costs
                 taxes = max(0.0, pre_tax_pnl) * request.tax_bps_on_positive_pnl / 10000.0
                 net = pre_tax_pnl - taxes
-                initial_risk = abs(position["entry_raw"] - position["stop"]) * position["quantity"] * multiplier
+                initial_risk = position["initial_risk_cash"]
                 r_value = net / initial_risk if initial_risk else 0.0
                 equity += net
                 trades.append(BacktestTrade(
@@ -187,7 +196,8 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
                     entry_timestamp=position["entry_timestamp"], exit_timestamp=candle.timestamp,
                     entry_price=position["entry_exec"], exit_price=exit_exec,
                     stop_price=position["stop"], target_price=position["target"],
-                    quantity=position["quantity"], gross_pnl=gross, fees=fees,
+                    quantity=position["quantity"], initial_risk_cash=position["initial_risk_cash"],
+                    gross_pnl=gross, fees=fees,
                     holding_costs=holding_costs, taxes=taxes, net_pnl=net,
                     r_multiple=r_value, exit_reason=exit_reason,
                 ))
@@ -244,7 +254,7 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             "Signals are recalculated on historical prefixes only; future candles are never supplied to signal generation.",
             "Entries occur at the next candle open, not at the signal candle close.",
             "If stop and target are both touched in one OHLC candle, the stop is assumed first because intrabar order is unknowable.",
-            "Position size applies the configured contract multiplier. Commission, approximate holding costs and configured positive-PnL tax are deducted; actual venue schedules and tax treatment must be verified separately.",
+            "Position size includes estimated spread, slippage and round-trip commission in the initial stop-risk budget. Holding costs and taxes depend on future holding duration and realized PnL and are deducted afterward; an adverse gap through the stop can still exceed planned risk.",
             "Crypto funding is prorated by elapsed eight-hour intervals, Forex swap by elapsed days, and stock borrow by elapsed days on short positions. These are configurable estimates, not exact venue settlement schedules.",
             "This independently implemented ICT-inspired research strategy is not canonical ICT code, investment advice or a live trading system.",
         ],
