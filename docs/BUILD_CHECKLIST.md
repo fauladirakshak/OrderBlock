@@ -235,3 +235,13 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add regression assertions that configured risk budget remains stable when execution costs are enabled.
 - [x] Display cost-adjusted initial risk in the Strategy Lab trade table and include it in CSV exports.
 - [x] Verify full backend suite and frontend build in GitHub Actions; backend quality run `43523624096` passed and integrated Strategy Lab UI build `43523682223` passed.
+
+
+## Phase 18 — Exchange calendar override support
+
+- [x] Add per-date trading-day and special-session overrides to session analysis requests.
+- [x] Validate unique calendar dates, required hours on trading days, and no hours on holidays.
+- [x] Apply listed holidays and special-session hours to stock/equity session summaries.
+- [x] Add backend regression tests for excluded holiday dates, shortened special sessions, duplicate dates and invalid market usage.
+- [x] Add workspace CSV import controls for the calendar format; calendar remains user-supplied and is not fabricated.
+- [ ] Verify backend tests and frontend build in GitHub Actions.
