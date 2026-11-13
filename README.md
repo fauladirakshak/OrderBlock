@@ -271,3 +271,6 @@ The Binance Spot adapter now drops klines whose exchange-provided close timestam
 
 
 Walk-forward evaluation requires `step_bars >= test_window_bars`. This prevents overlapping out-of-sample folds from double-counting the same market bars in the compounded aggregate return. Fold-level returns and benchmarks remain reported separately.
+
+
+The backtester now sizes positions against estimated stop-loss exposure after entry/exit spread and slippage plus round-trip commission, and returns the resulting `initial_risk_cash` on every trade. Funding, swap, borrow and tax are still applied as holding/realization costs after entry; gap-through-stop losses can exceed the planned risk budget.
