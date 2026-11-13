@@ -67,7 +67,7 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
       series.createPriceLine({ price: gap.top, color, lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: true, title: gap.filled ? "FVG filled" : gap.mitigated ? "FVG touched" : "FVG" });
       series.createPriceLine({ price: gap.bottom, color, lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: false, title: "" });
     }
-    for (const level of (overlays?.reference_levels ?? []).slice(-8)) {
+    for (const level of (overlays?.reference_levels ?? []).slice(0,8)) {
       const color = level.kind.includes("week") ? "#a58bd2" : level.kind.includes("equal") ? "#6e9fc8" : "#d5a45e";
       series.createPriceLine({ price: level.price, color, lineWidth: 1, lineStyle: level.swept ? LineStyle.Dashed : LineStyle.Solid, axisLabelVisible: true, title: level.label + (level.swept ? " swept" : "") });
     }
