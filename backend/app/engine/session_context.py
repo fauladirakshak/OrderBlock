@@ -58,22 +58,6 @@ class SessionAnalysisRequest(BaseModel):
             raise ValueError("custom session window names must be unique")
         return self
 
-    @model_validator(mode="after")
-    def validate_candle_order(self) -> "SessionAnalysisRequest":
-        stamps = []
-        for candle in self.candles:
-            try:
-                stamp = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
-            except ValueError as exc:
-                raise ValueError("candle timestamps must be ISO-8601 values") from exc
-            if stamp.tzinfo is None:
-                raise ValueError("candle timestamps must include a timezone")
-            stamps.append(stamp.astimezone(timezone.utc))
-        if any(right <= left for left, right in zip(stamps, stamps[1:])):
-            raise ValueError("candle timestamps must be strictly increasing")
-        return self
-
-
 class SessionSummary(BaseModel):
     name: str
     session_date: str
