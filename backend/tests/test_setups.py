@@ -269,3 +269,15 @@ def test_order_block_must_form_after_the_liquidity_sweep(engine_fixtures):
     assert len(result.setups) == 1
     assert result.setups[0].order_block_index is None
     assert result.setups[0].order_block_top is None
+
+
+
+def test_setup_api_rejects_unordered_candle_timestamps():
+    candles = [c.model_dump() for c in make_candles()]
+    candles[6]["timestamp"] = candles[5]["timestamp"]
+    response = client.post("/api/v1/analysis/setups", json={
+        "candles": candles,
+        "profile": {"pivot": 2, "sweep_lookback": 10, "atr_period": 5},
+    })
+    assert response.status_code == 422
+    assert "strictly increasing" in response.json()["detail"][0]["msg"]
