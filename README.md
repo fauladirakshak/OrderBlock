@@ -214,3 +214,10 @@ These are descriptive session windows, not canonical ICT killzones, trade signal
 The workspace also calls `POST /api/v1/analysis/liquidity-references` to calculate previous available day/week highs and lows plus equal-high/equal-low clusters from confirmed swing pivots. The instrument's IANA timezone and tick size are supplied from the catalogue. Equal-swing tolerance is expressed in ticks; sweeps require a wick beyond the level and a close back inside after the level's confirmation index. Previous-period levels become eligible only after the source period's final supplied candle.
 
 This is a descriptive reference map, not proof of resting orders or a trade signal. The current implementation selects the previous available candle period in the supplied data; incomplete datasets, missing holidays, corporate actions and partial sessions can distort levels. It does not yet include an official holiday calendar or futures-specific rollover/continuous-contract adjustments.
+
+
+### Premium / discount dealing range
+
+`POST /api/v1/analysis/dealing-range` selects the latest confirmed swing high and swing low that were eligible before the final candle, calculates the 50% equilibrium, and classifies the latest close as premium, discount, equilibrium, above-range or below-range. The configurable equilibrium band is centered on 50%. The chart displays range high, equilibrium and range low, and the workspace reports the current position within the range.
+
+This is geometric context only. It does not predict reversal, define a trade entry, or claim canonical ICT dealing-range equivalence. The range can be unavailable until both confirmed swing sides exist; incomplete history can change the selected swing pair.
