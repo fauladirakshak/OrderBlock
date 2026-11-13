@@ -15,10 +15,48 @@ from app.engine.markets import get_instrument
 from app.engine.structure import Candle
 
 
+class CustomSessionWindow(BaseModel):
+    name: str = Field(min_length=1, max_length=40)
+    timezone: str = Field(min_length=1, max_length=64)
+    start: str
+    end: str
+
+    @model_validator(mode="after")
+    def validate_window(self) -> "CustomSessionWindow":
+        try:
+            ZoneInfo(self.timezone)
+        except (ZoneInfoNotFoundError, ValueError) as exc:
+            raise ValueError(f"Unknown IANA session timezone: {self.timezone}") from exc
+        start_minute = _minutes(self.start)
+        end_minute = _minutes(self.end, allow_24=True)
+        if start_minute == end_minute:
+            raise ValueError("custom session start and end must differ")
+        return self
+
+
 class SessionAnalysisRequest(BaseModel):
     market: Literal["forex", "crypto", "stocks"]
     symbol: str = Field(min_length=1, max_length=32)
     candles: list[Candle] = Field(min_length=1, max_length=5000)
+    custom_windows: list[CustomSessionWindow] = Field(default_factory=list, max_length=8)
+
+    @model_validator(mode="after")
+    def validate_candle_order(self) -> "SessionAnalysisRequest":
+        stamps = []
+        for candle in self.candles:
+            try:
+                stamp = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError("candle timestamps must be ISO-8601 values") from exc
+            if stamp.tzinfo is None:
+                raise ValueError("candle timestamps must include a timezone")
+            stamps.append(stamp.astimezone(timezone.utc))
+        if any(right <= left for left, right in zip(stamps, stamps[1:])):
+            raise ValueError("candle timestamps must be strictly increasing")
+        names = [window.name.casefold() for window in self.custom_windows]
+        if len(names) != len(set(names)):
+            raise ValueError("custom session window names must be unique")
+        return self
 
     @model_validator(mode="after")
     def validate_candle_order(self) -> "SessionAnalysisRequest":
@@ -98,6 +136,12 @@ def _session_windows(request: SessionAnalysisRequest):
 
 def analyze_sessions(request: SessionAnalysisRequest) -> SessionAnalysis:
     windows, session_model = _session_windows(request)
+    if request.custom_windows:
+        windows = windows + [
+            (window.name, window.timezone, window.start, window.end)
+            for window in request.custom_windows
+        ]
+        session_model += " + user-configured windows"
     parsed_windows = []
     for name, zone_name, start_text, end_text in windows:
         try:
