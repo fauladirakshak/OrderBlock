@@ -14,6 +14,7 @@ from app.engine.backtest import BacktestRequest, BacktestResult, run_backtest
 from app.engine.walk_forward import WalkForwardRequest, WalkForwardResult, run_walk_forward
 from app.engine.nse_bhavcopy import NseBhavcopyRequest, parse_nse_udiff_zip
 from app.engine.histdata_forex import HistDataForexRequest, parse_histdata_forex_zip
+from app.engine.dukascopy_bi5 import DukascopyBi5Request, parse_dukascopy_bi5_zip
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -154,5 +155,15 @@ def import_histdata_forex_zip(request: HistDataForexRequest) -> HistoricalImport
     """Import a user-downloaded HistData Generic ASCII M1 Forex ZIP."""
     try:
         return parse_histdata_forex_zip(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+
+@app.post("/api/v1/market-data/import/dukascopy-bi5", response_model=HistoricalImportResult)
+def import_dukascopy_bi5_archive(request: DukascopyBi5Request) -> HistoricalImportResult:
+    """Import user-downloaded classic Dukascopy hourly BI5 tick files and aggregate bid OHLC bars."""
+    try:
+        return parse_dukascopy_bi5_zip(request)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
