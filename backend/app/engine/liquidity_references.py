@@ -143,6 +143,16 @@ def analyze_liquidity_references(request: LiquidityReferenceRequest) -> Liquidit
     levels.extend(_period_levels(request.candles, zone, weekly=True))
     levels.extend(_equal_swing_levels(request.candles, request.pivot,
                                      request.tick_size * request.tolerance_ticks))
+    for level in levels:
+        is_high = level.kind in {"previous_day_high", "previous_week_high", "equal_highs"}
+        for index in range(level.confirmed_index + 1, len(request.candles)):
+            candle = request.candles[index]
+            crossed = candle.high > level.price and candle.close < level.price if is_high else candle.low < level.price and candle.close > level.price
+            if crossed:
+                level.swept = True
+                level.sweep_index = index
+                level.sweep_timestamp = candle.timestamp
+                break
     return LiquidityReferenceResult(
         timezone=request.timezone,
         levels=levels,
