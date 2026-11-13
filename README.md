@@ -284,3 +284,6 @@ The workspace includes a CSV upload for this calendar with columns `date,is_trad
 
 
 The chart header, chart legend and sidebar feed status now display the actual provider state. Synthetic preview/demo candles are explicitly labelled as synthetic; a connected source displays its provider name rather than the previous generic disconnected label.
+
+
+If Binance returns only an in-progress kline and no completed candles, the provider now returns a clear upstream-data error instead of an empty candle series.
