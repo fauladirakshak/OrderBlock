@@ -12,6 +12,8 @@ type MtfContext = { timeframe: string; candle_count: number; bias: "bullish" | "
 type MtfAnalysis = { primary_timeframe: string; primary_bias: "bullish" | "bearish" | "neutral"; higher_timeframe_context: MtfContext[]; alignment: "bullish" | "bearish" | "mixed" | "neutral"; summary: string; notes: string[] };
 type SessionSummary = { name: string; session_date: string; timezone: string; open: number; high: number; low: number; close: number; range_points: number; range_pct: number; volume: number; candle_count: number };
 type SessionAnalysis = { session_model: string; latest_candle_sessions: string[]; sessions: SessionSummary[]; notes: string[] };
+type LiquidityLevel = { kind: string; label: string; price: number; source_period: string; touch_count: number; swept: boolean; sweep_timestamp: string | null; sweep_index: number | null };
+type LiquidityReferences = { timezone: string; levels: LiquidityLevel[]; notes: string[] };
 const timeframeRank: Record<string, number> = { "5m": 1, "15m": 2, "1H": 3, "4H": 4, "1D": 5, "1W": 6 };
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 const apiMarkets: Record<Market, string> = { Forex: "forex", Crypto: "crypto", Stocks: "stocks" };
@@ -56,6 +58,8 @@ function App() {
   const [mtfError, setMtfError] = useState("");
   const [sessionContext, setSessionContext] = useState<SessionAnalysis | null>(null);
   const [sessionError, setSessionError] = useState("");
+  const [liquidityReferences, setLiquidityReferences] = useState<LiquidityReferences | null>(null);
+  const [liquidityError, setLiquidityError] = useState("");
   const [selectedZoneKey, setSelectedZoneKey] = useState("");
   const [instrumentMetadata, setInstrumentMetadata] = useState<InstrumentMetadata | null>(null);
   useEffect(() => {
@@ -100,9 +104,43 @@ function App() {
           setMtfError("Static preview mode: higher-timeframe analysis appears when the FastAPI service is connected.");
           setSessionContext(null);
           setSessionError("Session summaries appear when the FastAPI service is connected.");
+          setLiquidityReferences(null);
+          setLiquidityError("Liquidity reference levels appear when the FastAPI service is connected.");
           setOverlays(null);
           setAnalysisError("Static preview mode: backend overlays appear when the FastAPI service is connected.");
           return;
+        }
+        try {
+          const liquidityResponse = await fetch(API_BASE + "/api/v1/analysis/liquidity-references", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              candles: payload.candles,
+              timezone: selectedMetadata?.timezone || "Etc/UTC",
+              pivot: 2,
+              tick_size: selectedMetadata?.tick_size || 0.00001,
+              tolerance_ticks: 2,
+            }),
+            signal: controller.signal,
+          });
+          if (!liquidityResponse.ok) throw new Error("Liquidity reference API returned HTTP " + liquidityResponse.status);
+          const references = await liquidityResponse.json() as LiquidityReferences;
+          setLiquidityReferences(references);
+          setLiquidityError("");
+          const workspaceWithReferences = await fetch(API_BASE + "/api/v1/analysis/workspace", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ candles: payload.candles, pivot: 2 }),
+            signal: controller.signal,
+          });
+          if (!workspaceWithReferences.ok) throw new Error("Analysis API returned HTTP " + workspaceWithReferences.status);
+          const baseOverlay = await workspaceWithReferences.json() as ChartOverlay;
+          baseOverlay.reference_levels = references.levels;
+          setOverlays(baseOverlay);
+          setAnalysisError("");
+        } catch (failure) {
+          if (failure instanceof Error && failure.name === "AbortError") return;
+          setLiquidityReferences(null);
+          setLiquidityError(failure instanceof Error ? failure.message : "Liquidity references unavailable.");
         }
         try {
           const sessionResponse = await fetch(API_BASE + "/api/v1/analysis/sessions", {
@@ -120,15 +158,6 @@ function App() {
           setSessionError(failure instanceof Error ? failure.message : "Session context unavailable.");
         }
         try {
-          const analysisResponse = await fetch(API_BASE + "/api/v1/analysis/workspace", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ candles: payload.candles, pivot: 2 }),
-            signal: controller.signal,
-          });
-          if (!analysisResponse.ok) throw new Error("Analysis API returned HTTP " + analysisResponse.status);
-          setOverlays(await analysisResponse.json() as ChartOverlay);
-          setAnalysisError("");
           try {
             const higherTimeframes = timeframes.filter(tf => timeframeRank[tf] > timeframeRank[timeframe]);
             const contextSeries = await Promise.all(higherTimeframes.map(async tf => {
@@ -167,6 +196,7 @@ function App() {
         if (error instanceof Error && error.name === "AbortError") return;
         setCandles([]);
         setSessionContext(null);
+        setLiquidityReferences(null);
         setOverlays(null);
         setProvider("unavailable");
         setDataError(error instanceof Error ? error.message : "Unable to load market data.");
@@ -217,7 +247,7 @@ function App() {
           </article>
           <article className="panel watch-panel"><div className="panel-head"><div><h2>Market watch</h2><p>{market} instruments</p></div></div><div className="watch-list">{instruments[market].map((symbol,i)=><button className={`watch-row ${instrument===symbol?"watch-active":""}`} key={symbol} onClick={()=>setInstrument(symbol)}><div><strong>{symbol}</strong><small>{market==="Forex"?"FX":market==="Crypto"?(i===0||i===1?"Spot / Perpetual":"Spot"):"NSE sample list"}</small></div><div className="watch-price"><strong>{instrument===symbol?"Selected":"Open chart"}</strong><small>Demo only</small></div></button>)}</div><div className="provider-note">Provider: {provider}. Live data is not connected. Real market prices require a licensed source.</div></article>
         </section>
-        <section className="bottom-grid"><article className="panel"><div className="panel-head"><div><h2>Higher-timeframe context</h2><p>Independent structure read across larger intervals</p></div><span className={`bias-pill ${mtf?.alignment || "neutral"}`}>{mtf?.alignment?.toUpperCase() || "PENDING"}</span></div><div className="mtf-list">{mtf?.higher_timeframe_context.map(item=><div className="mtf-row" key={item.timeframe}><strong>{item.timeframe}</strong><span className={`bias-text ${item.bias}`}>{item.bias.toUpperCase()}</span><small>{item.explanation}</small></div>)}</div><div className="overlay-note">{mtf?.summary || mtfError || "Waiting for higher-timeframe analysis…"}</div><div className="context-copy">{mtf?.notes[2] || "Directional context is descriptive research, not a trade signal."}</div></article><article className="panel"><div className="panel-head"><div><h2>Live analysis overlays</h2><p>Rule-based annotations calculated from the displayed candles</p></div></div><div className="layer-list"><div><i className="dot teal"/> BOS / CHoCH <span>{overlays?.structure_events.length ?? "—"}</span></div><div><i className="dot red"/> Order blocks <span>{overlays?.order_blocks.length ?? "—"}</span></div><div><i className="dot amber"/> Fair Value Gaps <span>{overlays?.fair_value_gaps.length ?? "—"}</span></div><div><i className="dot violet"/> Liquidity sweeps <span>{overlays?.liquidity_sweeps.length ?? "—"}</span></div></div><div className="overlay-note">{analysisError || (overlays ? "Historical pattern observations only — not trade instructions." : "Waiting for analysis response…")}</div></article><article className="panel"><div className="panel-head"><div><h2>Zone inspection</h2><p>Review detected zones and their rule notes</p></div><span className="zone-count">{zoneItems.length} zones</span></div><div className="zone-inspector-list">{zoneItems.length ? zoneItems.slice(0,10).map(z=><button key={z.key} className={"zone-inspector-row " + (selectedZone?.key===z.key?"selected":"")} onClick={()=>setSelectedZoneKey(z.key)}><span className={"zone-swatch " + z.direction}/><span className="zone-row-main"><strong>{z.direction} {z.kind}</strong><small>{z.status} · {z.bottom.toFixed(5)} – {z.top.toFixed(5)}</small></span><span className="zone-row-arrow">›</span></button>) : <div className="empty-zones">No zones returned by the analysis engine.</div>}</div>{selectedZone && <div className="zone-detail"><div className="zone-detail-title">{selectedZone.kind} · {selectedZone.status}</div><div className="zone-detail-range">{selectedZone.bottom.toFixed(5)} — {selectedZone.top.toFixed(5)}</div><p>{selectedZone.rule}</p><small>Zone annotations are rule-based historical observations, not entry or exit instructions.</small></div>}</article><article className="panel"><div className="panel-head"><div><h2>Session context</h2><p>{sessionContext?.session_model || "Timezone-aware trading windows"}</p></div><span className="zone-count">{sessionContext?.latest_candle_sessions.length ? sessionContext.latest_candle_sessions.join(" / ") : "—"}</span></div><div className="session-context-list">{sessionContext?.sessions.slice(-6).reverse().map((item,i)=><div className="session-context-row" key={item.name+"-"+item.session_date}><div><strong>{item.name}</strong><small>{item.session_date} · {item.timezone}</small></div><div className="session-range"><strong>{item.range_pct.toFixed(2)}%</strong><small>{item.low.toFixed(instrumentMetadata?.price_precision ?? 5)} – {item.high.toFixed(instrumentMetadata?.price_precision ?? 5)}</small></div></div>)}</div><div className="overlay-note">{sessionError || (sessionContext?.notes[0] ?? "Waiting for session analysis…")}</div></article><article className="panel"><div className="panel-head"><div><h2>Market-specific context</h2><p>{market} configuration</p></div></div><div className="instrument-meta-grid">{instrumentMetadata ? <><div><small>VENUE / CONTRACT</small><strong>{instrumentMetadata.venue_id} · {instrumentMetadata.contract_type}</strong></div><div><small>SESSION / TIMEZONE</small><strong>{instrumentMetadata.session} · {instrumentMetadata.timezone}</strong></div><div><small>PRICE PRECISION / TICK</small><strong>{instrumentMetadata.price_precision} decimals · {instrumentMetadata.tick_size}</strong></div></> : <div className="context-copy">Instrument metadata is loaded from the API catalogue when the backend is connected.</div>}</div><div className="context-copy">{market==="Forex"?"Session-aware analysis will account for Asia, London and New York sessions, pip precision and spread.":market==="Crypto"?"Crypto instruments will retain exchange and contract identity, with optional funding, open interest and liquidation overlays.":"Equity analysis will respect exchange calendars, trading sessions, gaps and corporate actions."}</div><div className="checklist"><div>01 <span>Confirm higher-timeframe context</span></div><div>02 <span>Identify liquidity and invalidation</span></div><div>03 <span>Validate risk and costs</span></div></div></article></section>
+        <section className="bottom-grid"><article className="panel"><div className="panel-head"><div><h2>Higher-timeframe context</h2><p>Independent structure read across larger intervals</p></div><span className={`bias-pill ${mtf?.alignment || "neutral"}`}>{mtf?.alignment?.toUpperCase() || "PENDING"}</span></div><div className="mtf-list">{mtf?.higher_timeframe_context.map(item=><div className="mtf-row" key={item.timeframe}><strong>{item.timeframe}</strong><span className={`bias-text ${item.bias}`}>{item.bias.toUpperCase()}</span><small>{item.explanation}</small></div>)}</div><div className="overlay-note">{mtf?.summary || mtfError || "Waiting for higher-timeframe analysis…"}</div><div className="context-copy">{mtf?.notes[2] || "Directional context is descriptive research, not a trade signal."}</div></article><article className="panel"><div className="panel-head"><div><h2>Live analysis overlays</h2><p>Rule-based annotations calculated from the displayed candles</p></div></div><div className="layer-list"><div><i className="dot teal"/> BOS / CHoCH <span>{overlays?.structure_events.length ?? "—"}</span></div><div><i className="dot red"/> Order blocks <span>{overlays?.order_blocks.length ?? "—"}</span></div><div><i className="dot amber"/> Fair Value Gaps <span>{overlays?.fair_value_gaps.length ?? "—"}</span></div><div><i className="dot violet"/> Liquidity sweeps <span>{overlays?.liquidity_sweeps.length ?? "—"}</span></div></div><div className="overlay-note">{analysisError || (overlays ? "Historical pattern observations only — not trade instructions." : "Waiting for analysis response…")}</div></article><article className="panel"><div className="panel-head"><div><h2>Zone inspection</h2><p>Review detected zones and their rule notes</p></div><span className="zone-count">{zoneItems.length} zones</span></div><div className="zone-inspector-list">{zoneItems.length ? zoneItems.slice(0,10).map(z=><button key={z.key} className={"zone-inspector-row " + (selectedZone?.key===z.key?"selected":"")} onClick={()=>setSelectedZoneKey(z.key)}><span className={"zone-swatch " + z.direction}/><span className="zone-row-main"><strong>{z.direction} {z.kind}</strong><small>{z.status} · {z.bottom.toFixed(5)} – {z.top.toFixed(5)}</small></span><span className="zone-row-arrow">›</span></button>) : <div className="empty-zones">No zones returned by the analysis engine.</div>}</div>{selectedZone && <div className="zone-detail"><div className="zone-detail-title">{selectedZone.kind} · {selectedZone.status}</div><div className="zone-detail-range">{selectedZone.bottom.toFixed(5)} — {selectedZone.top.toFixed(5)}</div><p>{selectedZone.rule}</p><small>Zone annotations are rule-based historical observations, not entry or exit instructions.</small></div>}</article><article className="panel"><div className="panel-head"><div><h2>Liquidity reference levels</h2><p>Previous periods and confirmed equal swings · {liquidityReferences?.timezone || "instrument timezone"}</p></div><span className="zone-count">{liquidityReferences?.levels.length ?? "—"} levels</span></div><div className="session-context-list">{liquidityReferences?.levels.slice(0,8).map((level,i)=><div className="session-context-row" key={level.kind+"-"+level.source_period+"-"+i}><div><strong>{level.label} {level.swept ? "· Swept" : "· Untouched"}</strong><small>{level.source_period} · {level.touch_count} touch{level.touch_count===1?"":"es"}</small></div><div className="session-range"><strong>{level.price.toFixed(instrumentMetadata?.price_precision ?? 5)}</strong><small>{level.sweep_timestamp ? new Date(level.sweep_timestamp).toLocaleString() : "Reference price"}</small></div></div>)}</div><div className="overlay-note">{liquidityError || (liquidityReferences?.notes[0] ?? "Waiting for liquidity reference analysis…")}</div></article><article className="panel"><div className="panel-head"><div><h2>Session context</h2><p>{sessionContext?.session_model || "Timezone-aware trading windows"}</p></div><span className="zone-count">{sessionContext?.latest_candle_sessions.length ? sessionContext.latest_candle_sessions.join(" / ") : "—"}</span></div><div className="session-context-list">{sessionContext?.sessions.slice(-6).reverse().map((item,i)=><div className="session-context-row" key={item.name+"-"+item.session_date}><div><strong>{item.name}</strong><small>{item.session_date} · {item.timezone}</small></div><div className="session-range"><strong>{item.range_pct.toFixed(2)}%</strong><small>{item.low.toFixed(instrumentMetadata?.price_precision ?? 5)} – {item.high.toFixed(instrumentMetadata?.price_precision ?? 5)}</small></div></div>)}</div><div className="overlay-note">{sessionError || (sessionContext?.notes[0] ?? "Waiting for session analysis…")}</div></article><article className="panel"><div className="panel-head"><div><h2>Market-specific context</h2><p>{market} configuration</p></div></div><div className="instrument-meta-grid">{instrumentMetadata ? <><div><small>VENUE / CONTRACT</small><strong>{instrumentMetadata.venue_id} · {instrumentMetadata.contract_type}</strong></div><div><small>SESSION / TIMEZONE</small><strong>{instrumentMetadata.session} · {instrumentMetadata.timezone}</strong></div><div><small>PRICE PRECISION / TICK</small><strong>{instrumentMetadata.price_precision} decimals · {instrumentMetadata.tick_size}</strong></div></> : <div className="context-copy">Instrument metadata is loaded from the API catalogue when the backend is connected.</div>}</div><div className="context-copy">{market==="Forex"?"Session-aware analysis will account for Asia, London and New York sessions, pip precision and spread.":market==="Crypto"?"Crypto instruments will retain exchange and contract identity, with optional funding, open interest and liquidation overlays.":"Equity analysis will respect exchange calendars, trading sessions, gaps and corporate actions."}</div><div className="checklist"><div>01 <span>Confirm higher-timeframe context</span></div><div>02 <span>Identify liquidity and invalidation</span></div><div>03 <span>Validate risk and costs</span></div></div></article></section>
         {activeTab === "Strategy lab" && <StrategyLab apiBase={API_BASE} market={apiMarkets[market]} symbol={instrument} timeframe={timeframe}/>}
         <footer>ORDERBLOCK <span>•</span> Multi-market research workspace <span>•</span> Demo data only · Not investment advice</footer>
       </main>
