@@ -30,8 +30,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Enforce zero-subscription provider routing; paid-provider selection is explicitly disabled.
 - [x] Add validated user-supplied historical CSV importer/API with UTC normalization, timezone handling, OHLC validation and monotonic timestamp checks; backend CI passed.
 - [ ] Integrate free Forex historical datasets (Dukascopy/HistData) after format and usage-terms validation.
-- [~] Add offline NSE CM-UDiFF Common Bhavcopy Final ZIP importer/API for selected symbol and series, daily OHLCV conversion and Asia/Kolkata date normalization; CI verification pending. EOD only; usage terms still require review.
-- [~] Add offline HistData Generic ASCII M1 ZIP importer/API, fixed EST (UTC-5, no DST) to UTC conversion, bid OHLCV parsing and strict timestamp/OHLC validation; CI verification pending. Free download source; redistribution terms not assumed.
+- [x] Add offline NSE CM-UDiFF Common Bhavcopy Final ZIP importer/API for selected symbol and series, daily OHLCV conversion and Asia/Kolkata date normalization; CI passed. EOD only; usage terms still require review.
+- [x] Add offline HistData Generic ASCII M1 ZIP importer/API, fixed EST (UTC-5, no DST) to UTC conversion, bid OHLCV parsing and strict timestamp/OHLC validation; CI passed. Free download source; redistribution terms not assumed.
 - [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
 - [x] Add combined backend workspace-analysis endpoint for structure, order-block, FVG and liquidity-sweep annotations.
 - [x] Render BOS / CHoCH and liquidity-sweep markers on the chart.
@@ -94,3 +94,6 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 
 - Phase 4 CI verification: GitHub Actions run `43510369599` passed both backend tests and frontend production build on commit `74aab2d3e114356e109baa06c472e7b123c3fee1`.
+
+
+- NSE and HistData importers: GitHub Actions run `43510775203` passed backend tests and frontend production build on commit `7dc4ab075456430655bc81dcd749277bbf43dcdc`.
