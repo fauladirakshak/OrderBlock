@@ -14,7 +14,6 @@ import math
 import re
 import struct
 import zipfile
-from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 from pydantic import BaseModel, Field
@@ -23,7 +22,7 @@ from app.engine.historical_import import HistoricalImportResult
 from app.engine.structure import Candle
 
 _MEMBER = re.compile(
-    r"(?:^|/)(?:[A-Z0-9._-]+/)?(?P<year>20\\d{2})/(?P<month>0\\d)/(?P<day>[0-3]\\d)/(?P<hour>[0-2]\\dh_ticks)\\.bi5$",
+    r"(?:^|/)(?:[A-Z0-9._-]+/)?(?P<year>20\d{2})/(?P<month>0\d)/(?P<day>[0-3]\d)/(?P<hour>[0-2]\dh_ticks)\.bi5$",
     re.IGNORECASE,
 )
 _RECORD = struct.Struct(">IIIff")
