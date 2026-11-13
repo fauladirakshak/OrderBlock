@@ -26,6 +26,7 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
   - `POST /api/v1/analysis/structure`
   - `POST /api/v1/analysis/zones`
   - `POST /api/v1/analysis/setups`
+  - `POST /api/v1/backtests/run`
   - `GET /api/v1/market-data/candles?market=forex&symbol=EUR%2FUSD&timeframe=1H&limit=200`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
@@ -146,3 +147,18 @@ Cache keys are scoped by provider, venue, contract type, symbol, timeframe and r
 The API accepts user-supplied OHLCV CSV data at `POST /api/v1/market-data/import/csv`. Required columns: `timestamp` (or `datetime`, `date`, `time`), `open`, `high`, `low`, `close`; `volume` is optional. Supply an IANA timezone for timestamps without an offset. Imported rows are normalized to UTC and rejected if timestamps are duplicated/out of order or OHLC values are invalid. This endpoint does not fetch or claim ownership of third-party data.
 
 Example JSON fields: `symbol`, `market`, `timeframe`, `timezone`, `csv_text`.
+
+
+### Phase 3 — Historical backtesting
+
+The research backtester is available at `POST /api/v1/backtests/run`. It accepts a candle array, the configurable setup profile, starting equity, risk per trade, target R multiple and commission/spread/slippage assumptions. It returns trade records, an equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
+
+Execution assumptions:
+- Setups are recalculated using only the candle prefix available at each signal close.
+- A signal on candle *i* can enter no earlier than candle *i+1* open.
+- One position is allowed at a time; position size is based on the configured percentage of current equity and entry-to-stop distance.
+- If stop and target are both touched in one OHLC candle, the stop is assumed first because candle data cannot reveal intrabar ordering.
+- Open positions are closed at the final candle close. Commission, spread and slippage are configurable; funding, swaps, borrow, taxes and venue-specific contract multipliers are not modeled.
+- Input is capped at 5,000 candles for this correctness-first v0.1 prefix-replay implementation.
+
+This is a historical research simulator only. It does not place orders, promise performance or claim to reproduce proprietary/canonical ICT code. Out-of-sample testing, market-specific costs and data-quality review remain necessary.
