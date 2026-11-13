@@ -200,7 +200,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 - [x] Reject custom session names that collide case-insensitively with built-in market session names.
 - [x] Add regression test ensuring a custom window cannot shadow the default London session and misattribute its timezone.
-- [ ] Verify backend tests and frontend build in GitHub Actions.
+- [x] Verify backend tests and frontend build in GitHub Actions; quality run `43523083852` passed.
 
 
 ## Phase 14 — Multi-timeframe no-lookahead validation
@@ -208,11 +208,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Validate timezone-aware ISO-8601 timestamps and strictly increasing candle order for every supplied timeframe.
 - [x] Reject higher-timeframe context that extends beyond the primary chart's latest candle.
 - [x] Add API regression tests for future-dated context, unordered timestamps and timezone-naive timestamps.
-- [ ] Verify backend and frontend CI.
+- [x] Verify backend and frontend CI; quality run `43523327625` passed on commit `b1097504e4708a076ae95696060a5f442b2f38fb`.
 
 
 ## Phase 15 — Closed-bar Binance market data
 
 - [x] Filter Binance public Spot klines using the exchange-provided close timestamp, excluding the currently forming candle.
 - [x] Add regression coverage proving an open kline is omitted while a completed kline is retained.
-- [ ] Verify provider tests, full backend suite and frontend build in GitHub Actions.
+- [x] Verify provider tests, full backend suite and frontend build in GitHub Actions; quality run `43523327625` passed.
