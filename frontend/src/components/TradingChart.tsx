@@ -19,6 +19,7 @@ export type ChartOverlay = {
   reference_levels?: Array<{ kind: string; label: string; price: number; swept: boolean; sweep_index?: number | null }>;
   dealing_range?: { high: number; low: number; equilibrium: number; location: string } | null;
   higher_timeframe_ranges?: Array<{ timeframe: string; high: number; low: number; equilibrium: number; location: string }>;
+  higher_timeframe_zones?: Array<{ timeframe: string; direction: "bullish" | "bearish"; kind: "OB" | "FVG"; top: number; bottom: number; status: string }>;
 };
 type TradingChartProps = { candles: TradingCandle[]; overlays?: ChartOverlay | null; ariaLabel?: string; pricePrecision?: number; tickSize?: number };
 
@@ -85,6 +86,13 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
       series.createPriceLine({ price: range.high, color, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: range.timeframe + " range high" });
       series.createPriceLine({ price: range.equilibrium, color, lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: true, title: range.timeframe + " EQ" });
       series.createPriceLine({ price: range.low, color, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: range.timeframe + " range low" });
+    }
+
+    for (const zone of (overlays?.higher_timeframe_zones ?? []).slice(0, 8)) {
+      const color = zone.direction === "bullish" ? "#4c9d8b" : "#b56d79";
+      const style = zone.status === "active" || zone.status === "open" ? LineStyle.Solid : LineStyle.Dashed;
+      series.createPriceLine({ price: zone.top, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true, title: zone.timeframe + " " + zone.kind + " top" });
+      series.createPriceLine({ price: zone.bottom, color, lineWidth: 1, lineStyle: style, axisLabelVisible: false, title: zone.timeframe + " " + zone.kind + " bottom" });
     }
 
     const ctx = canvas.getContext("2d");
