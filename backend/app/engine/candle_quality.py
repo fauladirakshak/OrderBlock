@@ -50,7 +50,7 @@ class CandleQualityResult(BaseModel):
     median_interval_seconds: float
     gap_count: int
     estimated_intervening_bars: int
-    largest_gap_seconds: int
+    largest_observed_interval_seconds: int
     zero_volume_candles: int
     flat_candles: int
     gaps: list[CandleGap]
@@ -100,7 +100,7 @@ def audit_candle_quality(request: CandleQualityRequest) -> CandleQualityResult:
         median_interval_seconds=float(median(intervals)),
         gap_count=len(gaps),
         estimated_intervening_bars=sum(g.estimated_intervening_bars for g in gaps),
-        largest_gap_seconds=max(intervals, default=0),
+        largest_observed_interval_seconds=max(intervals, default=0),
         zero_volume_candles=zero_volume,
         flat_candles=flat,
         gaps=gaps[:100],
