@@ -207,3 +207,10 @@ The importer is offline: it does not scrape or automatically download Dukascopy 
 The workspace calls `POST /api/v1/analysis/sessions` for the selected instrument. Forex uses broad Asia (Tokyo), London and New York regional windows with IANA timezone/DST handling and overlapping session summaries. NSE-listed instruments use the configured regular session (09:15–15:30 Asia/Kolkata). Crypto is grouped into UTC calendar-day buckets. Each available bucket reports OHLC range, range percentage, volume and candle count.
 
 These are descriptive session windows, not canonical ICT killzones, trade signals or a complete exchange calendar. NSE holidays, special sessions and early closes are not inferred; session highs/lows are only as complete as the candles supplied.
+
+
+### Liquidity reference levels
+
+The workspace also calls `POST /api/v1/analysis/liquidity-references` to calculate previous available day/week highs and lows plus equal-high/equal-low clusters from confirmed swing pivots. The instrument's IANA timezone and tick size are supplied from the catalogue. Equal-swing tolerance is expressed in ticks; sweeps require a wick beyond the level and a close back inside after the level's confirmation index. Previous-period levels become eligible only after the source period's final supplied candle.
+
+This is a descriptive reference map, not proof of resting orders or a trade signal. The current implementation selects the previous available candle period in the supplied data; incomplete datasets, missing holidays, corporate actions and partial sessions can distort levels. It does not yet include an official holiday calendar or futures-specific rollover/continuous-contract adjustments.
