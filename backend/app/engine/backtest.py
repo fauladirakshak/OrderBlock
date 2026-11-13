@@ -16,7 +16,7 @@ from app.engine.structure import Candle
 
 
 class BacktestRequest(BaseModel):
-    candles: list[Candle] = Field(min_length=5, max_length=20000)
+    candles: list[Candle] = Field(min_length=5, max_length=5000)
     profile: SetupProfile = Field(default_factory=SetupProfile)
     starting_equity: float = Field(default=10000.0, gt=0)
     risk_per_trade_pct: float = Field(default=1.0, gt=0, le=10)
@@ -193,7 +193,7 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
         net_profit=net_profit, total_return_pct=net_profit / request.starting_equity * 100,
         trade_count=count, winning_trades=len(wins), losing_trades=len(losses),
         win_rate_pct=len(wins) / count * 100 if count else 0.0,
-        profit_factor=(gross_wins / gross_losses if gross_losses else (None if gross_wins == 0 else float("inf"))),
+        profit_factor=(gross_wins / gross_losses if gross_losses else None),
         expectancy=sum(t.net_pnl for t in trades) / count if count else 0.0,
         average_r=sum(t.r_multiple for t in trades) / count if count else 0.0,
         max_drawdown_pct=max_dd,
