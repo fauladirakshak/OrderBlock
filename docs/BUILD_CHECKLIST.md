@@ -153,7 +153,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Reuse confirmed-swing eligibility and premium/discount calculations without resampling or manufacturing higher-timeframe candles.
 - [x] Add API endpoint POST /api/v1/analysis/higher-timeframe-ranges and regression tests for ordering, future timestamps and endpoint response.
 - [x] Integrate higher-timeframe range summaries into the workspace using independently fetched provider candles.
-- [ ] Verify backend tests and frontend production build in GitHub Actions.
+- [x] Verify backend tests and frontend production build in GitHub Actions; quality run `43517637002` passed on commit `5204ba7c4a0f3b2b84ef8bcca449b402e9d86108`.
 - [ ] Add user-configurable timeframe selection and explicit candle-close metadata from providers before treating context as automation-grade.
 
 
@@ -164,5 +164,5 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add custom windows alongside broad default sessions, preserving per-candle DST conversion.
 - [x] Add unit and API regression tests for custom-window calculation, invalid timezone, duplicate names and API response.
 - [x] Add workspace controls to edit and apply one custom window to the current chart history; persistent saved profiles remain pending.
-- [ ] Verify full backend tests and frontend production build in GitHub Actions.
-- [ ] Keep user-defined windows distinct from canonical or proprietary ICT killzone claims.
+- [x] Verify full backend tests and frontend production build in GitHub Actions; quality run `43517925872` passed on commit `4c964dd47b893829f3907e26b8119b4292646bad`.
+- [x] Keep user-defined windows distinct from canonical or proprietary ICT killzone claims.
