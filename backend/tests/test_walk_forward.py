@@ -48,7 +48,7 @@ def test_walk_forward_creates_chronological_folds_and_benchmark():
 def test_walk_forward_rejects_too_short_training_window():
     data = make_candles(50)
     try:
-        run_walk_forward(request_for(data, training_window_bars=5, profile=SetupProfile(pivot=2, atr_period=14, require_fvg=False)))
+        run_walk_forward(request_for(data, training_window_bars=20, profile=SetupProfile(pivot=2, atr_period=30, require_fvg=False)))
         assert False, "expected minimum training window validation"
     except ValueError as exc:
         assert "at least" in str(exc)
