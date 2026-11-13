@@ -256,3 +256,6 @@ The setup candidate engine now constrains its optional order-block candle to the
 
 
 The chart also renders a deliberately limited selection of recent higher-timeframe OB/FVG boundaries as labelled horizontal price lines. The detailed panel retains the grouped source-timeframe list; the chart caps this overlay at eight zones to limit visual clutter.
+
+
+The higher-timeframe zone panel includes independent chart visibility toggles for OBs and FVGs and timeframe filters for 1H, 4H, 1D and 1W. These filters affect chart price lines only; the underlying analysis and detailed zone list remain available.
