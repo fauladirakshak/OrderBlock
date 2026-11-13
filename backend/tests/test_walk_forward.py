@@ -67,3 +67,13 @@ def test_walk_forward_api_returns_fold_metrics():
     assert len(payload["folds"]) == 4
     assert "benchmark_return_pct" in payload["folds"][0]
     assert "average_excess_return_pct" in payload
+
+
+
+def test_walk_forward_rejects_overlapping_out_of_sample_windows():
+    data = make_candles(55)
+    try:
+        request_for(data, test_window_bars=12, step_bars=6)
+        assert False, "expected overlapping fold validation"
+    except ValueError as exc:
+        assert "must be at least test_window_bars" in str(exc)
