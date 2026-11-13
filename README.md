@@ -172,3 +172,10 @@ The rolling evaluator is available at `POST /api/v1/backtests/walk-forward` and 
 The test replay retains only candles up to that fold's test end and blocks new entries before the test boundary. Earlier candles remain available for swing/liquidity context. The setup profile is held fixed; this is an evaluation harness, not automated parameter optimization. Overlapping test windows are possible when step size is smaller than test-window size and should be interpreted accordingly.
 
 The buy-and-hold benchmark is close-to-open price return only; it excludes dividends, funding, borrow, taxes and trading costs. A fair strategy comparison requires realistic market-specific costs and validated source data. No result is a guarantee of future performance.
+
+
+### Market-specific cost assumptions (research estimates)
+
+The backtest request and Strategy Lab expose a contract multiplier plus optional crypto funding (basis points per eight hours), Forex swap (basis points per day), short-stock borrow (basis points per day) and a simplified tax estimate on positive realized PnL. Contract multipliers are included in risk sizing, gross PnL and commission notional. Holding costs are prorated by elapsed holding time; stock borrow is charged only to short positions. The selected market category controls which holding-cost field is applied.
+
+These are user-entered estimates, not automatically sourced exchange/broker schedules. Funding timestamps, triple-swap days, long/short swap direction, financing credits, exchange-specific lot sizes, taxes, GST/stamp duty, corporate actions and exact contract specifications still require instrument- and jurisdiction-specific validation. Set unverified assumptions to zero rather than treating defaults as official rates.
