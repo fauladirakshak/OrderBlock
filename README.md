@@ -268,3 +268,6 @@ The original multi-timeframe structure endpoint also validates timezone-aware st
 
 
 The Binance Spot adapter now drops klines whose exchange-provided close timestamp has not yet passed. This keeps the market-data API's Binance candle series closed-bar-only for research analysis. The filter is covered by a regression test that supplies one completed and one still-forming kline.
+
+
+Walk-forward evaluation requires `step_bars >= test_window_bars`. This prevents overlapping out-of-sample folds from double-counting the same market bars in the compounded aggregate return. Fold-level returns and benchmarks remain reported separately.
