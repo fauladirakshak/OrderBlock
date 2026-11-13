@@ -144,3 +144,14 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 - Phase 6 CI verification: run `43514711847` passed backend tests and frontend production build.
 - Phase 7 CI verification: run `43514917606` passed backend tests and frontend production build.
+
+
+## Phase 8 — Higher-timeframe dealing-range context
+
+- [x] Add a separate higher-timeframe range request/response model using genuine, independently supplied candle series.
+- [x] Enforce unique higher-timeframe entries, timeframe ordering, timezone-aware chronological timestamps and rejection of future-dated context.
+- [x] Reuse confirmed-swing eligibility and premium/discount calculations without resampling or manufacturing higher-timeframe candles.
+- [x] Add API endpoint POST /api/v1/analysis/higher-timeframe-ranges and regression tests for ordering, future timestamps and endpoint response.
+- [x] Integrate higher-timeframe range summaries into the workspace using independently fetched provider candles.
+- [ ] Verify backend tests and frontend production build in GitHub Actions.
+- [ ] Add user-configurable timeframe selection and explicit candle-close metadata from providers before treating context as automation-grade.
