@@ -17,7 +17,7 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
 - Interactive market selector for Forex, Crypto and Stocks.
 - Instrument and timeframe selectors.
 - Interactive Lightweight Charts candlestick workspace with pan, zoom, crosshair and responsive sizing.
-- Backend market-data provider interface with deterministic synthetic mode, Twelve Data historical API adapter (Forex, crypto and listed equities subject to symbol/plan entitlement), and Binance public Spot klines adapter. Provider source and synthetic status are returned with each candle response.
+- Backend market-data provider interface with deterministic synthetic mode and unauthenticated Binance public Spot klines. Paid market-data adapters are disabled. Historical CSV import accepts user-supplied Forex, crypto and equity OHLCV datasets with timezone normalization and strict timestamp/OHLC validation.
 - Backend instrument catalogue at `GET /api/v1/markets`, including venue ID, contract type, session model, IANA timezone, tick size and price precision.
 - Deterministic confirmed swing, BOS and CHoCH engine.
 - Explainable baseline order-block and three-candle FVG candidate engine.
@@ -120,19 +120,12 @@ A GitHub Pages workflow builds a static UI preview using clearly labelled determ
 The API selects its provider with server-side environment variables; never place provider credentials in frontend code.
 
 - Default: `ORDERBLOCK_DATA_PROVIDER=synthetic` — deterministic demo candles only.
-- Automatic routing: `ORDERBLOCK_DATA_PROVIDER=auto` — Binance Spot for Binance spot instruments; Twelve Data for Forex and listed equities (requires the Twelve Data key).
-- Twelve Data: `ORDERBLOCK_DATA_PROVIDER=twelvedata` and `TWELVEDATA_API_KEY=...`. The adapter requests historical `/time_series` bars and normalizes timestamps to UTC. Confirm that your Twelve Data plan covers each requested symbol, exchange, interval, historical depth and intended use. NSE symbol coverage and redistribution rights must be verified with the provider before relying on it.
+- Automatic routing: `ORDERBLOCK_DATA_PROVIDER=auto` — Binance Spot for supported Binance Spot instruments. Other markets return an explicit unavailable-source error until a free-source adapter is integrated.
 - Binance Spot: `ORDERBLOCK_DATA_PROVIDER=binance`. Uses Binance's public market-data endpoint for Binance Spot contracts only; no trading or private account key is used. It is not a Binance perpetual/futures feed.
 
 A provider configuration or upstream error returns HTTP 503; the API never silently substitutes synthetic candles when a real provider is selected. Each instrument request includes `venue_id` and `contract_type`. The response also returns venue, session, timezone, precision and tick-size metadata. The frontend reads the instrument catalogue and applies price precision to the chart.
 
-Example:
-```bash
-ORDERBLOCK_DATA_PROVIDER=twelvedata
-TWELVEDATA_API_KEY=your_server_side_key
-```
-
-Data entitlements are not implied by API access. Personal-use plans may prohibit redistribution or multi-user display. Before public launch, obtain written confirmation of display, storage, derived-data and redistribution rights for the selected plan and exchanges. Binance public endpoints are documented for public market data; this does not grant a blanket redistribution licence. Provider adapters are code-complete but live account verification and exchange licensing remain deployment prerequisites.
+Paid market-data subscriptions are not part of the project plan. Binance public market-data endpoints require no private account key, but their terms still govern use. Forex and NSE data will be sourced through free historical datasets, official downloadable reports where permitted, and user-imported CSV files. Public availability does not automatically grant unrestricted redistribution rights.
 
 
 ### Historical candle cache
@@ -146,3 +139,10 @@ ORDERBLOCK_CACHE_TTL_SECONDS=300
 ```
 
 Cache keys are scoped by provider, venue, contract type, symbol, timeframe and requested candle count. API responses identify cache status as `disabled`, `hit`, `miss` or `demo`. This cache is a short-lived performance layer, not a canonical historical archive. Long-term storage, backfills, corporate-action adjustments and licensed retention policies remain separate work.
+
+
+### Free historical CSV import
+
+The API accepts user-supplied OHLCV CSV data at `POST /api/v1/market-data/import/csv`. Required columns: `timestamp` (or `datetime`, `date`, `time`), `open`, `high`, `low`, `close`; `volume` is optional. Supply an IANA timezone for timestamps without an offset. Imported rows are normalized to UTC and rejected if timestamps are duplicated/out of order or OHLC values are invalid. This endpoint does not fetch or claim ownership of third-party data.
+
+Example JSON fields: `symbol`, `market`, `timeframe`, `timezone`, `csv_text`.
