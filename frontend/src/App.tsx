@@ -234,8 +234,21 @@ function App() {
                 signal: controller.signal,
               });
               if (!rangeResponse.ok) throw new Error("Higher-timeframe dealing-range API returned HTTP " + rangeResponse.status);
-              setHigherTimeframeRanges(await rangeResponse.json() as HtfRangeResponse);
+              const rangePayload = await rangeResponse.json() as HtfRangeResponse;
+              setHigherTimeframeRanges(rangePayload);
               setHigherTimeframeRangeError("");
+              setOverlays(current => current ? {
+                ...current,
+                higher_timeframe_ranges: rangePayload.contexts
+                  .filter(item => item.analysis.available && item.analysis.range)
+                  .map(item => ({
+                    timeframe: item.timeframe,
+                    high: item.analysis.range!.high,
+                    low: item.analysis.range!.low,
+                    equilibrium: item.analysis.range!.equilibrium,
+                    location: item.analysis.range!.location,
+                  })),
+              } : current);
             } else {
               setMtf(null);
               setMtfError("No higher timeframe is available above 1W.");
