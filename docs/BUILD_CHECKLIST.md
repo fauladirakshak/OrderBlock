@@ -245,3 +245,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add backend regression tests for excluded holiday dates, shortened special sessions, duplicate dates and invalid market usage.
 - [x] Add workspace CSV import controls for the calendar format; calendar remains user-supplied and is not fabricated.
 - [x] Verify backend tests and frontend build in GitHub Actions; quality run `43524059639` passed on commit `7c29004f7ab3a44dba9bb264ad573f7b5497fb32`.
+
+
+## Phase 19 — Market-data provenance visibility
+
+- [x] Replace the static chart sample badge with provider-aware status text.
+- [x] Distinguish synthetic demo, preview synthetic, loading, offline and connected provider states in the chart and sidebar.
+- [x] Display the connected provider name in the chart legend so synthetic prices are not mistaken for live data.
+- [ ] Verify frontend production build in GitHub Actions.
