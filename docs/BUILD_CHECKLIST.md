@@ -45,7 +45,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add chart-side overlay summary and explainable engine notes.
 - [x] Add GitHub Pages static preview workflow (synthetic preview candles only; backend overlays require the API).
 - [x] Publish the static preview on GitHub Pages; user confirmed successful mobile loading with screenshot.
-- [~] Add opt-in SQLite historical-candle cache with provider/instrument-scoped keys, configurable TTL and expiry cleanup; awaiting CI verification. Caching stays disabled by default until data-storage rights are confirmed.\n- [ ] Validate cache retention settings against each provider/exchange agreement before enabling in production.
+- [~] Add opt-in SQLite historical-candle cache with provider/instrument-scoped keys, configurable TTL, expiry cleanup and loader-level cache-hit integration test; awaiting CI verification. Caching stays disabled by default until data-storage rights are confirmed.\n- [ ] Validate cache retention settings against each provider/exchange agreement before enabling in production.
 - [ ] Add live streaming only after provider selection, licensing review and reconnect handling.
 
 ## Validation notes
