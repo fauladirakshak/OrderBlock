@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from app.engine.markets import list_markets
 from app.engine.providers import ProviderConfigurationError, MarketDataProviderError
 from app.engine.structure import Candle, StructureResult, detect_structure
@@ -33,14 +35,38 @@ app.add_middleware(
 )
 
 
+def _validate_candle_series_order(candles: list[Candle]) -> None:
+    stamps: list[datetime] = []
+    for candle in candles:
+        try:
+            parsed = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("candle timestamps must be ISO-8601 values") from exc
+        if parsed.tzinfo is None:
+            raise ValueError("candle timestamps must include a timezone")
+        stamps.append(parsed.astimezone(timezone.utc))
+    if any(right <= left for left, right in zip(stamps, stamps[1:])):
+        raise ValueError("candle timestamps must be strictly increasing")
+
+
 class StructureRequest(BaseModel):
-    candles: list[Candle] = Field(min_length=5)
+    candles: list[Candle] = Field(min_length=5, max_length=5000)
     pivot: int = Field(default=2, ge=1, le=20)
+
+    @model_validator(mode="after")
+    def validate_order(self) -> "StructureRequest":
+        _validate_candle_series_order(self.candles)
+        return self
 
 
 class SetupRequest(BaseModel):
-    candles: list[Candle] = Field(min_length=5)
+    candles: list[Candle] = Field(min_length=5, max_length=5000)
     profile: SetupProfile = Field(default_factory=SetupProfile)
+
+    @model_validator(mode="after")
+    def validate_order(self) -> "SetupRequest":
+        _validate_candle_series_order(self.candles)
+        return self
 
 
 @app.get("/health")
