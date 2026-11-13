@@ -18,6 +18,7 @@ export type ChartOverlay = {
   liquidity_sweeps: Array<{ direction: "bullish" | "bearish"; candle_index: number; timestamp: string; level: number; explanation: string }>;
   reference_levels?: Array<{ kind: string; label: string; price: number; swept: boolean; sweep_index?: number | null }>;
   dealing_range?: { high: number; low: number; equilibrium: number; location: string } | null;
+  higher_timeframe_ranges?: Array<{ timeframe: string; high: number; low: number; equilibrium: number; location: string }>;
 };
 type TradingChartProps = { candles: TradingCandle[]; overlays?: ChartOverlay | null; ariaLabel?: string; pricePrecision?: number; tickSize?: number };
 
@@ -76,6 +77,14 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
       series.createPriceLine({ price: overlays.dealing_range.high, color: "#c58d62", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "Dealing range high" });
       series.createPriceLine({ price: overlays.dealing_range.equilibrium, color: "#d6c27a", lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: true, title: "Equilibrium 50%" });
       series.createPriceLine({ price: overlays.dealing_range.low, color: "#5d9cbd", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "Dealing range low" });
+    }
+
+    const rangeColors: Record<string, string> = { "1H": "#8fb7d8", "4H": "#b39ad8", "1D": "#d6a46c", "1W": "#82c6ad" };
+    for (const range of (overlays?.higher_timeframe_ranges ?? []).slice(0, 4)) {
+      const color = rangeColors[range.timeframe] || "#8d9ba5";
+      series.createPriceLine({ price: range.high, color, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: range.timeframe + " range high" });
+      series.createPriceLine({ price: range.equilibrium, color, lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: true, title: range.timeframe + " EQ" });
+      series.createPriceLine({ price: range.low, color, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: range.timeframe + " range low" });
     }
 
     const ctx = canvas.getContext("2d");
