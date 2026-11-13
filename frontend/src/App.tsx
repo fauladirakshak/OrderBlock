@@ -356,7 +356,7 @@ function App() {
     try {
       const lines = (await file.text()).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
       if (lines.length < 2) throw new Error("Calendar CSV must contain a header and at least one date row.");
-      const headers = lines[0].split(",").map(value => value.trim().toLowerCase());
+      const headers = lines[0].replace(/^\\uFEFF/, "").split(",").map(value => value.trim().toLowerCase());
       const dateIndex = headers.indexOf("date");
       const tradingIndex = headers.indexOf("is_trading_day");
       const openIndex = headers.indexOf("session_open");
