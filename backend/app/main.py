@@ -12,6 +12,7 @@ from app.engine.multi_timeframe import MultiTimeframeAnalysis, MultiTimeframeReq
 from app.engine.historical_import import HistoricalImportRequest, HistoricalImportResult, parse_historical_csv
 from app.engine.backtest import BacktestRequest, BacktestResult, run_backtest
 from app.engine.walk_forward import WalkForwardRequest, WalkForwardResult, run_walk_forward
+from app.engine.nse_bhavcopy import NseBhavcopyRequest, parse_nse_udiff_zip
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -132,5 +133,15 @@ def run_walk_forward_backtest(request: WalkForwardRequest) -> WalkForwardResult:
     """Run chronological rolling out-of-sample folds and a buy-and-hold benchmark."""
     try:
         return run_walk_forward(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+
+@app.post("/api/v1/market-data/import/nse-udiff", response_model=HistoricalImportResult)
+def import_nse_udiff_bhavcopy(request: NseBhavcopyRequest) -> HistoricalImportResult:
+    """Import a user-downloaded NSE UDiFF CM daily bhavcopy ZIP for one symbol/series."""
+    try:
+        return parse_nse_udiff_zip(request)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
