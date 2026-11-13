@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+import pytest
+
 from fastapi.testclient import TestClient
 
 from app.engine.backtest import BacktestRequest, run_backtest
@@ -65,6 +67,8 @@ def test_costs_reduce_net_profit(monkeypatch):
     assert len(free.trades) == len(charged.trades) == 1
     assert charged.trades[0].net_pnl < free.trades[0].net_pnl
     assert charged.trades[0].fees > 0
+    assert charged.trades[0].initial_risk_cash == pytest.approx(100.0)
+    assert free.trades[0].initial_risk_cash == pytest.approx(100.0)
 
 
 def test_open_position_closes_at_end_of_data(monkeypatch):
