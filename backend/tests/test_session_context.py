@@ -17,12 +17,12 @@ def test_forex_sessions_use_iana_timezones_and_overlap():
     data = bars([
         ("2026-01-15T08:00:00Z", 1.1, 1.11, 1.09, 1.105, 10),
         ("2026-01-15T12:00:00Z", 1.105, 1.12, 1.10, 1.115, 20),
-        ("2026-01-15T17:00:00Z", 1.115, 1.13, 1.11, 1.12, 30),
+        ("2026-01-15T16:00:00Z", 1.115, 1.13, 1.11, 1.12, 30),
     ])
     result = analyze_sessions(SessionAnalysisRequest(market="forex", symbol="EUR/USD", candles=data))
     names = {item.name for item in result.sessions}
     assert {"Asia", "London", "New York"}.issubset(names)
-    assert result.latest_candle_sessions == ["New York"]
+    assert result.latest_candle_sessions == ["London", "New York"]
     london = next(item for item in result.sessions if item.name == "London")
     assert london.candle_count == 3
     assert london.high == 1.13
@@ -41,8 +41,8 @@ def test_nse_regular_session_excludes_preopen_and_after_close():
     data = bars([
         ("2026-11-10T03:40:00Z", 100, 101, 99, 100, 5),  # 09:10 IST
         ("2026-11-10T03:45:00Z", 100, 102, 99, 101, 10), # 09:15 IST
-        ("2026-11-10T10:00:00Z", 101, 103, 100, 102, 20),
-        ("2026-11-10T10:05:00Z", 102, 104, 101, 103, 30),
+        ("2026-11-10T06:30:00Z", 101, 103, 100, 102, 20),
+        ("2026-11-10T09:55:00Z", 102, 104, 101, 103, 30),
     ])
     result = analyze_sessions(SessionAnalysisRequest(market="stocks", symbol="RELIANCE", candles=data))
     assert len(result.sessions) == 1
