@@ -223,7 +223,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Reject overlapping out-of-sample windows by requiring step size to be at least the test-window size.
 - [x] Update the evaluator's methodology notes to explain why non-overlapping test windows are required for aggregate compounding.
 - [x] Add regression coverage for rejected overlapping folds.
-- [ ] Verify backend tests and frontend build in GitHub Actions.
+- [x] Verify backend tests and frontend build in GitHub Actions; quality run `43523493787` passed.
 
 
 ## Phase 17 — Cost-aware backtest risk sizing
@@ -233,4 +233,4 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Return the estimated initial cash risk per trade and use it as the denominator for realized R-multiple.
 - [x] Add regression assertions that configured risk budget remains stable when execution costs are enabled.
 - [x] Display cost-adjusted initial risk in the Strategy Lab trade table and include it in CSV exports.
-- [ ] Verify full backend suite and frontend build in GitHub Actions.
+- [x] Verify full backend suite and frontend build in GitHub Actions; backend quality run `43523624096` passed and integrated Strategy Lab UI build `43523682223` passed.
