@@ -18,6 +18,7 @@ from app.engine.dukascopy_bi5 import DukascopyBi5Request, parse_dukascopy_bi5_zi
 from app.engine.session_context import SessionAnalysis, SessionAnalysisRequest, analyze_sessions
 from app.engine.liquidity_references import LiquidityReferenceRequest, LiquidityReferenceResult, analyze_liquidity_references
 from app.engine.dealing_range import DealingRangeRequest, DealingRangeResult, analyze_dealing_range
+from app.engine.higher_timeframe_ranges import HigherTimeframeRangeRequest, HigherTimeframeRangeResult, analyze_higher_timeframe_ranges
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -191,6 +192,17 @@ def analyze_liquidity_reference_levels(request: LiquidityReferenceRequest) -> Li
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+
+
+
+
+@app.post("/api/v1/analysis/higher-timeframe-ranges", response_model=HigherTimeframeRangeResult)
+def analyze_higher_timeframe_dealing_ranges(request: HigherTimeframeRangeRequest) -> HigherTimeframeRangeResult:
+    """Compare independently supplied, completed higher-timeframe dealing ranges."""
+    try:
+        return analyze_higher_timeframe_ranges(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/analysis/dealing-range", response_model=DealingRangeResult)
