@@ -13,7 +13,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
   const [series, setSeries] = useState<ImportedSeries | null>(null);
   const [timezone, setTimezone] = useState("UTC");
   const [forexZipSource, setForexZipSource] = useState("histdata");
-  const [dukascopyDivisor, setDukascopyDivisor] = useState("100000");
+  const [dukascopyDivisor, setDukascopyDivisor] = useState("");
   const [startingEquity, setStartingEquity] = useState("10000");
   const [riskPct, setRiskPct] = useState("1");
   const [targetR, setTargetR] = useState("2");
@@ -52,6 +52,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
           endpoint = "/api/v1/market-data/import/nse-udiff";
           body = { symbol, zip_base64: btoa(binary) };
         } else if (forexZipSource === "dukascopy") {
+          if (!Number.isFinite(Number(dukascopyDivisor)) || Number(dukascopyDivisor) <= 0) throw new Error("Enter the verified BI5 price divisor for this instrument before importing.");
           endpoint = "/api/v1/market-data/import/dukascopy-bi5";
           body = {
             symbol: symbol.replace("/", ""),
@@ -156,7 +157,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
     <div className="strategy-heading"><div><div className="eyebrow">PHASE 4 · OUT-OF-SAMPLE VALIDATION</div><h2>Strategy lab</h2><p>Import real historical OHLCV data, configure risk and evaluate the current ICT-inspired setup profile.</p></div><span className="lab-status">NO LIVE EXECUTION</span></div>
     <div className="lab-grid">
       <article className="panel lab-card">
-        <h3>01 · Historical data</h3><p>Use a CSV with timestamp, open, high, low, close and optional volume. For NSE EOD, upload the official UDiFF CM bhavcopy ZIP and select the EQ symbol; for Forex M1, upload a HistData Generic ASCII ZIP. The importers extract and validate the source files.</p>
+        <h3>01 · Historical data</h3><p>Use a CSV with timestamp, open, high, low, close and optional volume. For NSE EOD, upload the official UDiFF CM bhavcopy ZIP and select the EQ symbol; for Forex M1, upload a HistData Generic ASCII ZIP. The importers extract and validate the source files. Dukascopy bid prices become chart OHLC; configure spread separately in backtest costs.</p>
         {market === "forex" && <div className="lab-fields">
           <label className="lab-field">Forex ZIP format<select value={forexZipSource} onChange={e=>setForexZipSource(e.target.value)}><option value="histdata">HistData Generic ASCII M1</option><option value="dukascopy">Dukascopy hourly BI5 archive</option></select></label>
           {forexZipSource === "dukascopy" && <label className="lab-field">BI5 price divisor<input type="number" min="1" step="1" value={dukascopyDivisor} onChange={e=>setDukascopyDivisor(e.target.value)}/></label>}
