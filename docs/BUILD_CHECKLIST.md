@@ -183,7 +183,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add POST /api/v1/analysis/higher-timeframe-zones and backend regression tests.
 - [x] Integrate independent HTF zone requests into the workspace's existing fetched higher-timeframe candles.
 - [x] Display timeframe-grouped OB/FVG zones, source timeframe, price boundaries and same-timeframe mitigation/fill/invalidation status.
-- [ ] Verify backend regression suite and frontend production build in GitHub Actions.
+- [x] Draw a limited selection of recent higher-timeframe OB/FVG boundaries as labelled chart price lines.
+- [ ] Verify backend regression suite and frontend production build in GitHub Actions after the chart integration.
 - [ ] Add configurable HTF zone visibility, filtering and chart selection controls.
 
 
