@@ -268,4 +268,4 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add a workspace swing-pivot selector with fast, balanced, conservative and stricter settings.
 - [x] Apply the selected pivot consistently across structure, liquidity, dealing-range and multi-timeframe analyses.
 - [x] Recalculate the workspace when swing sensitivity changes.
-- [ ] Verify frontend production build in GitHub Actions.
+- [x] Verify frontend production build in GitHub Actions; workspace analysis quality run `43524602928` passed.
