@@ -115,7 +115,8 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             raw_entry = candle.open
             stop = pending["stop"]
             risk_per_unit = abs(raw_entry - stop)
-            if risk_per_unit > 0:
+            valid_stop_side = (direction == "long" and raw_entry > stop) or (direction == "short" and raw_entry < stop)
+            if risk_per_unit > 0 and valid_stop_side:
                 risk_cash = equity * risk_fraction
                 quantity = risk_cash / risk_per_unit
                 target = raw_entry + risk_per_unit * request.target_r_multiple * (1 if direction == "long" else -1)
@@ -136,7 +137,8 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             exit_reason = None
             raw_exit = None
             if stop_hit:
-                exit_reason, raw_exit = "stop", position["stop"]
+                gap_through_stop = (long_side and candle.open <= position["stop"]) or (not long_side and candle.open >= position["stop"])
+                exit_reason, raw_exit = "stop", candle.open if gap_through_stop else position["stop"]
             elif target_hit:
                 exit_reason, raw_exit = "target", position["target"]
             elif index == len(candles) - 1:
