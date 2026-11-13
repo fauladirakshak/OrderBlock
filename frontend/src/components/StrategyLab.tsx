@@ -189,7 +189,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
           <label className="lab-field">Test bars<input type="number" min="5" value={testBars} onChange={e=>setTestBars(e.target.value)}/></label>
           <label className="lab-field">Step bars<input type="number" min="1" value={stepBars} onChange={e=>setStepBars(e.target.value)}/></label>
         </div>
-        <button className="lab-run lab-run-secondary" disabled={!series || busy || series.candle_count <= Number(trainingBars) + 4} onClick={()=>void runWalkForward()}>{busy ? "Processing…" : "Run out-of-sample test"}</button>
+        <div className="lab-note">For a valid aggregate, step bars must be at least the test-window bars so out-of-sample periods do not overlap.</div><button className="lab-run lab-run-secondary" disabled={!series || busy || series.candle_count <= Number(trainingBars) + 4 || Number(stepBars) < Number(testBars)} onClick={()=>void runWalkForward()}>{busy ? "Processing…" : "Run out-of-sample test"}</button>
       </article>
     </div>
     {message && <div className="lab-message">{message}</div>}
