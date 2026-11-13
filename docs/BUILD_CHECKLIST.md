@@ -155,3 +155,14 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Integrate higher-timeframe range summaries into the workspace using independently fetched provider candles.
 - [ ] Verify backend tests and frontend production build in GitHub Actions.
 - [ ] Add user-configurable timeframe selection and explicit candle-close metadata from providers before treating context as automation-grade.
+
+
+## Phase 9 — Configurable session windows
+
+- [x] Add optional named session windows with explicit IANA timezone and local start/end times to the session-analysis request.
+- [x] Validate IANA timezone, time format, unique names and maximum custom-window count.
+- [x] Add custom windows alongside broad default sessions, preserving per-candle DST conversion.
+- [x] Add unit and API regression tests for custom-window calculation, invalid timezone, duplicate names and API response.
+- [ ] Add workspace controls for editing/saving custom windows and display the selected custom windows.
+- [ ] Verify full backend tests and frontend production build in GitHub Actions.
+- [ ] Keep user-defined windows distinct from canonical or proprietary ICT killzone claims.
