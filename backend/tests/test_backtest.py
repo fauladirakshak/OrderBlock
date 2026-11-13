@@ -102,3 +102,22 @@ def test_backtest_api_returns_metrics_and_trade_records(monkeypatch):
     assert "source provenance" in payload["data_source_note"]
     assert "profit_factor" in payload["metrics"]
     assert len(payload["equity_curve"]) == len(data)
+
+
+def test_gap_through_stop_fills_at_adverse_open(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (100, 103, 99, 102), (90, 92, 88, 90),
+                    (90, 91, 89, 90), (90, 91, 89, 90)])
+    result = run_backtest(base_request(data))
+    assert result.trades[0].exit_reason == "stop"
+    assert result.trades[0].exit_price == 90
+
+
+def test_entry_is_skipped_if_next_open_has_already_gapped_through_stop(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (90, 92, 88, 90), (90, 91, 89, 90),
+                    (90, 91, 89, 90), (90, 91, 89, 90)])
+    result = run_backtest(base_request(data))
+    assert result.trades == []
