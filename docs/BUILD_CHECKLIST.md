@@ -63,8 +63,14 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add responsive frontend Strategy lab with user CSV import, risk/cost configuration, result metrics, trade table and downloadable CSV report; frontend CI passed.
 ## Phase 4 — Validation and market-specific realism
 
-- [ ] Add walk-forward / out-of-sample evaluation and benchmark comparison.
-- [ ] Add market-specific funding, swap, borrow, tax and contract-multiplier models after venue metadata is validated.
+- [x] Add rolling chronological walk-forward folds with isolated out-of-sample entry windows.
+- [x] Add per-fold training metrics, out-of-sample metrics, simple buy-and-hold benchmark and excess-return comparison.
+- [x] Add Strategy Lab controls for training/test/step windows and fold-by-fold benchmark results.
+- [x] Add configurable contract multiplier to position sizing, PnL and commission notional.
+- [x] Add prorated crypto funding, Forex swap and short-stock borrow estimates, plus a simplified positive-realized-PnL tax estimate.
+- [x] Add regression tests for chronological folds, benchmark output, profile-derived training minimums, contract multipliers, funding and tax deductions.
+- [ ] Validate exact venue funding timestamps, broker swap/rollover schedules, stock borrow availability, exchange lot/contract multipliers, and jurisdiction-specific taxes/fees against authoritative sources before using as production assumptions.
+- [ ] Add parameter optimization and walk-forward re-optimization only after an overfitting-resistant protocol is specified.
 
 ## Validation notes
 
