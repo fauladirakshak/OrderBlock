@@ -58,9 +58,10 @@ def _average_prior_range(candles: list[Candle], index: int, period: int) -> floa
 
 
 def _last_opposing_candle(
-    candles: list[Candle], end_index: int, direction: str
+    candles: list[Candle], end_index: int, direction: str, start_index: int = 0
 ) -> tuple[int, float, float] | None:
-    for index in range(end_index - 1, -1, -1):
+    """Return the latest opposing candle strictly after the sweep and before displacement."""
+    for index in range(end_index - 1, start_index - 1, -1):
         candle = candles[index]
         opposing = (
             candle.close < candle.open
@@ -121,7 +122,7 @@ def analyze_setups(candles: list[Candle], profile: SetupProfile | None = None) -
         gap = gap_by_middle.get(event.candle_index - 1)
         if config.require_fvg and gap is None:
             continue
-        opposing = _last_opposing_candle(candles, event.candle_index, direction)
+        opposing = _last_opposing_candle(candles, event.candle_index, direction, start_index=sweep_index + 1)
         key = (sweep_index, event.candle_index, direction)
         if key in seen:
             continue
