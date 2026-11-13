@@ -211,8 +211,17 @@ function App() {
               if (!contextResponse.ok) throw new Error("Unable to load " + tf + " context candles.");
               return [tf, (await contextResponse.json() as CandleResponse).candles] as const;
             }));
-            if (higherTimeframes.length) {
-              const contextPayload = Object.fromEntries([[timeframe, payload.candles], ...contextSeries]);
+            // Exclude still-forming higher-timeframe candles before every context engine.
+            // Provider timestamps identify candle opens; only bars whose full interval
+            // ends no later than the latest primary candle open are considered closed.
+            const closedContextSeries = contextSeries
+              .map(([tf, series]) => [tf, series.filter(candle =>
+                Date.parse(candle.timestamp) + (timeframeSeconds[tf] || 0) * 1000
+                <= Date.parse(payload.candles[payload.candles.length - 1].timestamp)
+              )] as const)
+              .filter(([, series]) => series.length >= 5);
+            if (closedContextSeries.length) {
+              const contextPayload = Object.fromEntries([[timeframe, payload.candles], ...closedContextSeries]);
               const mtfResponse = await fetch(API_BASE + "/api/v1/analysis/multi-timeframe", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -241,13 +250,6 @@ function App() {
                 signal: controller.signal,
               });
               if (!rangeResponse.ok) throw new Error("Higher-timeframe dealing-range API returned HTTP " + rangeResponse.status);
-              const closedContextSeries = contextSeries.map(([tf, series]) => [
-                tf,
-                series.filter(candle =>
-                  Date.parse(candle.timestamp) + (timeframeSeconds[tf] || 0) * 1000
-                  <= Date.parse(payload.candles[payload.candles.length - 1].timestamp)
-                ),
-              ] as const);
               const rangePayload = await rangeResponse.json() as HtfRangeResponse;
               setHigherTimeframeRanges(rangePayload);
               setHigherTimeframeRangeError("");
@@ -281,7 +283,9 @@ function App() {
               } : current);
             } else {
               setMtf(null);
-              setMtfError("No higher timeframe is available above 1W.");
+              setMtfError("No completed higher-timeframe history is available for this chart yet.");
+              setHigherTimeframeRanges(null);
+              setHigherTimeframeZones(null);
             }
         } catch (contextFailure) {
           if (contextFailure instanceof Error && contextFailure.name === "AbortError") return;
