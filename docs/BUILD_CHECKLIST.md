@@ -216,3 +216,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Filter Binance public Spot klines using the exchange-provided close timestamp, excluding the currently forming candle.
 - [x] Add regression coverage proving an open kline is omitted while a completed kline is retained.
 - [x] Verify provider tests, full backend suite and frontend build in GitHub Actions; quality run `43523327625` passed.
+
+
+## Phase 16 — Walk-forward aggregation integrity
+
+- [x] Reject overlapping out-of-sample windows by requiring step size to be at least the test-window size.
+- [x] Update the evaluator's methodology notes to explain why non-overlapping test windows are required for aggregate compounding.
+- [x] Add regression coverage for rejected overlapping folds.
+- [ ] Verify backend tests and frontend build in GitHub Actions.
