@@ -126,6 +126,9 @@ def analyze_sessions(request: SessionAnalysisRequest) -> SessionAnalysis:
             for window in request.custom_windows
         ]
         session_model += " + user-configured windows"
+    all_names = [window[0].casefold() for window in windows]
+    if len(all_names) != len(set(all_names)):
+        raise ValueError("Session window names must be unique across default and custom windows")
     parsed_windows = []
     for name, zone_name, start_text, end_text in windows:
         try:
