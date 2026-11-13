@@ -140,3 +140,47 @@ def test_custom_session_window_cannot_shadow_default_session_name():
     )
     with pytest.raises(ValueError, match="unique across default and custom"):
         analyze_sessions(request)
+
+
+
+def test_exchange_calendar_can_exclude_nse_holiday_and_override_special_session():
+    data = bars([
+        ("2026-11-10T03:45:00Z", 100, 102, 99, 101, 10),  # 09:15 IST
+        ("2026-11-11T03:45:00Z", 101, 103, 100, 102, 20),  # 09:15 IST
+        ("2026-11-11T07:00:00Z", 102, 104, 101, 103, 30),  # 12:30 IST
+    ])
+    result = analyze_sessions(SessionAnalysisRequest(
+        market="stocks", symbol="RELIANCE", candles=data,
+        exchange_calendar=[
+            {"session_date": "2026-11-10", "is_trading_day": False},
+            {"session_date": "2026-11-11", "is_trading_day": True,
+             "session_open": "09:15", "session_close": "12:00"},
+        ],
+    ))
+    assert len(result.sessions) == 1
+    assert result.sessions[0].session_date == "2026-11-11"
+    assert result.sessions[0].candle_count == 1
+    assert result.sessions[0].high == 103
+
+
+def test_exchange_calendar_validates_unique_dates_and_session_hours():
+    data = bars([("2026-11-10T03:45:00Z", 100, 102, 99, 101, 10)])
+    with pytest.raises(ValueError, match="unique"):
+        SessionAnalysisRequest(
+            market="stocks", symbol="RELIANCE", candles=data,
+            exchange_calendar=[
+                {"session_date": "2026-11-10", "is_trading_day": False},
+                {"session_date": "2026-11-10", "is_trading_day": False},
+            ],
+        )
+    with pytest.raises(ValueError, match="earlier than"):
+        SessionAnalysisRequest(
+            market="stocks", symbol="RELIANCE", candles=data,
+            exchange_calendar=[{"session_date": "2026-11-10", "is_trading_day": True,
+                                "session_open": "15:30", "session_close": "09:15"}],
+        )
+    with pytest.raises(ValueError, match="only valid for stocks"):
+        SessionAnalysisRequest(
+            market="forex", symbol="EUR/USD", candles=data,
+            exchange_calendar=[{"session_date": "2026-11-10", "is_trading_day": False}],
+        )
