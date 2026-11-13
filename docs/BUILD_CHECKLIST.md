@@ -174,3 +174,14 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Draw timeframe-labelled high, 50% equilibrium and low price lines with distinct timeframe colors.
 - [x] Limit the number of higher-timeframe contexts rendered to preserve chart readability.
 - [ ] Verify frontend production build and backend regression suite in GitHub Actions.
+
+
+## Phase 11 — Higher-timeframe order blocks and FVGs
+
+- [x] Add an independent multi-timeframe zone-analysis engine reusing the existing order-block and three-candle FVG rules.
+- [x] Validate timeframe ordering, unique context series, timezone-aware chronological timestamps and no future-dated higher-timeframe data.
+- [x] Add POST /api/v1/analysis/higher-timeframe-zones and backend regression tests.
+- [x] Integrate independent HTF zone requests into the workspace's existing fetched higher-timeframe candles.
+- [x] Display timeframe-grouped OB/FVG zones, source timeframe, price boundaries and same-timeframe mitigation/fill/invalidation status.
+- [ ] Verify backend regression suite and frontend production build in GitHub Actions.
+- [ ] Add configurable HTF zone visibility, filtering and chart selection controls.
