@@ -11,6 +11,14 @@ class WalkForwardRequest(BacktestRequest):
     test_window_bars: int = Field(default=100, ge=5, le=2000)
     step_bars: int = Field(default=100, ge=1, le=2000)
 
+    @model_validator(mode="after")
+    def validate_non_overlapping_tests(self) -> "WalkForwardRequest":
+        if self.step_bars < self.test_window_bars:
+            raise ValueError(
+                "step_bars must be at least test_window_bars so out-of-sample folds do not overlap"
+            )
+        return self
+
 
 class WalkForwardFold(BaseModel):
     fold: int
@@ -124,7 +132,7 @@ def run_walk_forward(request: WalkForwardRequest) -> WalkForwardResult:
         notes=[
             "Training and test windows are chronological; no candle after a fold's test end is supplied to that fold.",
             "Test signals are blocked until the out-of-sample boundary, while earlier candles remain available for swing and liquidity context.",
-            "Each fold starts with fresh configured equity and no carried position; overlapping test folds are possible when step_bars is smaller than test_window_bars.",
+            "Each fold starts with fresh configured equity and no carried position; test windows are required to be non-overlapping so aggregate out-of-sample compounding does not double-count bars.",
             "Benchmark is a simple buy-and-hold return from the first test candle open to the final test candle close; it excludes dividends, funding, borrow, taxes and costs.",
             "The strategy profile is held fixed. This evaluator does not optimize parameters on the training window or guarantee that a selected profile generalizes.",
             "Results depend on caller-supplied OHLCV quality, source rights, instrument contract metadata and realistic market-specific costs.",
