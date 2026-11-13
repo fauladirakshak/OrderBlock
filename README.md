@@ -200,3 +200,10 @@ HistData describes these historical files as free downloads and documents the fi
 Strategy Lab supports user-supplied Dukascopy classic hourly `.bi5` archives through `POST /api/v1/market-data/import/dukascopy-bi5`. The ZIP must preserve the hourly datafeed folder structure `SYMBOL/YYYY/MM0/DD/HHh_ticks.bi5` (month is zero-indexed). The importer decodes 20-byte big-endian tick records, validates timestamps and ask/bid values, and aggregates bid ticks to 1m, 5m, 15m, 1H, 4H or 1D OHLCV bars. The instrument price divisor is required and must be independently verified; it is never guessed. Ask prices are checked but the Candle model retains bid-side OHLC and combined reported tick volume only; configure spread costs separately in the backtester.
 
 The importer is offline: it does not scrape or automatically download Dukascopy data. Dukascopy's published terms limit downloads to personal, non-commercial use unless a written agreement says otherwise, and restrict redistribution/database use. Do not use this source in a commercial deployment, distribute the resulting dataset, or make it available to other users without obtaining the required written permissions. Review the current [Dukascopy terms](https://www.dukascopy.com/europe/english/legal-pages/terms-of-use/) before use. The binary layout is based on the documented [Dukascopy historical data export format](https://wiki.dukascopy.com/en/development/data-export).
+
+
+### Timezone-aware market-session context
+
+The workspace calls `POST /api/v1/analysis/sessions` for the selected instrument. Forex uses broad Asia (Tokyo), London and New York regional windows with IANA timezone/DST handling and overlapping session summaries. NSE-listed instruments use the configured regular session (09:15–15:30 Asia/Kolkata). Crypto is grouped into UTC calendar-day buckets. Each available bucket reports OHLC range, range percentage, volume and candle count.
+
+These are descriptive session windows, not canonical ICT killzones, trade signals or a complete exchange calendar. NSE holidays, special sessions and early closes are not inferred; session highs/lows are only as complete as the candles supplied.
