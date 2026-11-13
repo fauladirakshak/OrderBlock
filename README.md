@@ -262,3 +262,6 @@ The higher-timeframe zone panel includes independent chart visibility toggles fo
 
 
 Custom session names are checked against the market's built-in session names as well as against other custom names. This prevents a user-defined timezone/window from silently shadowing a built-in session label and producing ambiguous timezone attribution in the session summaries.
+
+
+The original multi-timeframe structure endpoint also validates timezone-aware strictly increasing candle timestamps per series and rejects any higher-timeframe series whose latest candle extends beyond the primary chart's latest timestamp. This guards direct API callers as well as the frontend against future-context leakage.
