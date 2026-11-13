@@ -25,6 +25,7 @@ class BacktestRequest(BaseModel):
     commission_bps: float = Field(default=0.0, ge=0, le=500)
     spread_bps: float = Field(default=0.0, ge=0, le=500)
     slippage_bps: float = Field(default=0.0, ge=0, le=500)
+    evaluation_start_index: int = Field(default=0, ge=0)
 
     @model_validator(mode="after")
     def validate_order(self) -> "BacktestRequest":
@@ -39,6 +40,8 @@ class BacktestRequest(BaseModel):
             stamps.append(parsed.astimezone(timezone.utc))
         if any(b <= a for a, b in zip(stamps, stamps[1:])):
             raise ValueError("candle timestamps must be strictly increasing")
+        if self.evaluation_start_index >= len(self.candles):
+            raise ValueError("evaluation_start_index must be inside the candle dataset")
         return self
 
 
@@ -167,7 +170,7 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
 
         # Evaluate only the prefix ending at this closed candle. No future bar is
         # passed to the setup engine; a candidate may enter no earlier than i+1.
-        if position is None and pending is None and index < len(candles) - 1:
+        if position is None and pending is None and index >= request.evaluation_start_index and index < len(candles) - 1:
             analysis = analyze_setups(candles[: index + 1], profile=request.profile)
             candidates = [s for s in analysis.setups if s.structure_index == index]
             if candidates:
