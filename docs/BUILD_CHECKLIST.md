@@ -126,7 +126,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Mark wick-through / close-back sweeps only after the relevant level's confirmation point.
 - [x] Add POST /api/v1/analysis/liquidity-references with timestamp, timezone and instrument precision validation.
 - [x] Render liquidity reference price lines and a level inspector panel in the trading workspace.
-- [ ] Verify the complete backend and frontend quality workflow on the integrated UI commit.
+- [x] Verify complete backend tests and frontend production build in GitHub Actions; quality run `43514711847` passed on commit `c375118affde9247885a25cb40c31a7a4c8cf009`.
 - [ ] Extend previous-period calculations with official exchange holiday calendars and corporate-action adjustment support before using them for automated decisions.
 - [ ] Add explicit futures continuous-contract roll metadata before calculating levels across contract transitions.
 
@@ -138,5 +138,9 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Classify current price as premium, discount, equilibrium, above-range or below-range.
 - [x] Add POST /api/v1/analysis/dealing-range and backend regression tests.
 - [x] Render dealing-range high/equilibrium/low lines and a workspace context panel.
-- [ ] Verify full backend test suite and frontend production build in GitHub Actions.
+- [x] Verify full backend test suite and frontend production build in GitHub Actions; quality run `43514917606` passed on commit `f264c08c9ffdb56a0774f0ba9540d812f15fba56`.
 - [ ] Add higher-timeframe dealing-range selection and user-configurable swing selection after the single-range baseline is verified.
+
+
+- Phase 6 CI verification: run `43514711847` passed backend tests and frontend production build.
+- Phase 7 CI verification: run `43514917606` passed backend tests and frontend production build.
