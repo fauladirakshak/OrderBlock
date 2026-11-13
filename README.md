@@ -179,3 +179,10 @@ The buy-and-hold benchmark is close-to-open price return only; it excludes divid
 The backtest request and Strategy Lab expose a contract multiplier plus optional crypto funding (basis points per eight hours), Forex swap (basis points per day), short-stock borrow (basis points per day) and a simplified tax estimate on positive realized PnL. Contract multipliers are included in risk sizing, gross PnL and commission notional. Holding costs are prorated by elapsed holding time; stock borrow is charged only to short positions. The selected market category controls which holding-cost field is applied.
 
 These are user-entered estimates, not automatically sourced exchange/broker schedules. Funding timestamps, triple-swap days, long/short swap direction, financing credits, exchange-specific lot sizes, taxes, GST/stamp duty, corporate actions and exact contract specifications still require instrument- and jurisdiction-specific validation. Set unverified assumptions to zero rather than treating defaults as official rates.
+
+
+### NSE cash-market EOD import
+
+The Strategy Lab accepts an official NSE **CM-UDiFF Common Bhavcopy Final** ZIP for the Stocks market. Choose the requested symbol and upload the downloaded ZIP; the importer reads the UDiFF CSV inside it, filters by symbol and series (default `EQ`), maps open/high/low/close and traded volume, and emits daily candles labelled by trading date in Asia/Kolkata. The API endpoint is `POST /api/v1/market-data/import/nse-udiff`.
+
+This is daily end-of-day data only; it does not create intraday bars. NSE discontinued its older CM Bhavcopy CSV in favour of the CM-UDiFF Common Bhavcopy Final from 8 July 2024. Download reports from the [official NSE All Reports page](https://www.nseindia.com/all-reports). The importer works on a file the user has downloaded; it does not automate website access or bypass controls. Check NSE's current terms and your permitted use before storing, redistributing or commercializing the data.
