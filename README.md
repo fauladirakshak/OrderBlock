@@ -259,3 +259,6 @@ The chart also renders a deliberately limited selection of recent higher-timefra
 
 
 The higher-timeframe zone panel includes independent chart visibility toggles for OBs and FVGs and timeframe filters for 1H, 4H, 1D and 1W. These filters affect chart price lines only; the underlying analysis and detailed zone list remain available.
+
+
+Custom session names are checked against the market's built-in session names as well as against other custom names. This prevents a user-defined timezone/window from silently shadowing a built-in session label and producing ambiguous timezone attribution in the session summaries.
