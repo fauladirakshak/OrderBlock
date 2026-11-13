@@ -46,7 +46,7 @@ def test_histdata_rejects_invalid_rows_and_duplicate_timestamps():
 
 
 def test_histdata_rejects_non_zip_payload():
-    invalid = base64.b64encode(b"not a valid archive file").decode("ascii")
+    invalid = base64.b64encode(b"this is not a valid archive file").decode("ascii")
     with pytest.raises(ValueError, match="Unable to read HistData ZIP"):
         parse_histdata_forex_zip(HistDataForexRequest(symbol="EURUSD", zip_base64=invalid))
 
