@@ -274,3 +274,10 @@ Walk-forward evaluation requires `step_bars >= test_window_bars`. This prevents 
 
 
 The backtester now sizes positions against estimated stop-loss exposure after entry/exit spread and slippage plus round-trip commission, and returns the resulting `initial_risk_cash` on every trade. Funding, swap, borrow and tax are still applied as holding/realization costs after entry; gap-through-stop losses can exceed the planned risk budget.
+
+
+### Exchange holiday and special-session overrides
+
+The session-analysis request accepts an optional `exchange_calendar` list for stock/equity instruments. Each date specifies `session_date`, `is_trading_day`, and (for trading dates) exchange-local `session_open` and `session_close`. Listed holidays are excluded from regular-session summaries; special sessions override the instrument's default hours. Unlisted dates continue to use the catalogue's default session. The API does not invent or fetch official calendars.
+
+The workspace includes a CSV upload for this calendar with columns `date,is_trading_day,session_open,session_close`. The user must supply and verify the official exchange calendar; no dates are hardcoded or assumed.
