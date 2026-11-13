@@ -238,3 +238,6 @@ These are user-defined study windows only. They are not labelled as canonical IC
 
 
 The workspace exposes a one-window editor in the Session Context panel. Enter a name, IANA timezone and local start/end times, then apply the window to the currently loaded candle history. The controls are session-only and are not persisted between reloads yet.
+
+
+Available higher-timeframe ranges are also drawn on the active chart as labelled high, 50% equilibrium and low price lines. The line labels retain their source timeframe; the workspace limits chart rendering to the first four available higher-timeframe contexts to avoid excessive clutter.
