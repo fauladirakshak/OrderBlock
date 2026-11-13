@@ -16,6 +16,7 @@ from app.engine.nse_bhavcopy import NseBhavcopyRequest, parse_nse_udiff_zip
 from app.engine.histdata_forex import HistDataForexRequest, parse_histdata_forex_zip
 from app.engine.dukascopy_bi5 import DukascopyBi5Request, parse_dukascopy_bi5_zip
 from app.engine.session_context import SessionAnalysis, SessionAnalysisRequest, analyze_sessions
+from app.engine.liquidity_references import LiquidityReferenceRequest, LiquidityReferenceResult, analyze_liquidity_references
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -176,5 +177,15 @@ def analyze_market_sessions(request: SessionAnalysisRequest) -> SessionAnalysis:
     """Summarize timezone-aware regional or exchange sessions from supplied candles."""
     try:
         return analyze_sessions(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+
+@app.post("/api/v1/analysis/liquidity-references", response_model=LiquidityReferenceResult)
+def analyze_liquidity_reference_levels(request: LiquidityReferenceRequest) -> LiquidityReferenceResult:
+    """Return previous-period and confirmed equal-swing liquidity reference levels."""
+    try:
+        return analyze_liquidity_references(request)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
