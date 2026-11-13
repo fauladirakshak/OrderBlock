@@ -209,3 +209,10 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Reject higher-timeframe context that extends beyond the primary chart's latest candle.
 - [x] Add API regression tests for future-dated context, unordered timestamps and timezone-naive timestamps.
 - [ ] Verify backend and frontend CI.
+
+
+## Phase 15 — Closed-bar Binance market data
+
+- [x] Filter Binance public Spot klines using the exchange-provided close timestamp, excluding the currently forming candle.
+- [x] Add regression coverage proving an open kline is omitted while a completed kline is retained.
+- [ ] Verify provider tests, full backend suite and frontend build in GitHub Actions.
