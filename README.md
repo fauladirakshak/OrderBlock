@@ -186,3 +186,10 @@ These are user-entered estimates, not automatically sourced exchange/broker sche
 The Strategy Lab accepts an official NSE **CM-UDiFF Common Bhavcopy Final** ZIP for the Stocks market. Choose the requested symbol and upload the downloaded ZIP; the importer reads the UDiFF CSV inside it, filters by symbol and series (default `EQ`), maps open/high/low/close and traded volume, and emits daily candles labelled by trading date in Asia/Kolkata. The API endpoint is `POST /api/v1/market-data/import/nse-udiff`.
 
 This is daily end-of-day data only; it does not create intraday bars. NSE discontinued its older CM Bhavcopy CSV in favour of the CM-UDiFF Common Bhavcopy Final from 8 July 2024. Download reports from the [official NSE All Reports page](https://www.nseindia.com/all-reports). The importer works on a file the user has downloaded; it does not automate website access or bypass controls. Check NSE's current terms and your permitted use before storing, redistributing or commercializing the data.
+
+
+### HistData Forex M1 import
+
+The Strategy Lab accepts a user-downloaded HistData Generic ASCII M1 ZIP for Forex. It reads the six-column, headerless, semicolon-separated format, validates OHLC and timestamps, and converts the source's fixed EST (UTC-5, no daylight-saving adjustment) timestamps to UTC. The output is labelled `1m`; the source bars are bid OHLC and the published volume field may be zero. The API endpoint is `POST /api/v1/market-data/import/histdata-forex`.
+
+HistData describes these historical files as free downloads and documents the file format/timezone. It also states that the data is supplied without warranty or certification. This is a user-uploaded offline import, not an automated scraper. Check the source's current download terms and do not assume redistribution or commercial reuse rights.
