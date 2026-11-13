@@ -54,6 +54,8 @@ class BinanceSpotProvider:
                     closed_rows.append(row)
             except (IndexError, TypeError, ValueError) as exc:
                 raise MarketDataProviderError("Binance returned a malformed kline close timestamp.") from exc
+        if not closed_rows:
+            raise MarketDataProviderError("Binance returned no completed klines for the requested interval.")
         return [
             Candle(timestamp=datetime.fromtimestamp(int(row[0]) / 1000, tz=timezone.utc)
                    .isoformat().replace("+00:00", "Z"),
