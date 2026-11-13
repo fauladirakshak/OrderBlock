@@ -221,3 +221,10 @@ This is a descriptive reference map, not proof of resting orders or a trade sign
 `POST /api/v1/analysis/dealing-range` selects the latest confirmed swing high and swing low that were eligible before the final candle, calculates the 50% equilibrium, and classifies the latest close as premium, discount, equilibrium, above-range or below-range. The configurable equilibrium band is centered on 50%. The chart displays range high, equilibrium and range low, and the workspace reports the current position within the range.
 
 This is geometric context only. It does not predict reversal, define a trade entry, or claim canonical ICT dealing-range equivalence. The range can be unavailable until both confirmed swing sides exist; incomplete history can change the selected swing pair.
+
+
+### Higher-timeframe dealing-range context
+
+The workspace calls `POST /api/v1/analysis/higher-timeframe-ranges` to calculate separate premium/discount dealing ranges from independently fetched higher-timeframe candles (for example, 1H and 4H context on a 15m chart). The endpoint validates unique timeframe ordering, timezone-aware strictly increasing timestamps, and rejects context candles timestamped after the primary chart's latest candle. It reuses the confirmed-swing eligibility rules from the single-timeframe range engine.
+
+The service does not resample or fabricate higher-timeframe candles. Callers must provide genuinely completed higher-timeframe candles; the API cannot independently prove that an upstream candle is closed. Results are geometric research context, not forecasts or trade signals.
