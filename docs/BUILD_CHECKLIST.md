@@ -223,6 +223,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Reject overlapping out-of-sample windows by requiring step size to be at least the test-window size.
 - [x] Update the evaluator's methodology notes to explain why non-overlapping test windows are required for aggregate compounding.
 - [x] Add regression coverage for rejected overlapping folds.
+- [x] Disable the Strategy Lab walk-forward action when the configured step is smaller than the test window and explain the constraint.
 - [x] Verify backend tests and frontend build in GitHub Actions; quality run `43523493787` passed.
 
 
