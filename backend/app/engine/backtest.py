@@ -26,6 +26,12 @@ class BacktestRequest(BaseModel):
     spread_bps: float = Field(default=0.0, ge=0, le=500)
     slippage_bps: float = Field(default=0.0, ge=0, le=500)
     evaluation_start_index: int = Field(default=0, ge=0)
+    market_type: Literal["forex", "crypto", "stocks"] = "crypto"
+    contract_multiplier: float = Field(default=1.0, gt=0, le=1000000)
+    funding_bps_per_8h: float = Field(default=0.0, ge=0, le=1000)
+    swap_bps_per_day: float = Field(default=0.0, ge=0, le=1000)
+    borrow_bps_per_day: float = Field(default=0.0, ge=0, le=1000)
+    tax_bps_on_positive_pnl: float = Field(default=0.0, ge=0, le=10000)
 
     @model_validator(mode="after")
     def validate_order(self) -> "BacktestRequest":
@@ -60,6 +66,8 @@ class BacktestTrade(BaseModel):
     quantity: float
     gross_pnl: float
     fees: float
+    holding_costs: float
+    taxes: float
     net_pnl: float
     r_multiple: float
     exit_reason: Literal["stop", "target", "end_of_data"]
@@ -121,7 +129,7 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             valid_stop_side = (direction == "long" and raw_entry > stop) or (direction == "short" and raw_entry < stop)
             if risk_per_unit > 0 and valid_stop_side:
                 risk_cash = equity * risk_fraction
-                quantity = risk_cash / risk_per_unit
+                quantity = risk_cash / (risk_per_unit * request.contract_multiplier)
                 target = raw_entry + risk_per_unit * request.target_r_multiple * (1 if direction == "long" else -1)
                 entry_exec = raw_entry * (1 + half_spread + slippage) if direction == "long" else raw_entry * (1 - half_spread - slippage)
                 position = {
@@ -150,10 +158,26 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             if exit_reason is not None:
                 direction_sign = 1 if long_side else -1
                 exit_exec = raw_exit * (1 - half_spread - slippage) if long_side else raw_exit * (1 + half_spread + slippage)
-                gross = direction_sign * position["quantity"] * (exit_exec - position["entry_exec"])
-                fees = commission * position["quantity"] * (position["entry_exec"] + exit_exec)
-                net = gross - fees
-                initial_risk = abs(position["entry_raw"] - position["stop"]) * position["quantity"]
+                multiplier = request.contract_multiplier
+                gross = direction_sign * position["quantity"] * multiplier * (exit_exec - position["entry_exec"])
+                fees = commission * position["quantity"] * multiplier * (position["entry_exec"] + exit_exec)
+                entry_dt = datetime.fromisoformat(position["entry_timestamp"].replace("Z", "+00:00"))
+                exit_dt = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
+                held_hours = max(0.0, (exit_dt - entry_dt).total_seconds() / 3600.0)
+                held_days = held_hours / 24.0
+                reference_notional = position["quantity"] * multiplier * (position["entry_exec"] + exit_exec) / 2.0
+                holding_rate = 0.0
+                if request.market_type == "crypto":
+                    holding_rate = request.funding_bps_per_8h / 10000.0 * (held_hours / 8.0)
+                elif request.market_type == "forex":
+                    holding_rate = request.swap_bps_per_day / 10000.0 * held_days
+                elif request.market_type == "stocks" and not long_side:
+                    holding_rate = request.borrow_bps_per_day / 10000.0 * held_days
+                holding_costs = reference_notional * holding_rate
+                pre_tax_pnl = gross - fees - holding_costs
+                taxes = max(0.0, pre_tax_pnl) * request.tax_bps_on_positive_pnl / 10000.0
+                net = pre_tax_pnl - taxes
+                initial_risk = abs(position["entry_raw"] - position["stop"]) * position["quantity"] * multiplier
                 r_value = net / initial_risk if initial_risk else 0.0
                 equity += net
                 trades.append(BacktestTrade(
@@ -164,7 +188,8 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
                     entry_price=position["entry_exec"], exit_price=exit_exec,
                     stop_price=position["stop"], target_price=position["target"],
                     quantity=position["quantity"], gross_pnl=gross, fees=fees,
-                    net_pnl=net, r_multiple=r_value, exit_reason=exit_reason,
+                    holding_costs=holding_costs, taxes=taxes, net_pnl=net,
+                    r_multiple=r_value, exit_reason=exit_reason,
                 ))
                 position = None
 
@@ -219,8 +244,8 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
             "Signals are recalculated on historical prefixes only; future candles are never supplied to signal generation.",
             "Entries occur at the next candle open, not at the signal candle close.",
             "If stop and target are both touched in one OHLC candle, the stop is assumed first because intrabar order is unknowable.",
-            "Position size risks the configured fraction of current equity at the raw entry-to-stop distance; costs can increase realized loss beyond that amount.",
-            "A remaining position is closed at the final candle close. No funding, borrow, swaps, taxes or exchange-specific contract multipliers are modeled.",
+            "Position size applies the configured contract multiplier. Commission, approximate holding costs and configured positive-PnL tax are deducted; actual venue schedules and tax treatment must be verified separately.",
+            "Crypto funding is prorated by elapsed eight-hour intervals, Forex swap by elapsed days, and stock borrow by elapsed days on short positions. These are configurable estimates, not exact venue settlement schedules.",
             "This independently implemented ICT-inspired research strategy is not canonical ICT code, investment advice or a live trading system.",
         ],
     )
