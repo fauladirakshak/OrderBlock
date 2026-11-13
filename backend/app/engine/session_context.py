@@ -5,7 +5,7 @@ holiday calendars. IANA timezones handle daylight-saving transitions.
 """
 from __future__ import annotations
 
-from datetime import datetime, time, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from typing import Literal
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -34,11 +34,30 @@ class CustomSessionWindow(BaseModel):
         return self
 
 
+class ExchangeCalendarDay(BaseModel):
+    session_date: date
+    is_trading_day: bool
+    session_open: str | None = None
+    session_close: str | None = None
+
+    @model_validator(mode="after")
+    def validate_session_override(self) -> "ExchangeCalendarDay":
+        if self.is_trading_day:
+            if self.session_open is None or self.session_close is None:
+                raise ValueError("trading calendar days require session_open and session_close")
+            if _minutes(self.session_open) >= _minutes(self.session_close, allow_24=True):
+                raise ValueError("exchange session_open must be earlier than session_close")
+        elif self.session_open is not None or self.session_close is not None:
+            raise ValueError("non-trading calendar days cannot define session hours")
+        return self
+
+
 class SessionAnalysisRequest(BaseModel):
     market: Literal["forex", "crypto", "stocks"]
     symbol: str = Field(min_length=1, max_length=32)
     candles: list[Candle] = Field(min_length=1, max_length=5000)
     custom_windows: list[CustomSessionWindow] = Field(default_factory=list, max_length=8)
+    exchange_calendar: list[ExchangeCalendarDay] = Field(default_factory=list, max_length=400)
 
     @model_validator(mode="after")
     def validate_candle_order(self) -> "SessionAnalysisRequest":
@@ -56,6 +75,11 @@ class SessionAnalysisRequest(BaseModel):
         names = [window.name.casefold() for window in self.custom_windows]
         if len(names) != len(set(names)):
             raise ValueError("custom session window names must be unique")
+        if self.exchange_calendar and self.market != "stocks":
+            raise ValueError("exchange_calendar overrides are only valid for stocks")
+        calendar_dates = [item.session_date for item in self.exchange_calendar]
+        if len(calendar_dates) != len(set(calendar_dates)):
+            raise ValueError("exchange calendar dates must be unique")
         return self
 
 class SessionSummary(BaseModel):
@@ -141,11 +165,19 @@ def analyze_sessions(request: SessionAnalysisRequest) -> SessionAnalysis:
     groups: dict[tuple[str, str], list[tuple[datetime, Candle]]] = {}
     latest_sessions: list[str] = []
     latest = datetime.fromisoformat(request.candles[-1].timestamp.replace("Z", "+00:00"))
+    calendar_by_date = {item.session_date.isoformat(): item for item in request.exchange_calendar}
     for index, candle in enumerate(request.candles):
         stamp = datetime.fromisoformat(candle.timestamp.replace("Z", "+00:00"))
         for name, zone_name, zone, start_minute, end_minute in parsed_windows:
             local = stamp.astimezone(zone)
             minute = local.hour * 60 + local.minute
+            if request.market == "stocks" and name.endswith(" Regular"):
+                override = calendar_by_date.get(local.date().isoformat())
+                if override is not None:
+                    if not override.is_trading_day:
+                        continue
+                    start_minute = _minutes(override.session_open or "")
+                    end_minute = _minutes(override.session_close or "", allow_24=True)
             if start_minute <= minute < end_minute:
                 session_date = local.date()
             elif end_minute < start_minute and (minute >= start_minute or minute < end_minute):
@@ -197,6 +229,6 @@ def analyze_sessions(request: SessionAnalysisRequest) -> SessionAnalysis:
             "IANA timezone rules are applied per candle, including daylight-saving changes.",
             "Forex regional sessions overlap; one candle may contribute to more than one session summary.",
             "Only the candles supplied in this request are summarized; incomplete history produces incomplete session highs and lows.",
-            "Exchange holidays and special sessions are not inferred. Equity summaries use the configured regular-session clock only.",
+            "Exchange calendar overrides supplied in the request take precedence for their listed dates; unlisted dates use the instrument regular-session clock. Official exchange calendars must be supplied and verified by the caller.",
         ],
     )
