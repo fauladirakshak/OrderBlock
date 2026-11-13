@@ -2,7 +2,7 @@ import { useState } from "react";
 
 type Candle = { timestamp: string; open: number; high: number; low: number; close: number; volume?: number };
 type ImportedSeries = { provider: string; is_synthetic: boolean; symbol: string; market: string; timeframe: string; candle_count: number; candles: Candle[] };
-type Trade = { direction: string; signal_timestamp: string; entry_timestamp: string; exit_timestamp: string; entry_price: number; exit_price: number; stop_price: number; target_price: number; quantity: number; gross_pnl: number; fees: number; holding_costs: number; taxes: number; net_pnl: number; r_multiple: number; exit_reason: string };
+type Trade = { direction: string; signal_timestamp: string; entry_timestamp: string; exit_timestamp: string; entry_price: number; exit_price: number; stop_price: number; target_price: number; quantity: number; initial_risk_cash: number; gross_pnl: number; fees: number; holding_costs: number; taxes: number; net_pnl: number; r_multiple: number; exit_reason: string };
 type Result = { metrics: { starting_equity: number; ending_equity: number; net_profit: number; total_return_pct: number; trade_count: number; winning_trades: number; losing_trades: number; win_rate_pct: number; profit_factor: number | null; expectancy: number; average_r: number; max_drawdown_pct: number }; trades: Trade[]; notes: string[]; execution_model: string };
 
 type WalkFold = { fold: number; training_start: string; training_end: string; test_start: string; test_end: string; out_of_sample_metrics: Result["metrics"]; benchmark_return_pct: number; excess_return_pct: number };
@@ -146,7 +146,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
 
   function downloadTrades() {
     if (!result) return;
-    const columns = ["direction","signal_timestamp","entry_timestamp","exit_timestamp","entry_price","exit_price","stop_price","target_price","quantity","gross_pnl","fees","holding_costs","taxes","net_pnl","r_multiple","exit_reason"];
+    const columns = ["direction","signal_timestamp","entry_timestamp","exit_timestamp","entry_price","exit_price","stop_price","target_price","quantity","initial_risk_cash","gross_pnl","fees","holding_costs","taxes","net_pnl","r_multiple","exit_reason"];
     const csv = [columns.join(","), ...result.trades.map(t => columns.map(k => JSON.stringify((t as any)[k] ?? "")).join(","))].join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = "orderblock-trades.csv"; anchor.click(); URL.revokeObjectURL(url);
@@ -221,9 +221,9 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
         <div><small>AVERAGE R</small><strong>{m.average_r.toFixed(2)}R</strong></div>
       </div>
       <div className="lab-execution">{result?.execution_model}</div>
-      <div className="trade-table-wrap"><table className="trade-table"><thead><tr><th>Side</th><th>Entry</th><th>Exit</th><th>Entry px</th><th>Exit px</th><th>Net PnL</th><th>Carry</th><th>Tax</th><th>R</th><th>Reason</th></tr></thead><tbody>
-        {result?.trades.map((t,i)=><tr key={i}><td>{t.direction}</td><td>{new Date(t.entry_timestamp).toLocaleString()}</td><td>{new Date(t.exit_timestamp).toLocaleString()}</td><td>{t.entry_price.toFixed(5)}</td><td>{t.exit_price.toFixed(5)}</td><td className={t.net_pnl>=0?"positive":"negative"}>{t.net_pnl.toFixed(2)}</td><td>{t.holding_costs.toFixed(2)}</td><td>{t.taxes.toFixed(2)}</td><td>{t.r_multiple.toFixed(2)}</td><td>{t.exit_reason}</td></tr>)}
-        {!result?.trades.length && <tr><td colSpan={10}>No qualifying setups found in this dataset.</td></tr>}
+      <div className="trade-table-wrap"><table className="trade-table"><thead><tr><th>Side</th><th>Entry</th><th>Exit</th><th>Entry px</th><th>Exit px</th><th>Risk cash</th><th>Net PnL</th><th>Carry</th><th>Tax</th><th>R</th><th>Reason</th></tr></thead><tbody>
+        {result?.trades.map((t,i)=><tr key={i}><td>{t.direction}</td><td>{new Date(t.entry_timestamp).toLocaleString()}</td><td>{new Date(t.exit_timestamp).toLocaleString()}</td><td>{t.entry_price.toFixed(5)}</td><td>{t.exit_price.toFixed(5)}</td><td>{t.initial_risk_cash.toFixed(2)}</td><td className={t.net_pnl>=0?"positive":"negative"}>{t.net_pnl.toFixed(2)}</td><td>{t.holding_costs.toFixed(2)}</td><td>{t.taxes.toFixed(2)}</td><td>{t.r_multiple.toFixed(2)}</td><td>{t.exit_reason}</td></tr>)}
+        {!result?.trades.length && <tr><td colSpan={11}>No qualifying setups found in this dataset.</td></tr>}
       </tbody></table></div>
       <ul className="lab-notes">{result?.notes.map((n,i)=><li key={i}>{n}</li>)}</ul>
     </article>}
