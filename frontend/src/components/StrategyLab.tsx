@@ -27,7 +27,10 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
   const [message, setMessage] = useState("Import a historical OHLCV CSV to begin. Synthetic preview candles are not accepted as backtest data.");
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
-  const [walkResult, setWalkResult] = useState<WalkResult | null>(null);\n  const [trainingBars, setTrainingBars] = useState("500");\n  const [testBars, setTestBars] = useState("100");\n  const [stepBars, setStepBars] = useState("100");
+  const [walkResult, setWalkResult] = useState<WalkResult | null>(null);
+  const [trainingBars, setTrainingBars] = useState("500");
+  const [testBars, setTestBars] = useState("100");
+  const [stepBars, setStepBars] = useState("100");
 
   async function importFile(file?: File) {
     if (!file) return;
