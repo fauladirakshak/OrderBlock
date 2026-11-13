@@ -184,8 +184,8 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Integrate independent HTF zone requests into the workspace's existing fetched higher-timeframe candles.
 - [x] Display timeframe-grouped OB/FVG zones, source timeframe, price boundaries and same-timeframe mitigation/fill/invalidation status.
 - [x] Draw a limited selection of recent higher-timeframe OB/FVG boundaries as labelled chart price lines.
-- [ ] Verify backend regression suite and frontend production build in GitHub Actions after the chart integration.
-- [ ] Add configurable HTF zone visibility, filtering and chart selection controls.
+- [ ] Verify backend regression suite and frontend production build in GitHub Actions after chart filters.
+- [x] Add independent OB/FVG chart visibility toggles and timeframe filters for 1H, 4H, 1D and 1W; filters affect chart overlays without discarding analysis results.
 
 
 ## Phase 12 — Setup sequence integrity
