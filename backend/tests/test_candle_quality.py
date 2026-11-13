@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.engine.candle_quality import CandleQualityRequest, audit_candle_quality
-from app.engine.main import app
+from app.main import app
 
 
 def make_candle(ts: str, price: float, volume: float = 1):
