@@ -47,7 +47,8 @@ def _archive_hour(member_name: str, expected_symbol: str) -> datetime:
     parts = member_name.replace("\\", "/").upper().split("/")
     if expected_symbol.upper() not in parts:
         raise ValueError(f"BI5 archive contains a file outside the {expected_symbol} instrument folder")
-    year, month0, day, hour = (int(match.group(k)) for k in ("year", "month", "day", "hour"))
+    year, month0, day = (int(match.group(k)) for k in ("year", "month", "day"))
+    hour = int(match.group("hour")[:2])
     if month0 > 11 or hour > 23:
         raise ValueError(f"Invalid Dukascopy date/hour in archive member: {member_name}")
     try:
