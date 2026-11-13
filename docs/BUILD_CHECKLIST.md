@@ -284,5 +284,5 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add a bounded candle-quality audit endpoint for timestamp spacing, median interval, large gaps, zero-volume candles and flat candles.
 - [x] Report estimated intervening bars as arithmetic estimates only; explicitly avoid treating weekends, holidays, session breaks or illiquid periods as confirmed missing data.
 - [x] Reuse OHLC validation and enforce timezone-aware, strictly increasing timestamps.
-- [x] Add engine and API regression tests for regular spacing, gap reporting and timezone-naive rejection.
+- [x] Add engine and API regression tests for regular spacing, gap reporting, timezone-naive and duplicate timestamps, and invalid OHLC.
 - [ ] Verify full backend suite and frontend production build in GitHub Actions.
