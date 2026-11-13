@@ -117,3 +117,15 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 
 - Dukascopy BI5 importer and Strategy Lab integration CI verification: GitHub Actions run `43514441710` passed backend tests and frontend production build on commit `2391ff548570609c2ffbb5174e1dee8967582d59`.
+
+
+## Phase 6 — Liquidity reference map (implementation in progress)
+
+- [x] Calculate previous available day high/low and week high/low in the instrument's IANA timezone.
+- [x] Cluster confirmed swing highs/lows into equal-high and equal-low reference levels using instrument tick size.
+- [x] Mark wick-through / close-back sweeps only after the relevant level's confirmation point.
+- [x] Add POST /api/v1/analysis/liquidity-references with timestamp, timezone and instrument precision validation.
+- [x] Render liquidity reference price lines and a level inspector panel in the trading workspace.
+- [ ] Verify the complete backend and frontend quality workflow on the integrated UI commit.
+- [ ] Extend previous-period calculations with official exchange holiday calendars and corporate-action adjustment support before using them for automated decisions.
+- [ ] Add explicit futures continuous-contract roll metadata before calculating levels across contract transitions.
