@@ -16,6 +16,7 @@ export type ChartOverlay = {
   order_blocks: Array<{ direction: "bullish" | "bearish"; candle_index: number; timestamp: string; top: number; bottom: number; break_kind: "BOS" | "CHoCH"; mitigated: boolean; invalidated: boolean; rule: string }>;
   fair_value_gaps: Array<{ direction: "bullish" | "bearish"; middle_candle_index: number; timestamp: string; top: number; bottom: number; mitigated: boolean; filled: boolean; rule: string }>;
   liquidity_sweeps: Array<{ direction: "bullish" | "bearish"; candle_index: number; timestamp: string; level: number; explanation: string }>;
+  reference_levels?: Array<{ kind: string; label: string; price: number; swept: boolean; sweep_index?: number | null }>;
 };
 type TradingChartProps = { candles: TradingCandle[]; overlays?: ChartOverlay | null; ariaLabel?: string; pricePrecision?: number; tickSize?: number };
 
@@ -65,6 +66,10 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
       const color = gap.direction === "bullish" ? "#548fc4" : "#a58bd2";
       series.createPriceLine({ price: gap.top, color, lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: true, title: gap.filled ? "FVG filled" : gap.mitigated ? "FVG touched" : "FVG" });
       series.createPriceLine({ price: gap.bottom, color, lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: false, title: "" });
+    }
+    for (const level of (overlays?.reference_levels ?? []).slice(-8)) {
+      const color = level.kind.includes("week") ? "#a58bd2" : level.kind.includes("equal") ? "#6e9fc8" : "#d5a45e";
+      series.createPriceLine({ price: level.price, color, lineWidth: 1, lineStyle: level.swept ? LineStyle.Dashed : LineStyle.Solid, axisLabelVisible: true, title: level.label + (level.swept ? " swept" : "") });
     }
 
     const ctx = canvas.getContext("2d");
