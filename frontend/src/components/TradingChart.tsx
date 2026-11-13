@@ -17,6 +17,7 @@ export type ChartOverlay = {
   fair_value_gaps: Array<{ direction: "bullish" | "bearish"; middle_candle_index: number; timestamp: string; top: number; bottom: number; mitigated: boolean; filled: boolean; rule: string }>;
   liquidity_sweeps: Array<{ direction: "bullish" | "bearish"; candle_index: number; timestamp: string; level: number; explanation: string }>;
   reference_levels?: Array<{ kind: string; label: string; price: number; swept: boolean; sweep_index?: number | null }>;
+  dealing_range?: { high: number; low: number; equilibrium: number; location: string } | null;
 };
 type TradingChartProps = { candles: TradingCandle[]; overlays?: ChartOverlay | null; ariaLabel?: string; pricePrecision?: number; tickSize?: number };
 
@@ -70,6 +71,11 @@ export default function TradingChart({ candles, overlays, ariaLabel = "Interacti
     for (const level of (overlays?.reference_levels ?? []).slice(0,8)) {
       const color = level.kind.includes("week") ? "#a58bd2" : level.kind.includes("equal") ? "#6e9fc8" : "#d5a45e";
       series.createPriceLine({ price: level.price, color, lineWidth: 1, lineStyle: level.swept ? LineStyle.Dashed : LineStyle.Solid, axisLabelVisible: true, title: level.label + (level.swept ? " swept" : "") });
+    }
+    if (overlays?.dealing_range) {
+      series.createPriceLine({ price: overlays.dealing_range.high, color: "#c58d62", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "Dealing range high" });
+      series.createPriceLine({ price: overlays.dealing_range.equilibrium, color: "#d6c27a", lineWidth: 1, lineStyle: LineStyle.Dotted, axisLabelVisible: true, title: "Equilibrium 50%" });
+      series.createPriceLine({ price: overlays.dealing_range.low, color: "#5d9cbd", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "Dealing range low" });
     }
 
     const ctx = canvas.getContext("2d");
