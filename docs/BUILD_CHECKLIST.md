@@ -254,3 +254,10 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Distinguish synthetic demo, preview synthetic, loading, offline and connected provider states in the chart and sidebar.
 - [x] Display the connected provider name in the chart legend so synthetic prices are not mistaken for live data.
 - [ ] Verify frontend production build in GitHub Actions.
+
+
+## Phase 20 — Backtest drawdown disclosure
+
+- [x] Explicitly document that the current maximum-drawdown metric is based on realized closed-trade equity and excludes intratrade mark-to-market excursions.
+- [x] Label the Strategy Lab metric as realized drawdown to prevent overstating its coverage.
+- [ ] Verify backend and frontend CI.
