@@ -219,7 +219,13 @@ function App() {
                 body: JSON.stringify({
                   primary_timeframe: timeframe,
                   primary_candles: payload.candles,
-                  higher_timeframes: contextSeries.map(([tf, series]) => ({ timeframe: tf, candles: series })),
+                  higher_timeframes: contextSeries.map(([tf, series]) => ({
+                    timeframe: tf,
+                    candles: series.filter(candle =>
+                      Date.parse(candle.timestamp) + (timeframeSeconds[tf] || 0) * 1000
+                      <= Date.parse(payload.candles[payload.candles.length - 1].timestamp)
+                    ),
+                  })),
                   pivot: 2,
                   equilibrium_band_pct: 5,
                 }),
