@@ -64,7 +64,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.detail || "CSV import failed.");
       setSeries(payload as ImportedSeries);
-      setMessage("Imported " + payload.candle_count + " candles from " + file.name + ". Source: user-supplied CSV.");
+      setMessage("Imported " + payload.candle_count + " candles from " + file.name + ". Source: user-supplied historical file.");
     } catch (failure) {
       setSeries(null);
       setError(failure instanceof Error ? failure.message : "CSV import failed.");
