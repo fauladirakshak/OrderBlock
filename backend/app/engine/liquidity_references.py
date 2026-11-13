@@ -86,13 +86,13 @@ def _period_levels(candles: list[Candle], zone: ZoneInfo, weekly: bool):
             kind=f"{label}_high", label="PWH" if weekly else "PDH",
             price=high_candle.high, source_period=period_name,
             first_touch_timestamp=high_candle.timestamp, last_touch_timestamp=high_candle.timestamp,
-            confirmed_index=high_index,
+            confirmed_index=rows[-1][0],
         ),
         LiquidityReferenceLevel(
             kind=f"{label}_low", label="PWL" if weekly else "PDL",
             price=low_candle.low, source_period=period_name,
             first_touch_timestamp=low_candle.timestamp, last_touch_timestamp=low_candle.timestamp,
-            confirmed_index=low_index,
+            confirmed_index=rows[-1][0],
         ),
     ]
 
