@@ -216,7 +216,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
         <div><small>TRADES</small><strong>{m.trade_count}</strong></div>
         <div><small>WIN RATE</small><strong>{m.win_rate_pct.toFixed(1)}%</strong></div>
         <div><small>PROFIT FACTOR</small><strong>{m.profit_factor === null ? "—" : m.profit_factor.toFixed(2)}</strong></div>
-        <div><small>MAX DRAWDOWN</small><strong>{m.max_drawdown_pct.toFixed(2)}%</strong></div>
+        <div><small>MAX DRAWDOWN · REALIZED</small><strong>{m.max_drawdown_pct.toFixed(2)}%</strong></div>
         <div><small>EXPECTANCY</small><strong>{m.expectancy.toFixed(2)}</strong></div>
         <div><small>AVERAGE R</small><strong>{m.average_r.toFixed(2)}R</strong></div>
       </div>
