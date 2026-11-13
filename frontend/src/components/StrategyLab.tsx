@@ -26,7 +26,8 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("Import a historical OHLCV CSV to begin. Synthetic preview candles are not accepted as backtest data.");
   const [error, setError] = useState("");
-  const [result, setResult] = useState<Result | null>(null);\n  const [walkResult, setWalkResult] = useState<WalkResult | null>(null);\n  const [trainingBars, setTrainingBars] = useState("500");\n  const [testBars, setTestBars] = useState("100");\n  const [stepBars, setStepBars] = useState("100");
+  const [result, setResult] = useState<Result | null>(null);
+  const [walkResult, setWalkResult] = useState<WalkResult | null>(null);\n  const [trainingBars, setTrainingBars] = useState("500");\n  const [testBars, setTestBars] = useState("100");\n  const [stepBars, setStepBars] = useState("100");
 
   async function importFile(file?: File) {
     if (!file) return;
@@ -60,6 +61,12 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
           starting_equity: Number(startingEquity), risk_per_trade_pct: Number(riskPct),
           target_r_multiple: Number(targetR), commission_bps: Number(commission),
           spread_bps: Number(spread), slippage_bps: Number(slippage),
+          market_type: market,
+          contract_multiplier: Number(contractMultiplier),
+          funding_bps_per_8h: Number(fundingBps),
+          swap_bps_per_day: Number(swapBps),
+          borrow_bps_per_day: Number(borrowBps),
+          tax_bps_on_positive_pnl: Number(taxBps),
         }),
       });
       const payload = await response.json();
@@ -84,6 +91,12 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
           starting_equity: Number(startingEquity), risk_per_trade_pct: Number(riskPct),
           target_r_multiple: Number(targetR), commission_bps: Number(commission),
           spread_bps: Number(spread), slippage_bps: Number(slippage),
+          market_type: market,
+          contract_multiplier: Number(contractMultiplier),
+          funding_bps_per_8h: Number(fundingBps),
+          swap_bps_per_day: Number(swapBps),
+          borrow_bps_per_day: Number(borrowBps),
+          tax_bps_on_positive_pnl: Number(taxBps),
           training_window_bars: Number(trainingBars), test_window_bars: Number(testBars), step_bars: Number(stepBars),
         }),
       });
