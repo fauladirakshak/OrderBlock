@@ -166,3 +166,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add workspace controls to edit and apply one custom window to the current chart history; persistent saved profiles remain pending.
 - [x] Verify full backend tests and frontend production build in GitHub Actions; quality run `43517925872` passed on commit `4c964dd47b893829f3907e26b8119b4292646bad`.
 - [x] Keep user-defined windows distinct from canonical or proprietary ICT killzone claims.
+
+
+## Phase 10 — Higher-timeframe chart visualization
+
+- [x] Carry available higher-timeframe range levels into the chart overlay model.
+- [x] Draw timeframe-labelled high, 50% equilibrium and low price lines with distinct timeframe colors.
+- [x] Limit the number of higher-timeframe contexts rendered to preserve chart readability.
+- [ ] Verify frontend production build and backend regression suite in GitHub Actions.
