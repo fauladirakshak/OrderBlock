@@ -128,3 +128,15 @@ def test_custom_session_window_api():
     })
     assert response.status_code == 200
     assert any(item["name"] == "User Killzone Study" for item in response.json()["sessions"])
+
+
+
+def test_custom_session_window_cannot_shadow_default_session_name():
+    data = bars([("2026-11-10T08:00:00Z", 100, 102, 99, 101, 10)])
+    request = SessionAnalysisRequest(
+        market="forex", symbol="EUR/USD", candles=data,
+        custom_windows=[{"name": "london", "timezone": "America/New_York",
+                         "start": "08:00", "end": "10:00"}],
+    )
+    with pytest.raises(ValueError, match="unique across default and custom"):
+        analyze_sessions(request)
