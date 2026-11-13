@@ -28,7 +28,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] README setup and endpoint documentation.
 - [x] Binance public Spot klines adapter; no private key or subscription required.
 - [x] Enforce zero-subscription provider routing; paid-provider selection is explicitly disabled.
-- [~] Add validated user-supplied historical CSV importer/API with UTC normalization, timezone handling, OHLC validation and monotonic timestamp checks; awaiting CI verification.
+- [x] Add validated user-supplied historical CSV importer/API with UTC normalization, timezone handling, OHLC validation and monotonic timestamp checks; backend CI passed.
 - [ ] Integrate free Forex historical datasets (Dukascopy/HistData) after format and usage-terms validation.
 - [ ] Integrate NSE official downloadable daily reports/bhavcopy where permitted; verify applicable terms and coverage.
 - [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
@@ -51,16 +51,18 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [~] Add opt-in SQLite historical-candle cache with provider/instrument-scoped keys, configurable TTL, expiry cleanup and loader-level cache-hit integration test; awaiting CI verification. Caching stays disabled by default until data-storage rights are confirmed.\n- [ ] Validate cache retention settings against each provider/exchange agreement before enabling in production.
 - [ ] Add live streaming only after provider selection, licensing review and reconnect handling.
 
-## Phase 3 — Historical research backtester
+## Phase 3 — Historical research backtester (v0.1 complete)
 
-- [~] Add deterministic OHLC backtesting engine using the configurable setup-candidate engine; awaiting CI verification.
-- [~] Add prefix-only signal evaluation and next-bar-open entry to avoid signal lookahead.
-- [~] Add one-position-at-a-time simulation, OB-edge stop with signal-candle fallback, configurable R-multiple target and risk-based sizing.
-- [~] Add configurable commission, spread and slippage; return trade-level costs and net PnL.
-- [~] Add conservative stop-first handling when stop and target are both touched in one OHLC candle.
-- [~] Add end-of-data position closure, equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
-- [~] Add API endpoint POST /api/v1/backtests/run and regression tests for next-bar entry, intrabar ambiguity, costs, end-of-data closure, timezone-aware timestamp validation and API response.
-- [~] Add responsive frontend Strategy lab with user CSV import, risk/cost configuration, result metrics, trade table and downloadable CSV report; awaiting final CI verification.
+- [x] Add deterministic OHLC backtesting engine using the configurable setup-candidate engine; backend CI passed.
+- [x] Add prefix-only signal evaluation and next-bar-open entry to avoid signal lookahead.
+- [x] Add one-position-at-a-time simulation, OB-edge stop with signal-candle fallback, configurable R-multiple target and risk-based sizing.
+- [x] Add configurable commission, spread and slippage; return trade-level costs and net PnL.
+- [x] Add conservative stop-first handling when stop and target are both touched in one OHLC candle, plus conservative gap-through-stop handling.
+- [x] Add end-of-data position closure, equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
+- [x] Add API endpoint POST /api/v1/backtests/run and regression tests for next-bar entry, intrabar ambiguity, gap handling, costs, end-of-data closure, timezone-aware timestamp validation and API response; backend CI passed.
+- [x] Add responsive frontend Strategy lab with user CSV import, risk/cost configuration, result metrics, trade table and downloadable CSV report; frontend CI passed.
+## Phase 4 — Validation and market-specific realism
+
 - [ ] Add walk-forward / out-of-sample evaluation and benchmark comparison.
 - [ ] Add market-specific funding, swap, borrow, tax and contract-multiplier models after venue metadata is validated.
 
