@@ -121,3 +121,35 @@ def test_entry_is_skipped_if_next_open_has_already_gapped_through_stop(monkeypat
                     (90, 91, 89, 90), (90, 91, 89, 90)])
     result = run_backtest(base_request(data))
     assert result.trades == []
+
+
+def test_contract_multiplier_scales_quantity_and_keeps_cash_risk(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (100, 103, 99, 102), (102, 104, 101, 103),
+                    (103, 105, 102, 104), (104, 106, 103, 105)])
+    standard = run_backtest(base_request(data, market_type="stocks", contract_multiplier=1))
+    doubled = run_backtest(base_request(data, market_type="stocks", contract_multiplier=2))
+    assert len(standard.trades) == len(doubled.trades) == 1
+    assert doubled.trades[0].quantity == standard.trades[0].quantity / 2
+    assert abs(doubled.trades[0].gross_pnl - standard.trades[0].gross_pnl) < 1e-8
+
+
+def test_positive_pnl_tax_is_disclosed_and_deducted(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (100, 103, 99, 102), (102, 104, 101, 103),
+                    (103, 105, 102, 104), (104, 106, 103, 105)])
+    untaxed = run_backtest(base_request(data))
+    taxed = run_backtest(base_request(data, tax_bps_on_positive_pnl=1000))
+    assert taxed.trades[0].taxes > 0
+    assert taxed.trades[0].net_pnl < untaxed.trades[0].net_pnl
+
+
+def test_crypto_funding_cost_is_applied_to_elapsed_holding_time(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (100, 103, 99, 102), (102, 104, 101, 103),
+                    (103, 105, 102, 104), (104, 106, 103, 105)])
+    funded = run_backtest(base_request(data, market_type="crypto", funding_bps_per_8h=1000))
+    assert funded.trades[0].holding_costs > 0
