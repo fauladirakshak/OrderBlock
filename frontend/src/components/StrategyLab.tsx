@@ -168,7 +168,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
         <div className="lab-note">No Twelve Data, paid feed or broker account is required. Data ownership and usage rights remain your responsibility.</div>
       </article>
       <article className="panel lab-card">
-        <h3>02 · Risk and execution costs</h3><p>These assumptions are applied consistently to each simulated trade.</p>
+        <h3>02 · Risk and execution costs</h3><p>Initial risk sizing includes estimated spread, slippage and round-trip commission at the stop. Holding costs and taxes are deducted separately.</p>
         <div className="lab-fields">
           <label className="lab-field">Starting equity<input type="number" min="1" value={startingEquity} onChange={e=>setStartingEquity(e.target.value)}/></label>
           <label className="lab-field">Risk per trade (%)<input type="number" min="0.01" max="10" step="0.1" value={riskPct} onChange={e=>setRiskPct(e.target.value)}/></label>
