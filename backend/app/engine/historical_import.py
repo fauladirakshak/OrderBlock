@@ -18,7 +18,7 @@ from app.engine.structure import Candle
 class HistoricalImportRequest(BaseModel):
     symbol: str = Field(min_length=1, max_length=32)
     market: str = Field(pattern=r"^(forex|crypto|stocks)$")
-    timeframe: str = Field(pattern=r"^(5m|15m|1H|4H|1D|1W)$")
+    timeframe: str = Field(pattern=r"^(1m|5m|15m|1H|4H|1D|1W)$")
     csv_text: str = Field(min_length=20, max_length=20_000_000)
     timezone: str = "UTC"
 
