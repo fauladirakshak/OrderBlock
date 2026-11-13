@@ -253,3 +253,6 @@ The endpoint requires separate higher-timeframe candle arrays, enforces timefram
 ### Setup sequence refinement
 
 The setup candidate engine now constrains its optional order-block candle to the interval strictly after the qualifying liquidity sweep and before the displacement/structure-break candle. If no opposing candle exists in that sequence, the candidate carries no order-block zone and the backtester uses its documented signal-candle stop fallback. This avoids assigning a pre-sweep opposing candle as the post-sweep order-block component.
+
+
+The chart also renders a deliberately limited selection of recent higher-timeframe OB/FVG boundaries as labelled horizontal price lines. The detailed panel retains the grouped source-timeframe list; the chart caps this overlay at eight zones to limit visual clutter.
