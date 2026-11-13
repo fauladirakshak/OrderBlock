@@ -265,3 +265,6 @@ Custom session names are checked against the market's built-in session names as 
 
 
 The original multi-timeframe structure endpoint also validates timezone-aware strictly increasing candle timestamps per series and rejects any higher-timeframe series whose latest candle extends beyond the primary chart's latest timestamp. This guards direct API callers as well as the frontend against future-context leakage.
+
+
+The Binance Spot adapter now drops klines whose exchange-provided close timestamp has not yet passed. This keeps the market-data API's Binance candle series closed-bar-only for research analysis. The filter is covered by a regression test that supplies one completed and one still-forming kline.
