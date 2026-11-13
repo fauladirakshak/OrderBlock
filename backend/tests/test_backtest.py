@@ -153,3 +153,12 @@ def test_crypto_funding_cost_is_applied_to_elapsed_holding_time(monkeypatch):
                     (103, 105, 102, 104), (104, 106, 103, 105)])
     funded = run_backtest(base_request(data, market_type="crypto", funding_bps_per_8h=1000))
     assert funded.trades[0].holding_costs > 0
+
+
+def test_evaluation_window_blocks_pre_test_signals(monkeypatch):
+    patch_signal(monkeypatch)
+    data = candles([(100, 101, 99, 100), (100, 102, 99, 101),
+                    (100, 103, 99, 102), (102, 104, 101, 103),
+                    (103, 105, 102, 104), (104, 106, 103, 105)])
+    result = run_backtest(base_request(data, evaluation_start_index=3))
+    assert result.trades == []
