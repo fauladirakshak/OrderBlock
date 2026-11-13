@@ -51,6 +51,19 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [~] Add opt-in SQLite historical-candle cache with provider/instrument-scoped keys, configurable TTL, expiry cleanup and loader-level cache-hit integration test; awaiting CI verification. Caching stays disabled by default until data-storage rights are confirmed.\n- [ ] Validate cache retention settings against each provider/exchange agreement before enabling in production.
 - [ ] Add live streaming only after provider selection, licensing review and reconnect handling.
 
+## Phase 3 — Historical research backtester
+
+- [~] Add deterministic OHLC backtesting engine using the configurable setup-candidate engine; awaiting CI verification.
+- [~] Add prefix-only signal evaluation and next-bar-open entry to avoid signal lookahead.
+- [~] Add one-position-at-a-time simulation, OB-edge stop with signal-candle fallback, configurable R-multiple target and risk-based sizing.
+- [~] Add configurable commission, spread and slippage; return trade-level costs and net PnL.
+- [~] Add conservative stop-first handling when stop and target are both touched in one OHLC candle.
+- [~] Add end-of-data position closure, equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
+- [~] Add API endpoint POST /api/v1/backtests/run and regression tests for next-bar entry, intrabar ambiguity, costs, end-of-data closure, timestamp validation and API response.
+- [ ] Add frontend backtest configuration/results workspace and downloadable trade report.
+- [ ] Add walk-forward / out-of-sample evaluation and benchmark comparison.
+- [ ] Add market-specific funding, swap, borrow, tax and contract-multiplier models after venue metadata is validated.
+
 ## Validation notes
 
 - The synthetic provider is development data only, anchored to a fixed timestamp for repeatable tests. It is not historical market data, a quote, or a tradeable feed.
