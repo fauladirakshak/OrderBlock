@@ -55,3 +55,16 @@ def test_binance_excludes_currently_forming_kline(monkeypatch):
     )
     assert len(candles) == 1
     assert candles[0].close == 105
+
+
+
+def test_binance_fails_clearly_when_no_completed_klines(monkeypatch):
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    forming = [now_ms - 60_000, "100", "110", "95", "105", "12.5", now_ms + 60_000, "0", 10, "0", "0", "0"]
+    monkeypatch.setattr(httpx, "get", lambda *a, **k: httpx.Response(
+        200, json=[forming], request=httpx.Request("GET", "https://test")
+    ))
+    with pytest.raises(MarketDataProviderError, match="no completed klines"):
+        BinanceSpotProvider(base_url="https://test").get_candles(
+            get_instrument("BTC/USDT"), "1H", 1
+        )
