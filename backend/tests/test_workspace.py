@@ -66,3 +66,19 @@ def test_workspace_marks_sweep_only_after_swing_confirmation():
         sweep.direction == "bullish" and sweep.candle_index == 5 and sweep.level == 7
         for sweep in result.liquidity_sweeps
     )
+
+
+
+def test_workspace_api_rejects_unordered_and_timezone_naive_candles():
+    candles = [c.model_dump() for c in make_candles()]
+    unordered = [dict(c) for c in candles]
+    unordered[5]["timestamp"] = unordered[4]["timestamp"]
+    response = client.post("/api/v1/analysis/workspace", json={"pivot": 1, "candles": unordered})
+    assert response.status_code == 422
+    assert "strictly increasing" in response.json()["detail"][0]["msg"]
+
+    naive = [dict(c) for c in candles]
+    naive[0]["timestamp"] = "2026-01-01T00:00:00"
+    response = client.post("/api/v1/analysis/workspace", json={"pivot": 1, "candles": naive})
+    assert response.status_code == 422
+    assert "timezone" in response.json()["detail"][0]["msg"]
