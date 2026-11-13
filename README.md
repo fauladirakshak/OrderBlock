@@ -241,3 +241,10 @@ The workspace exposes a one-window editor in the Session Context panel. Enter a 
 
 
 Available higher-timeframe ranges are also drawn on the active chart as labelled high, 50% equilibrium and low price lines. The line labels retain their source timeframe; the workspace limits chart rendering to the first four available higher-timeframe contexts to avoid excessive clutter.
+
+
+### Higher-timeframe order blocks and fair value gaps
+
+The workspace calls `POST /api/v1/analysis/higher-timeframe-zones` to calculate order-block and three-candle FVG candidates independently on each supplied higher timeframe. Results are shown grouped by source timeframe, including each zone's price boundaries and mitigation/invalidation/fill status.
+
+The endpoint requires separate higher-timeframe candle arrays, enforces timeframe ordering and chronological timezone-aware timestamps, and rejects future-dated context. It does not resample lower-timeframe candles. Zone status is evaluated only within its own source timeframe; these patterns are descriptive rule-based observations, not proof of institutional orders or trade signals.
