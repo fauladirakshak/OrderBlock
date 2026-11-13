@@ -161,7 +161,7 @@ function App() {
             body: JSON.stringify({
               candles: payload.candles,
               timezone: selectedMetadata?.timezone || "Etc/UTC",
-              pivot: 2,
+              pivot: swingPivot,
               tick_size: selectedMetadata?.tick_size || 0.00001,
               tolerance_ticks: 2,
             }),
@@ -181,7 +181,7 @@ function App() {
           const rangeResponse = await fetch(API_BASE + "/api/v1/analysis/dealing-range", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ candles: payload.candles, pivot: 2, equilibrium_band_pct: 5 }),
+            body: JSON.stringify({ candles: payload.candles, pivot: swingPivot, equilibrium_band_pct: 5 }),
             signal: controller.signal,
           });
           if (!rangeResponse.ok) throw new Error("Dealing range API returned HTTP " + rangeResponse.status);
@@ -232,7 +232,7 @@ function App() {
               const mtfResponse = await fetch(API_BASE + "/api/v1/analysis/multi-timeframe", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ primary_timeframe: timeframe, candles_by_timeframe: contextPayload, pivot: 2 }),
+                body: JSON.stringify({ primary_timeframe: timeframe, candles_by_timeframe: contextPayload, pivot: swingPivot }),
                 signal: controller.signal,
               });
               if (!mtfResponse.ok) throw new Error("Multi-timeframe API returned HTTP " + mtfResponse.status);
@@ -251,7 +251,7 @@ function App() {
                       <= Date.parse(payload.candles[payload.candles.length - 1].timestamp)
                     ),
                   })),
-                  pivot: 2,
+                  pivot: swingPivot,
                   equilibrium_band_pct: 5,
                 }),
                 signal: controller.signal,
@@ -267,7 +267,7 @@ function App() {
                   primary_timeframe: timeframe,
                   primary_candles: payload.candles,
                   higher_timeframes: closedContextSeries.map(([tf, series]) => ({ timeframe: tf, candles: series })),
-                  pivot: 2,
+                  pivot: swingPivot,
                   max_zones_per_type: 8,
                 }),
                 signal: controller.signal,
