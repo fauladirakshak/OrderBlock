@@ -287,3 +287,6 @@ The chart header, chart legend and sidebar feed status now display the actual pr
 
 
 If Binance returns only an in-progress kline and no completed candles, the provider now returns a clear upstream-data error instead of an empty candle series.
+
+
+The backtest's current maximum-drawdown metric is based on realized closed-trade equity. It excludes intratrade mark-to-market excursions and is labelled accordingly in Strategy Lab; do not interpret it as a complete peak account-risk measure.
