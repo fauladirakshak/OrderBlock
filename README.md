@@ -27,6 +27,7 @@ Order blocks, BOS/CHoCH, FVGs and liquidity concepts can be used across all thre
   - `POST /api/v1/analysis/zones`
   - `POST /api/v1/analysis/setups`
   - `POST /api/v1/backtests/run`
+  - `POST /api/v1/backtests/walk-forward`
   - `GET /api/v1/market-data/candles?market=forex&symbol=EUR%2FUSD&timeframe=1H&limit=200`
 - Backend unit tests and GitHub Actions quality workflow for backend tests and frontend build.
 
@@ -162,3 +163,12 @@ Execution assumptions:
 - Input is capped at 5,000 candles for this correctness-first v0.1 prefix-replay implementation.
 
 The API identifies candles as caller-supplied and does not independently verify their provenance or usage rights. The frontend Strategy lab starts from CSV import rather than the synthetic preview series. This is a historical research simulator only. It does not place orders, promise performance or claim to reproduce proprietary/canonical ICT code. Out-of-sample testing, market-specific costs and data-quality review remain necessary.
+
+
+### Phase 4 — Walk-forward and out-of-sample validation
+
+The rolling evaluator is available at `POST /api/v1/backtests/walk-forward` and from the Strategy Lab. Configure a chronological training window, test window and step size. Each fold reports the training-period metrics, out-of-sample metrics, a simple buy-and-hold benchmark return and strategy excess return. Aggregate out-of-sample returns are compounded across folds that each start with fresh configured equity.
+
+The test replay retains only candles up to that fold's test end and blocks new entries before the test boundary. Earlier candles remain available for swing/liquidity context. The setup profile is held fixed; this is an evaluation harness, not automated parameter optimization. Overlapping test windows are possible when step size is smaller than test-window size and should be interpreted accordingly.
+
+The buy-and-hold benchmark is close-to-open price return only; it excludes dividends, funding, borrow, taxes and trading costs. A fair strategy comparison requires realistic market-specific costs and validated source data. No result is a guarantee of future performance.
