@@ -276,4 +276,4 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Enforce ISO-8601 timezone-aware timestamps and strictly increasing order in structure and setup request models.
 - [x] Bound direct structure/setup API series to 5,000 candles.
 - [x] Add API regression tests for unordered and timezone-naive workspace/setup candle series.
-- [ ] Verify full backend suite and frontend build in GitHub Actions.
+- [x] Verify full backend suite and frontend build in GitHub Actions; quality run `43524872610` passed on commit `c9abd350addd16b2a179734046fbe9a1b738ef6a`.
