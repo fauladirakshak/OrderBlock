@@ -3,13 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from app.engine.markets import list_markets
 from app.engine.providers import ProviderConfigurationError, MarketDataProviderError
-from app.engine.providers import ProviderConfigurationError, MarketDataProviderError
 from app.engine.structure import Candle, StructureResult, detect_structure
 from app.engine.zones import ZoneAnalysis, analyze_zones
 from app.engine.setups import SetupAnalysis, SetupProfile, analyze_setups
 from app.engine.market_data import CandleSeries, Market, Timeframe, load_candle_series
 from app.engine.workspace import WorkspaceAnalysis, analyze_workspace
 from app.engine.multi_timeframe import MultiTimeframeAnalysis, MultiTimeframeRequest, analyze_multi_timeframe
+from app.engine.historical_import import HistoricalImportRequest, HistoricalImportResult, parse_historical_csv
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -98,5 +98,17 @@ def get_market_candles(
         return load_candle_series(market, symbol, timeframe, limit, venue_id, contract_type)
     except (ProviderConfigurationError, MarketDataProviderError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+@app.post("/api/v1/market-data/import/csv", response_model=HistoricalImportResult)
+def import_historical_csv(request: HistoricalImportRequest) -> HistoricalImportResult:
+    """Validate and normalize a user-supplied historical OHLCV CSV dataset."""
+    try:
+        candles = parse_historical_csv(request.csv_text, request.timezone)
+        return HistoricalImportResult(
+            symbol=request.symbol, market=request.market, timeframe=request.timeframe,
+            timezone=request.timezone, candle_count=len(candles), candles=candles,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
