@@ -151,7 +151,7 @@ Example JSON fields: `symbol`, `market`, `timeframe`, `timezone`, `csv_text`.
 
 ### Phase 3 — Historical backtesting
 
-The research backtester is available at `POST /api/v1/backtests/run`. It accepts a candle array, the configurable setup profile, starting equity, risk per trade, target R multiple and commission/spread/slippage assumptions. It returns trade records, an equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
+The research backtester is available at `POST /api/v1/backtests/run` and in the frontend **Strategy lab** workspace. The UI imports user-supplied OHLCV CSV files, normalizes timestamps through the import API, configures starting equity, risk per trade, target R multiple and commission/spread/slippage assumptions, then displays metrics and trade records with CSV export. The API accepts a candle array and returns an equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
 
 Execution assumptions:
 - Setups are recalculated using only the candle prefix available at each signal close.
@@ -161,4 +161,4 @@ Execution assumptions:
 - Open positions are closed at the final candle close. Commission, spread and slippage are configurable; funding, swaps, borrow, taxes and venue-specific contract multipliers are not modeled.
 - Input is capped at 5,000 candles for this correctness-first v0.1 prefix-replay implementation.
 
-This is a historical research simulator only. It does not place orders, promise performance or claim to reproduce proprietary/canonical ICT code. Out-of-sample testing, market-specific costs and data-quality review remain necessary.
+The API identifies candles as caller-supplied and does not independently verify their provenance or usage rights. The frontend Strategy lab starts from CSV import rather than the synthetic preview series. This is a historical research simulator only. It does not place orders, promise performance or claim to reproduce proprietary/canonical ICT code. Out-of-sample testing, market-specific costs and data-quality review remain necessary.
