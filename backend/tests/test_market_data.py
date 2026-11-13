@@ -78,9 +78,8 @@ def test_market_data_api_requires_matching_venue_and_contract_identity():
 
 def test_configured_real_provider_never_falls_back_to_synthetic(monkeypatch):
     monkeypatch.setenv("ORDERBLOCK_DATA_PROVIDER", "twelvedata")
-    monkeypatch.delenv("TWELVEDATA_API_KEY", raising=False)
     response = client.get("/api/v1/market-data/candles", params={
         "market": "forex", "symbol": "EUR/USD", "timeframe": "1H", "limit": 20,
     })
     assert response.status_code == 503
-    assert "TWELVEDATA_API_KEY" in response.json()["detail"]
+    assert "Paid market-data providers are disabled" in response.json()["detail"]
