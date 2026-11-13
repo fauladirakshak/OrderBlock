@@ -185,3 +185,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Display timeframe-grouped OB/FVG zones, source timeframe, price boundaries and same-timeframe mitigation/fill/invalidation status.
 - [ ] Verify backend regression suite and frontend production build in GitHub Actions.
 - [ ] Add configurable HTF zone visibility, filtering and chart selection controls.
+
+
+## Phase 12 — Setup sequence integrity
+
+- [x] Constrain the setup's candidate order-block candle to occur strictly after the qualifying liquidity sweep and before the displacement/structure-break candle.
+- [x] Preserve the explicit no-order-block case and the backtest's signal-candle stop fallback.
+- [x] Add regression coverage for a sweep-to-displacement sequence with no opposing candle between those events.
+- [ ] Verify the full backend suite and frontend build in GitHub Actions.
