@@ -129,3 +129,14 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [ ] Verify the complete backend and frontend quality workflow on the integrated UI commit.
 - [ ] Extend previous-period calculations with official exchange holiday calendars and corporate-action adjustment support before using them for automated decisions.
 - [ ] Add explicit futures continuous-contract roll metadata before calculating levels across contract transitions.
+
+
+## Phase 7 — Premium / discount dealing range (implementation in progress)
+
+- [x] Select the latest confirmed swing high and low eligible before the final candle.
+- [x] Calculate dealing-range high, low, 50% equilibrium and configurable equilibrium band.
+- [x] Classify current price as premium, discount, equilibrium, above-range or below-range.
+- [x] Add POST /api/v1/analysis/dealing-range and backend regression tests.
+- [x] Render dealing-range high/equilibrium/low lines and a workspace context panel.
+- [ ] Verify full backend test suite and frontend production build in GitHub Actions.
+- [ ] Add higher-timeframe dealing-range selection and user-configurable swing selection after the single-range baseline is verified.
