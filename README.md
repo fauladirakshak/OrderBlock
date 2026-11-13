@@ -228,3 +228,10 @@ This is geometric context only. It does not predict reversal, define a trade ent
 The workspace calls `POST /api/v1/analysis/higher-timeframe-ranges` to calculate separate premium/discount dealing ranges from independently fetched higher-timeframe candles (for example, 1H and 4H context on a 15m chart). The endpoint validates unique timeframe ordering, timezone-aware strictly increasing timestamps, and rejects context candles timestamped after the primary chart's latest candle. It reuses the confirmed-swing eligibility rules from the single-timeframe range engine.
 
 The service does not resample or fabricate higher-timeframe candles. Callers must provide genuinely completed higher-timeframe candles; the API cannot independently prove that an upstream candle is closed. Results are geometric research context, not forecasts or trade signals.
+
+
+### User-configurable session windows
+
+The existing `POST /api/v1/analysis/sessions` endpoint accepts an optional `custom_windows` array. Each entry defines a unique name, IANA timezone, start and end clock time (for example, `{"name":"London Open Study","timezone":"Europe/London","start":"08:00","end":"10:00"}`). Custom windows are added alongside the market's broad default sessions, with DST handled by the selected IANA timezone. A maximum of eight custom windows is accepted per request.
+
+These are user-defined study windows only. They are not labelled as canonical ICT killzones, and the backend does not prescribe or validate a proprietary killzone schedule.
