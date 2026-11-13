@@ -248,3 +248,8 @@ Available higher-timeframe ranges are also drawn on the active chart as labelled
 The workspace calls `POST /api/v1/analysis/higher-timeframe-zones` to calculate order-block and three-candle FVG candidates independently on each supplied higher timeframe. Results are shown grouped by source timeframe, including each zone's price boundaries and mitigation/invalidation/fill status.
 
 The endpoint requires separate higher-timeframe candle arrays, enforces timeframe ordering and chronological timezone-aware timestamps, and rejects future-dated context. It does not resample lower-timeframe candles. Zone status is evaluated only within its own source timeframe; these patterns are descriptive rule-based observations, not proof of institutional orders or trade signals.
+
+
+### Setup sequence refinement
+
+The setup candidate engine now constrains its optional order-block candle to the interval strictly after the qualifying liquidity sweep and before the displacement/structure-break candle. If no opposing candle exists in that sequence, the candidate carries no order-block zone and the backtester uses its documented signal-candle stop fallback. This avoids assigning a pre-sweep opposing candle as the post-sweep order-block component.
