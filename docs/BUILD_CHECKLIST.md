@@ -29,7 +29,9 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Binance public Spot klines adapter; no private key or subscription required.
 - [x] Enforce zero-subscription provider routing; paid-provider selection is explicitly disabled.
 - [x] Add validated user-supplied historical CSV importer/API with UTC normalization, timezone handling, OHLC validation and monotonic timestamp checks; backend CI passed.
-- [ ] Integrate free Forex historical datasets (Dukascopy/HistData) after format and usage-terms validation.
+- [x] Add offline HistData Generic ASCII M1 ZIP importer with fixed EST-to-UTC conversion and validation.
+- [x] Add offline Dukascopy classic hourly BI5 ZIP importer with explicit instrument divisor, tick validation, bid OHLC resampling and upload controls; backend and frontend CI verification pending.
+- [ ] Confirm the intended Dukascopy use is personal/non-commercial or obtain written rights before any commercial deployment; no automated scraping or redistribution is implemented.
 - [x] Add offline NSE CM-UDiFF Common Bhavcopy Final ZIP importer/API for selected symbol and series, daily OHLCV conversion and Asia/Kolkata date normalization; CI passed. EOD only; usage terms still require review.
 - [x] Add offline HistData Generic ASCII M1 ZIP importer/API, fixed EST (UTC-5, no DST) to UTC conversion, bid OHLCV parsing and strict timestamp/OHLC validation; CI passed. Free download source; redistribution terms not assumed.
 - [x] Add venue IDs, contract types, session model, IANA timezone, tick size and price precision to instrument catalogue, candle request and chart formatting.
@@ -97,3 +99,6 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 
 - NSE and HistData importers: GitHub Actions run `43510775203` passed backend tests and frontend production build on commit `7dc4ab075456430655bc81dcd749277bbf43dcdc`.
+
+
+- [x] Add Dukascopy classic hourly BI5 importer/API and Strategy Lab upload selector. Source terms restrict downloads to personal, non-commercial use absent written agreement; no automated scraping or commercial redistribution is allowed by this implementation. Await CI verification.
