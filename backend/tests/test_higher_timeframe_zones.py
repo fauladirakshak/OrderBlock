@@ -4,6 +4,8 @@ from app.engine.higher_timeframe_zones import HigherTimeframeZonesRequest, analy
 from app.engine.structure import Candle
 from app.main import app
 
+client = TestClient(app)
+
 
 def series(prefix="2026-01-01T00"):
     rows = [
