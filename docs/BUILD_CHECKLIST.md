@@ -244,4 +244,4 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Apply listed holidays and special-session hours to stock/equity session summaries.
 - [x] Add backend regression tests for excluded holiday dates, shortened special sessions, duplicate dates and invalid market usage.
 - [x] Add workspace CSV import controls for the calendar format; calendar remains user-supplied and is not fabricated.
-- [ ] Verify backend tests and frontend build in GitHub Actions.
+- [x] Verify backend tests and frontend build in GitHub Actions; quality run `43524059639` passed on commit `7c29004f7ab3a44dba9bb264ad573f7b5497fb32`.
