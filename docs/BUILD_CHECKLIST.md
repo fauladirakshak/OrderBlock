@@ -61,14 +61,14 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Add end-of-data position closure, equity curve, win rate, profit factor, expectancy, average R and maximum drawdown.
 - [x] Add API endpoint POST /api/v1/backtests/run and regression tests for next-bar entry, intrabar ambiguity, gap handling, costs, end-of-data closure, timezone-aware timestamp validation and API response; backend CI passed.
 - [x] Add responsive frontend Strategy lab with user CSV import, risk/cost configuration, result metrics, trade table and downloadable CSV report; frontend CI passed.
-## Phase 4 — Validation and market-specific realism
+## Phase 4 — Validation and market-specific realism (v0.1 complete; CI passed)
 
 - [x] Add rolling chronological walk-forward folds with isolated out-of-sample entry windows.
 - [x] Add per-fold training metrics, out-of-sample metrics, simple buy-and-hold benchmark and excess-return comparison.
 - [x] Add Strategy Lab controls for training/test/step windows and fold-by-fold benchmark results.
 - [x] Add configurable contract multiplier to position sizing, PnL and commission notional.
 - [x] Add prorated crypto funding, Forex swap and short-stock borrow estimates, plus a simplified positive-realized-PnL tax estimate.
-- [x] Add regression tests for chronological folds, benchmark output, profile-derived training minimums, contract multipliers, funding and tax deductions.
+- [x] Add regression tests for chronological folds, benchmark output, profile-derived training minimums, evaluation-boundary lookahead protection, contract multipliers, crypto funding, Forex swap, short-stock borrow and tax deductions; backend CI passed.
 - [ ] Validate exact venue funding timestamps, broker swap/rollover schedules, stock borrow availability, exchange lot/contract multipliers, and jurisdiction-specific taxes/fees against authoritative sources before using as production assumptions.
 - [ ] Add parameter optimization and walk-forward re-optimization only after an overfitting-resistant protocol is specified.
 
@@ -90,3 +90,6 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Provider configuration/upstream errors return HTTP 503; no silent synthetic fallback.
 - [ ] Verify source terms and supported symbols for each free Forex/NSE dataset before ingestion or redistribution.
 - [ ] Deploy API with no paid market-data secrets; keep any optional broker credentials out of client code.
+
+
+- Phase 4 CI verification: GitHub Actions run `43510369599` passed both backend tests and frontend production build on commit `74aab2d3e114356e109baa06c472e7b123c3fee1`.
