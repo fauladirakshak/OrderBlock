@@ -249,6 +249,7 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
         metrics=metrics, trades=trades, equity_curve=curve,
         notes=[
             "Signals are recalculated on historical prefixes only; future candles are never supplied to signal generation.",
+            "Maximum drawdown is measured on realized closed-trade equity and excludes intratrade mark-to-market excursions; it is not a complete measure of peak account risk.",
             "Entries occur at the next candle open, not at the signal candle close.",
             "If stop and target are both touched in one OHLC candle, the stop is assumed first because intrabar order is unknowable.",
             "Position size includes estimated spread, slippage and round-trip commission in the initial stop-risk budget. Holding costs and taxes depend on future holding duration and realized PnL and are deducted afterward; an adverse gap through the stop can still exceed planned risk.",
