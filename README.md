@@ -293,3 +293,6 @@ The backtest's current maximum-drawdown metric is based on realized closed-trade
 
 
 The workspace exposes a global swing-pivot selector (1–5) that is applied consistently to market structure, liquidity sweeps/references, dealing ranges, multi-timeframe structure and higher-timeframe OB/FVG analysis. Changing it reloads and recalculates the current chart context.
+
+
+The core structure, zone, setup and workspace API request models now reject timezone-naive, malformed or non-monotonic candle timestamps. This protects direct API callers, not just the frontend/provider path, from feeding unordered bars into index-based market-structure calculations.
