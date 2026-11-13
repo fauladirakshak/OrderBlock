@@ -111,6 +111,22 @@ function App() {
           return;
         }
         try {
+          const workspaceResponse = await fetch(API_BASE + "/api/v1/analysis/workspace", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ candles: payload.candles, pivot: 2 }),
+            signal: controller.signal,
+          });
+          if (!workspaceResponse.ok) throw new Error("Analysis API returned HTTP " + workspaceResponse.status);
+          const baseOverlay = await workspaceResponse.json() as ChartOverlay;
+          setOverlays(baseOverlay);
+          setAnalysisError("");
+        } catch (failure) {
+          if (failure instanceof Error && failure.name === "AbortError") return;
+          setOverlays(null);
+          setAnalysisError(failure instanceof Error ? failure.message : "Analysis overlays unavailable.");
+        }
+        try {
           const liquidityResponse = await fetch(API_BASE + "/api/v1/analysis/liquidity-references", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -127,16 +143,7 @@ function App() {
           const references = await liquidityResponse.json() as LiquidityReferences;
           setLiquidityReferences(references);
           setLiquidityError("");
-          const workspaceWithReferences = await fetch(API_BASE + "/api/v1/analysis/workspace", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ candles: payload.candles, pivot: 2 }),
-            signal: controller.signal,
-          });
-          if (!workspaceWithReferences.ok) throw new Error("Analysis API returned HTTP " + workspaceWithReferences.status);
-          const baseOverlay = await workspaceWithReferences.json() as ChartOverlay;
-          baseOverlay.reference_levels = references.levels;
-          setOverlays(baseOverlay);
-          setAnalysisError("");
+          setOverlays(current => current ? { ...current, reference_levels: references.levels } : current);
         } catch (failure) {
           if (failure instanceof Error && failure.name === "AbortError") return;
           setLiquidityReferences(null);
@@ -158,8 +165,7 @@ function App() {
           setSessionError(failure instanceof Error ? failure.message : "Session context unavailable.");
         }
         try {
-          try {
-            const higherTimeframes = timeframes.filter(tf => timeframeRank[tf] > timeframeRank[timeframe]);
+          const higherTimeframes = timeframes.filter(tf => timeframeRank[tf] > timeframeRank[timeframe]);
             const contextSeries = await Promise.all(higherTimeframes.map(async tf => {
               const contextParams = new URLSearchParams({ market: apiMarkets[market], symbol: instrument, timeframe: tf, limit: "200" });
               if (selectedMetadata) { contextParams.set("venue_id", selectedMetadata.venue_id); contextParams.set("contract_type", selectedMetadata.contract_type); }
@@ -182,15 +188,10 @@ function App() {
               setMtf(null);
               setMtfError("No higher timeframe is available above 1W.");
             }
-          } catch (contextFailure) {
-            if (contextFailure instanceof Error && contextFailure.name === "AbortError") return;
-            setMtf(null);
-            setMtfError(contextFailure instanceof Error ? contextFailure.message : "Higher-timeframe context unavailable.");
-          }
-        } catch (analysisFailure) {
-          if (analysisFailure instanceof Error && analysisFailure.name === "AbortError") return;
-          setOverlays(null);
-          setAnalysisError(analysisFailure instanceof Error ? analysisFailure.message : "Analysis overlays unavailable.");
+        } catch (contextFailure) {
+          if (contextFailure instanceof Error && contextFailure.name === "AbortError") return;
+          setMtf(null);
+          setMtfError(contextFailure instanceof Error ? contextFailure.message : "Higher-timeframe context unavailable.");
         }
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") return;
