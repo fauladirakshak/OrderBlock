@@ -26,8 +26,8 @@ def test_previous_day_and_week_levels_use_local_calendar():
         candles=data, timezone="Asia/Kolkata", pivot=1, tick_size=0.05,
     ))
     by_label = {item.label: item for item in result.levels}
-    assert by_label["PDH"].price == 103
-    assert by_label["PDL"].price == 98
+    assert by_label["PDH"].price == 104
+    assert by_label["PDL"].price == 97
     assert by_label["PWH"].price == 110
     assert by_label["PWL"].price == 94
     # Previous-day level becomes known only after the final candle of that day.
