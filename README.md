@@ -296,3 +296,8 @@ The workspace exposes a global swing-pivot selector (1–5) that is applied cons
 
 
 The core structure, zone, setup and workspace API request models now reject timezone-naive, malformed or non-monotonic candle timestamps. This protects direct API callers, not just the frontend/provider path, from feeding unordered bars into index-based market-structure calculations.
+
+
+### Historical candle quality audit
+
+Use `POST /api/v1/analysis/candle-quality` with an independently sourced candle array and its timeframe to inspect timestamp spacing, median interval, large gaps, zero-volume candles and flat candles. Gap estimates are diagnostics only: weekends, exchange holidays, session breaks and illiquid periods can be legitimate. The endpoint does not claim source completeness, validate licensing, or manufacture missing bars.
