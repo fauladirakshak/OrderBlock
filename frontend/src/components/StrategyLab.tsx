@@ -12,6 +12,8 @@ type Props = { apiBase: string; market: string; symbol: string; timeframe: strin
 export default function StrategyLab({ apiBase, market, symbol, timeframe }: Props) {
   const [series, setSeries] = useState<ImportedSeries | null>(null);
   const [timezone, setTimezone] = useState("UTC");
+  const [forexZipSource, setForexZipSource] = useState("histdata");
+  const [dukascopyDivisor, setDukascopyDivisor] = useState("100000");
   const [startingEquity, setStartingEquity] = useState("10000");
   const [riskPct, setRiskPct] = useState("1");
   const [targetR, setTargetR] = useState("2");
@@ -40,7 +42,7 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
       let endpoint = "/api/v1/market-data/import/csv";
       let body: Record<string, unknown>;
       if (isNseZip) {
-        if (market !== "stocks" && market !== "forex") throw new Error("ZIP imports currently support NSE Stocks or HistData Forex.");
+        if (market !== "stocks" && market !== "forex") throw new Error("ZIP imports currently support NSE Stocks or the supported Forex historical formats.");
         const bytes = new Uint8Array(await file.arrayBuffer());
         let binary = "";
         for (let offset = 0; offset < bytes.length; offset += 0x8000) {
@@ -49,6 +51,14 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
         if (market === "stocks") {
           endpoint = "/api/v1/market-data/import/nse-udiff";
           body = { symbol, zip_base64: btoa(binary) };
+        } else if (forexZipSource === "dukascopy") {
+          endpoint = "/api/v1/market-data/import/dukascopy-bi5";
+          body = {
+            symbol: symbol.replace("/", ""),
+            zip_base64: btoa(binary),
+            timeframe: ["1m", "5m", "15m", "1H", "4H", "1D"].includes(timeframe) ? timeframe : "1H",
+            price_divisor: Number(dukascopyDivisor),
+          };
         } else {
           endpoint = "/api/v1/market-data/import/histdata-forex";
           body = { symbol, zip_base64: btoa(binary) };
@@ -147,8 +157,12 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
     <div className="lab-grid">
       <article className="panel lab-card">
         <h3>01 · Historical data</h3><p>Use a CSV with timestamp, open, high, low, close and optional volume. For NSE EOD, upload the official UDiFF CM bhavcopy ZIP and select the EQ symbol; for Forex M1, upload a HistData Generic ASCII ZIP. The importers extract and validate the source files.</p>
+        {market === "forex" && <div className="lab-fields">
+          <label className="lab-field">Forex ZIP format<select value={forexZipSource} onChange={e=>setForexZipSource(e.target.value)}><option value="histdata">HistData Generic ASCII M1</option><option value="dukascopy">Dukascopy hourly BI5 archive</option></select></label>
+          {forexZipSource === "dukascopy" && <label className="lab-field">BI5 price divisor<input type="number" min="1" step="1" value={dukascopyDivisor} onChange={e=>setDukascopyDivisor(e.target.value)}/></label>}
+        </div>}
         <label className="lab-field">Source timezone (IANA)<input value={timezone} onChange={e=>setTimezone(e.target.value)} placeholder="Asia/Kolkata"/></label>
-        <label className="lab-upload">Choose OHLCV CSV<input type="file" accept=".csv,.zip,text/csv,application/zip" onChange={e=>void importFile(e.target.files?.[0])}/></label>
+        <label className="lab-upload">Choose OHLCV CSV / source ZIP<input type="file" accept=".csv,.zip,text/csv,application/zip" onChange={e=>void importFile(e.target.files?.[0])}/></label>
         {series && <div className="import-summary"><strong>{series.symbol} · {series.timeframe}</strong><span>{series.candle_count.toLocaleString()} candles · {series.provider}</span><span>UTC-normalized · user-supplied source</span></div>}
         <div className="lab-note">No Twelve Data, paid feed or broker account is required. Data ownership and usage rights remain your responsibility.</div>
       </article>
