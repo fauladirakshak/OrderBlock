@@ -10,6 +10,7 @@ from app.engine.market_data import CandleSeries, Market, Timeframe, load_candle_
 from app.engine.workspace import WorkspaceAnalysis, analyze_workspace
 from app.engine.multi_timeframe import MultiTimeframeAnalysis, MultiTimeframeRequest, analyze_multi_timeframe
 from app.engine.historical_import import HistoricalImportRequest, HistoricalImportResult, parse_historical_csv
+from app.engine.backtest import BacktestRequest, BacktestResult, run_backtest
 
 app = FastAPI(title="OrderBlock API", version="0.6.0",
               description="Multi-market, research-first price-action analysis. Not investment advice.")
@@ -110,5 +111,15 @@ def import_historical_csv(request: HistoricalImportRequest) -> HistoricalImportR
             symbol=request.symbol, market=request.market, timeframe=request.timeframe,
             timezone=request.timezone, candle_count=len(candles), candles=candles,
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+
+@app.post("/api/v1/backtests/run", response_model=BacktestResult)
+def run_historical_backtest(request: BacktestRequest) -> BacktestResult:
+    """Run a deterministic, no-lookahead OHLC research backtest on supplied candles."""
+    try:
+        return run_backtest(request)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
