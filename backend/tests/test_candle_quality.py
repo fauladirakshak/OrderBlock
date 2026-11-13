@@ -57,3 +57,26 @@ def test_quality_api_rejects_timezone_naive_timestamps():
         ],
     })
     assert response.status_code == 422
+
+
+def test_quality_request_rejects_duplicate_timestamps():
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError, match="strictly increasing"):
+        CandleQualityRequest(timeframe="1H", candles=[
+            make_candle("2026-01-05T09:00:00Z", 100),
+            make_candle("2026-01-05T09:00:00Z", 101),
+        ])
+
+
+def test_quality_request_rejects_invalid_ohlc():
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError, match="high must be the greatest"):
+        CandleQualityRequest(timeframe="1H", candles=[
+            make_candle("2026-01-05T09:00:00Z", 100),
+            {"timestamp": "2026-01-05T10:00:00Z", "open": 100, "high": 99,
+             "low": 98, "close": 100, "volume": 1},
+        ])
