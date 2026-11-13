@@ -224,3 +224,12 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Update the evaluator's methodology notes to explain why non-overlapping test windows are required for aggregate compounding.
 - [x] Add regression coverage for rejected overlapping folds.
 - [ ] Verify backend tests and frontend build in GitHub Actions.
+
+
+## Phase 17 — Cost-aware backtest risk sizing
+
+- [x] Calculate estimated round-trip spread, slippage and commission at the planned stop.
+- [x] Size quantity against price risk plus estimated execution costs rather than raw stop distance alone.
+- [x] Return the estimated initial cash risk per trade and use it as the denominator for realized R-multiple.
+- [x] Add regression assertions that configured risk budget remains stable when execution costs are enabled.
+- [ ] Verify full backend suite and frontend build in GitHub Actions.
