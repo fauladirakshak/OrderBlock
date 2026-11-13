@@ -147,7 +147,14 @@ export default function StrategyLab({ apiBase, market, symbol, timeframe }: Prop
           <label className="lab-field">Short borrow (bps / day)<input type="number" min="0" value={borrowBps} onChange={e=>setBorrowBps(e.target.value)}/></label>
           <label className="lab-field">Profit tax estimate (bps)<input type="number" min="0" value={taxBps} onChange={e=>setTaxBps(e.target.value)}/></label>
         </div>
-        <button className="lab-run" disabled={!series || busy} onClick={()=>void run()}>{busy ? "Processing…" : "Run backtest"}</button>\n        <div className="lab-divider-title">Walk-forward evaluation</div>\n        <div className="lab-fields">\n          <label className="lab-field">Training bars<input type="number" min="20" value={trainingBars} onChange={e=>setTrainingBars(e.target.value)}/></label>\n          <label className="lab-field">Test bars<input type="number" min="5" value={testBars} onChange={e=>setTestBars(e.target.value)}/></label>\n          <label className="lab-field">Step bars<input type="number" min="1" value={stepBars} onChange={e=>setStepBars(e.target.value)}/></label>\n        </div>\n        <button className="lab-run lab-run-secondary" disabled={!series || busy || series.candle_count <= Number(trainingBars) + 4} onClick={()=>void runWalkForward()}>{busy ? "Processing…" : "Run out-of-sample test"}</button>
+        <button className="lab-run" disabled={!series || busy} onClick={()=>void run()}>{busy ? "Processing…" : "Run backtest"}</button>
+        <div className="lab-divider-title">Walk-forward evaluation</div>
+        <div className="lab-fields">
+          <label className="lab-field">Training bars<input type="number" min="20" value={trainingBars} onChange={e=>setTrainingBars(e.target.value)}/></label>
+          <label className="lab-field">Test bars<input type="number" min="5" value={testBars} onChange={e=>setTestBars(e.target.value)}/></label>
+          <label className="lab-field">Step bars<input type="number" min="1" value={stepBars} onChange={e=>setStepBars(e.target.value)}/></label>
+        </div>
+        <button className="lab-run lab-run-secondary" disabled={!series || busy || series.candle_count <= Number(trainingBars) + 4} onClick={()=>void runWalkForward()}>{busy ? "Processing…" : "Run out-of-sample test"}</button>
       </article>
     </div>
     {message && <div className="lab-message">{message}</div>}
