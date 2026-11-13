@@ -136,9 +136,6 @@ def run_backtest(request: BacktestRequest) -> BacktestResult:
                 stop_loss_per_unit = abs(entry_exec - stop_exec) * multiplier
                 estimated_round_trip_commission_per_unit = commission * (entry_exec + stop_exec) * multiplier
                 risk_per_unit_cash = stop_loss_per_unit + estimated_round_trip_commission_per_unit
-                if risk_per_unit_cash <= 0:
-                    pending = None
-                    continue
                 quantity = risk_cash / risk_per_unit_cash
                 target = raw_entry + risk_per_unit * request.target_r_multiple * (1 if direction == "long" else -1)
                 position = {
