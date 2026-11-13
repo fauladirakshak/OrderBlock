@@ -10,6 +10,10 @@ from pydantic import BaseModel
 
 from app.engine.markets import Instrument, get_instrument
 from app.engine.structure import Candle
+from app.engine.market_data_cache import (
+    cache_enabled, cache_ttl_seconds, get_cached_payload, make_cache_key,
+    put_cached_payload,
+)
 
 Market = Literal["forex", "crypto", "stocks"]
 Timeframe = Literal["5m", "15m", "1H", "4H", "1D", "1W"]
@@ -32,6 +36,7 @@ class CandleSeries(BaseModel):
     session: str
     price_precision: int
     tick_size: float
+    cache_status: Literal["disabled", "hit", "miss", "demo"] = "disabled"
     candles: list[Candle]
 
 
@@ -84,14 +89,37 @@ def load_candle_series(market: Market, symbol: str, timeframe: Timeframe, limit:
         raise ValueError(f"{symbol} does not belong to market {market}.")
     from app.engine.providers import configured_provider
     provider = configured_provider(instrument)
-    if provider is demo_provider:
+    is_synthetic = provider.name == "synthetic-demo"
+    cache_status: Literal["disabled", "hit", "miss", "demo"] = "demo" if is_synthetic else "disabled"
+    candles: list[Candle]
+
+    # Never persist demo data. Real-provider caching is opt-in because exchange
+    # terms may prohibit local storage or impose a shorter retention window.
+    if is_synthetic:
         candles = provider.get_candles(market, symbol, timeframe, limit)
+    elif cache_enabled() and cache_ttl_seconds() > 0:
+        cache_key = make_cache_key(
+            provider=provider.name, venue_id=instrument.venue_id,
+            contract_type=instrument.contract_type, symbol=instrument.symbol,
+            timeframe=timeframe, limit=limit,
+        )
+        cached = get_cached_payload(cache_key)
+        if cached is not None:
+            candles = [Candle.model_validate(item) for item in cached.get("candles", [])]
+            cache_status = "hit"
+        else:
+            candles = provider.get_candles(instrument, timeframe, limit)
+            put_cached_payload(
+                cache_key, {"candles": [item.model_dump() for item in candles]},
+                ttl_seconds=cache_ttl_seconds(),
+            )
+            cache_status = "miss"
     else:
         candles = provider.get_candles(instrument, timeframe, limit)
-    is_synthetic = provider.name == "synthetic-demo"
+
     return CandleSeries(market=market, symbol=symbol, timeframe=timeframe,
                         provider=provider.name, is_synthetic=is_synthetic,
                         venue=instrument.venue, venue_id=instrument.venue_id,
                         contract_type=instrument.contract_type, timezone=instrument.timezone,
                         session=instrument.session, price_precision=instrument.price_precision,
-                        tick_size=instrument.tick_size, candles=candles)
+                        tick_size=instrument.tick_size, cache_status=cache_status, candles=candles)
