@@ -54,3 +54,39 @@ def test_multi_timeframe_rejects_missing_primary_series():
         "candles_by_timeframe": {"1H": candles, "4H": candles},
     })
     assert response.status_code == 422
+
+
+
+def test_multi_timeframe_rejects_future_dated_context():
+    primary = candle_payload()
+    future = [
+        {**candle, "timestamp": f"2026-01-02T00:{i:02d}:00Z"}
+        for i, candle in enumerate(candle_payload())
+    ]
+    response = client.post("/api/v1/analysis/multi-timeframe", json={
+        "primary_timeframe": "15m", "pivot": 1,
+        "candles_by_timeframe": {"15m": primary, "1H": future},
+    })
+    assert response.status_code == 422
+    assert "cannot extend beyond" in response.json()["detail"]
+
+
+def test_multi_timeframe_rejects_unordered_or_timezone_naive_context():
+    primary = candle_payload()
+    unordered = candle_payload()
+    unordered[4]["timestamp"] = unordered[3]["timestamp"]
+    response = client.post("/api/v1/analysis/multi-timeframe", json={
+        "primary_timeframe": "15m", "pivot": 1,
+        "candles_by_timeframe": {"15m": primary, "1H": unordered},
+    })
+    assert response.status_code == 422
+    assert "strictly increasing" in response.json()["detail"]
+
+    naive = candle_payload()
+    naive[0]["timestamp"] = "2026-01-01T00:00:00"
+    response = client.post("/api/v1/analysis/multi-timeframe", json={
+        "primary_timeframe": "15m", "pivot": 1,
+        "candles_by_timeframe": {"15m": primary, "1H": naive},
+    })
+    assert response.status_code == 422
+    assert "timezone" in response.json()["detail"]
