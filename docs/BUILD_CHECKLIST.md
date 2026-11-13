@@ -163,6 +163,6 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Validate IANA timezone, time format, unique names and maximum custom-window count.
 - [x] Add custom windows alongside broad default sessions, preserving per-candle DST conversion.
 - [x] Add unit and API regression tests for custom-window calculation, invalid timezone, duplicate names and API response.
-- [ ] Add workspace controls for editing/saving custom windows and display the selected custom windows.
+- [x] Add workspace controls to edit and apply one custom window to the current chart history; persistent saved profiles remain pending.
 - [ ] Verify full backend tests and frontend production build in GitHub Actions.
 - [ ] Keep user-defined windows distinct from canonical or proprietary ICT killzone claims.
