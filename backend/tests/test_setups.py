@@ -252,3 +252,20 @@ def test_emits_bearish_candidate_for_high_sweep_and_bearish_displacement(monkeyp
     assert candidate.structure_kind == "CHoCH"
     assert candidate.fvg_index == 9
     assert candidate.order_block_index == 9
+
+
+
+def test_order_block_must_form_after_the_liquidity_sweep(engine_fixtures):
+    candles = make_candles()
+    # Remove all bearish candles between the sweep (bar 7) and displacement (bar 10).
+    candles[8] = Candle(timestamp=candles[8].timestamp, open=10.2, high=11.0, low=10.0, close=10.8)
+    candles[9] = Candle(timestamp=candles[9].timestamp, open=10.2, high=11.0, low=10.0, close=10.8)
+
+    result = analyze_setups(
+        candles,
+        SetupProfile(pivot=2, sweep_lookback=10, atr_period=5),
+    )
+
+    assert len(result.setups) == 1
+    assert result.setups[0].order_block_index is None
+    assert result.setups[0].order_block_top is None
