@@ -235,3 +235,6 @@ The service does not resample or fabricate higher-timeframe candles. Callers mus
 The existing `POST /api/v1/analysis/sessions` endpoint accepts an optional `custom_windows` array. Each entry defines a unique name, IANA timezone, start and end clock time (for example, `{"name":"London Open Study","timezone":"Europe/London","start":"08:00","end":"10:00"}`). Custom windows are added alongside the market's broad default sessions, with DST handled by the selected IANA timezone. A maximum of eight custom windows is accepted per request.
 
 These are user-defined study windows only. They are not labelled as canonical ICT killzones, and the backend does not prescribe or validate a proprietary killzone schedule.
+
+
+The workspace exposes a one-window editor in the Session Context panel. Enter a name, IANA timezone and local start/end times, then apply the window to the currently loaded candle history. The controls are session-only and are not persisted between reloads yet.
