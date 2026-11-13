@@ -215,6 +215,7 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 
 - [x] Filter Binance public Spot klines using the exchange-provided close timestamp, excluding the currently forming candle.
 - [x] Add regression coverage proving an open kline is omitted while a completed kline is retained.
+- [x] Return a clear provider error if the response contains no completed candles.
 - [x] Verify provider tests, full backend suite and frontend build in GitHub Actions; quality run `43523327625` passed.
 
 
