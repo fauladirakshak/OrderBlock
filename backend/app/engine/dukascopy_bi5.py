@@ -83,7 +83,10 @@ def parse_dukascopy_bi5_zip(request: DukascopyBi5Request) -> HistoricalImportRes
                 if not compressed:
                     continue
                 try:
-                    raw = lzma.decompress(compressed)
+                    decoder = lzma.LZMADecompressor()
+                    raw = decoder.decompress(compressed, max_length=10_000_001)
+                    if len(raw) > 10_000_000 or not decoder.eof:
+                        raise ValueError(f"BI5 member {member.filename} exceeds the decompressed-size limit or is incomplete")
                 except lzma.LZMAError as exc:
                     raise ValueError(f"Unable to decompress BI5 member {member.filename}") from exc
                 if len(raw) % _RECORD.size:
