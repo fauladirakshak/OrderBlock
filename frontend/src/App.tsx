@@ -266,8 +266,24 @@ function App() {
                 signal: controller.signal,
               });
               if (!zonesResponse.ok) throw new Error("Higher-timeframe zone API returned HTTP " + zonesResponse.status);
-              setHigherTimeframeZones(await zonesResponse.json() as HtfZonesResponse);
+              const zonesPayload = await zonesResponse.json() as HtfZonesResponse;
+              setHigherTimeframeZones(zonesPayload);
               setHigherTimeframeZonesError("");
+              setOverlays(current => current ? {
+                ...current,
+                higher_timeframe_zones: zonesPayload.contexts.flatMap(context => [
+                  ...context.order_blocks.slice(-2).map(zone => ({
+                    timeframe: context.timeframe, direction: zone.direction, kind: "OB" as const,
+                    top: zone.top, bottom: zone.bottom,
+                    status: zone.invalidated ? "invalidated" : zone.mitigated ? "mitigated" : "active",
+                  })),
+                  ...context.fair_value_gaps.slice(-2).map(zone => ({
+                    timeframe: context.timeframe, direction: zone.direction, kind: "FVG" as const,
+                    top: zone.top, bottom: zone.bottom,
+                    status: zone.filled ? "filled" : zone.mitigated ? "mitigated" : "open",
+                  })),
+                ]).slice(0, 8),
+              } : current);
 
               setOverlays(current => current ? {
                 ...current,
