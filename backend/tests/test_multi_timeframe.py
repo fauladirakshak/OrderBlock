@@ -68,7 +68,7 @@ def test_multi_timeframe_rejects_future_dated_context():
         "candles_by_timeframe": {"15m": primary, "1H": future},
     })
     assert response.status_code == 422
-    assert "cannot extend beyond" in response.json()["detail"]
+    assert "cannot extend beyond" in response.json()["detail"][0]["msg"]
 
 
 def test_multi_timeframe_rejects_unordered_or_timezone_naive_context():
@@ -80,7 +80,7 @@ def test_multi_timeframe_rejects_unordered_or_timezone_naive_context():
         "candles_by_timeframe": {"15m": primary, "1H": unordered},
     })
     assert response.status_code == 422
-    assert "strictly increasing" in response.json()["detail"]
+    assert "strictly increasing" in response.json()["detail"][0]["msg"]
 
     naive = candle_payload()
     naive[0]["timestamp"] = "2026-01-01T00:00:00"
@@ -89,4 +89,4 @@ def test_multi_timeframe_rejects_unordered_or_timezone_naive_context():
         "candles_by_timeframe": {"15m": primary, "1H": naive},
     })
     assert response.status_code == 422
-    assert "timezone" in response.json()["detail"]
+    assert "timezone" in response.json()["detail"][0]["msg"]
