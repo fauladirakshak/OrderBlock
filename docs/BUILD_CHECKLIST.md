@@ -201,3 +201,11 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Reject custom session names that collide case-insensitively with built-in market session names.
 - [x] Add regression test ensuring a custom window cannot shadow the default London session and misattribute its timezone.
 - [ ] Verify backend tests and frontend build in GitHub Actions.
+
+
+## Phase 14 — Multi-timeframe no-lookahead validation
+
+- [x] Validate timezone-aware ISO-8601 timestamps and strictly increasing candle order for every supplied timeframe.
+- [x] Reject higher-timeframe context that extends beyond the primary chart's latest candle.
+- [x] Add API regression tests for future-dated context, unordered timestamps and timezone-naive timestamps.
+- [ ] Verify backend and frontend CI.
