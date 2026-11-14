@@ -283,3 +283,56 @@ def test_setup_api_rejects_unordered_candle_timestamps():
     })
     assert response.status_code == 422
     assert "strictly increasing" in response.json()["detail"][0]["msg"]
+
+
+
+def test_rejects_counter_direction_displacement_even_when_range_is_large(engine_fixtures):
+    candles = make_candles()
+    candles[10] = Candle(
+        timestamp=candles[10].timestamp,
+        open=14.0, high=14.2, low=10.2, close=10.5, volume=100,
+    )
+    result = analyze_setups(
+        candles,
+        SetupProfile(pivot=2, sweep_lookback=10, atr_period=5),
+    )
+    assert result.setups == []
+
+
+def test_required_fvg_must_match_structure_direction(engine_fixtures, monkeypatch):
+    opposing_gap = FairValueGap(
+        direction="bearish",
+        middle_candle_index=9,
+        timestamp="2026-01-01T00:09:00Z",
+        top=12.0,
+        bottom=11.5,
+        mitigated=False,
+        filled=False,
+        rule="fixture opposing gap",
+    )
+    monkeypatch.setattr(setups, "detect_fair_value_gaps", lambda candles: [opposing_gap])
+    result = analyze_setups(
+        make_candles(),
+        SetupProfile(pivot=2, sweep_lookback=10, atr_period=5, require_fvg=True),
+    )
+    assert result.setups == []
+
+
+def test_optional_opposing_fvg_is_not_attached_to_candidate(engine_fixtures, monkeypatch):
+    opposing_gap = FairValueGap(
+        direction="bearish",
+        middle_candle_index=9,
+        timestamp="2026-01-01T00:09:00Z",
+        top=12.0,
+        bottom=11.5,
+        mitigated=False,
+        filled=False,
+        rule="fixture opposing gap",
+    )
+    monkeypatch.setattr(setups, "detect_fair_value_gaps", lambda candles: [opposing_gap])
+    result = analyze_setups(
+        make_candles(),
+        SetupProfile(pivot=2, sweep_lookback=10, atr_period=5, require_fvg=False),
+    )
+    assert len(result.setups) == 1
+    assert result.setups[0].fvg_index is None
