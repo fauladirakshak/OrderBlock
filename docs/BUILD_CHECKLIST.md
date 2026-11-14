@@ -286,3 +286,13 @@ Legend: [x] implemented and verified; [~] implemented but awaiting CI/integratio
 - [x] Reuse OHLC validation and enforce timezone-aware, strictly increasing timestamps.
 - [x] Add engine and API regression tests for regular spacing, gap reporting, timezone-naive and duplicate timestamps, and invalid OHLC.
 - [ ] Verify full backend suite and frontend production build in GitHub Actions.
+
+
+
+## Phase 24 — Setup-sequence directional integrity
+
+- [x] Require the displacement/structure-break candle body to close in the direction of the bullish or bearish event; range expansion with a counter-direction body is rejected.
+- [x] Require a qualifying FVG to agree with the setup direction; an opposing FVG cannot satisfy a required-FVG profile or be attached when FVG is optional.
+- [x] Add regression tests for counter-direction displacement, required-FVG direction mismatch and optional-FVG direction mismatch.
+- [ ] Verify the full backend suite and frontend production build in GitHub Actions.
+- [ ] Review setup/backtest outputs on independently sourced, rights-cleared historical data; no accuracy or profitability claim is made by these rule checks.
