@@ -109,6 +109,15 @@ def analyze_setups(candles: list[Candle], profile: SetupProfile | None = None) -
 
         sweep_index, liquidity_level = max(prior_sweeps, key=lambda item: item[0])
         displacement = candles[event.candle_index]
+        # A directional structure break must be accompanied by a body closing
+        # in the same direction; a large counter-direction candle is not displacement.
+        directional_body = (
+            displacement.close > displacement.open
+            if direction == "bullish"
+            else displacement.close < displacement.open
+        )
+        if not directional_body:
+            continue
         candle_range = displacement.high - displacement.low
         prior_average = _average_prior_range(candles, event.candle_index, config.atr_period)
         if candle_range <= 0 or prior_average <= 0:
@@ -120,6 +129,9 @@ def analyze_setups(candles: list[Candle], profile: SetupProfile | None = None) -
             continue
 
         gap = gap_by_middle.get(event.candle_index - 1)
+        # The three-candle gap must agree with the direction of the structure break.
+        if gap is not None and gap.direction != direction:
+            gap = None
         if config.require_fvg and gap is None:
             continue
         opposing = _last_opposing_candle(candles, event.candle_index, direction, start_index=sweep_index + 1)
@@ -158,6 +170,8 @@ def analyze_setups(candles: list[Candle], profile: SetupProfile | None = None) -
         notes=[
             "Research candidate only; not an entry signal or investment advice.",
             "A sweep is a wick through a previously confirmed swing followed by a close back inside.",
+            "The structure-break candle must have a directional body aligned with the break; range expansion alone is insufficient.",
+            "When required, the FVG immediately preceding the structure-break candle must match the setup direction.",
             "The structure event and displacement are evaluated on the same closed candle in v0.1.",
             "This profile is configurable and does not claim to reproduce private or canonical ICT code.",
             "Use venue-specific data, costs, session context and out-of-sample validation before strategy evaluation.",
